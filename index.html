@@ -59,7 +59,7 @@
         <div class="text-blue-600 text-2xl mb-2">🏛️</div>
         <h3 class="font-bold text-slate-900 mb-2">eCourts Services India</h3>
         <p class="text-xs text-slate-600 mb-4">Official national portal to track small claims cases, cause lists, and court orders across India.</p>
-        <a href="https://services.ecourts.gov.in" target="_blank" class="text-xs font-semibold text-blue-600 hover:underline inline-flex items-center">
+        <a href="https://services.ecourts.gov.in" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-blue-600 hover:underline inline-flex items-center">
           Visit Portal ↗
         </a>
       </div>
@@ -68,7 +68,7 @@
         <div class="text-blue-600 text-2xl mb-2">🛒</div>
         <h3 class="font-bold text-slate-900 mb-2">Consumer Disputes (E-Daakhil)</h3>
         <p class="text-xs text-slate-600 mb-4">For defective products or service disputes under the <em>Consumer Protection Act, 2019</em>.</p>
-        <a href="https://edaakhil.nic.in" target="_blank" class="text-xs font-semibold text-blue-600 hover:underline inline-flex items-center">
+        <a href="https://edaakhil.nic.in" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-blue-600 hover:underline inline-flex items-center">
           File Consumer Claim ↗
         </a>
       </div>
@@ -77,41 +77,48 @@
         <div class="text-blue-600 text-2xl mb-2">⚖️</div>
         <h3 class="font-bold text-slate-900 mb-2">State Court Fees Calculator</h3>
         <p class="text-xs text-slate-600 mb-4">Court fees and monetary limits vary by state (e.g., Maharashtra, Delhi, Tamil Nadu).</p>
-        <a href="https://ecourts.gov.in" target="_blank" class="text-xs font-semibold text-blue-600 hover:underline inline-flex items-center">
+        <a href="https://services.ecourts.gov.in" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-blue-600 hover:underline inline-flex items-center">
           Check State Limits ↗
         </a>
       </div>
     </div>
-
-    <!-- KEY LEGAL FACTS SECTION -->
-    <div class="bg-white rounded-xl border border-slate-200 p-6">
-      <h3 class="text-lg font-bold text-slate-900 mb-4">Important Guidelines Before Filing a Plaint</h3>
-      <div class="grid md:grid-cols-2 gap-4 text-xs text-slate-600 leading-relaxed">
-        <div class="p-4 bg-slate-50 rounded-lg">
-          <strong class="text-slate-800 block mb-1">1. Courts of Small Causes Jurisdiction</strong>
-          Designed for quick recovery of debt, unpaid rent, bounced payments, or breach of contract. They do not handle land title disputes.
-        </div>
-        <div class="p-4 bg-slate-50 rounded-lg">
-          <strong class="text-slate-800 block mb-1">2. Verification Clause & Documents</strong>
-          Every plaint must include a signed Verification clause and an attached list of evidence (invoices, WhatsApp chats, receipts).
-        </div>
-      </div>
-    </div>
   </main>
 
-  <!-- TAB 2: GENERATOR ("SOLVE IT FOR $1.99") -->
+  <!-- TAB 2: GENERATOR & AI CHATBOT -->
   <main id="tab-generator" class="flex-1 max-w-7xl mx-auto px-4 py-6 w-full hidden">
     <div class="grid lg:grid-cols-12 gap-8 items-start">
       
-      <!-- LEFT: INPUT FORM -->
-      <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <div class="mb-6">
+      <!-- LEFT: FORM & AI CHATBOT WIDGET -->
+      <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+        <div>
           <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Fast Plaint Generator</span>
           <h2 class="text-xl font-bold text-slate-900">Solve It For The Price Of A Coffee ☕</h2>
-          <p class="text-xs text-slate-500 mt-1">Fill in the essential fields to generate your ready-to-file legal plaint.</p>
+          <p class="text-xs text-slate-500 mt-1">Tell our AI what happened or fill the form manually to build your plaint.</p>
         </div>
 
-        <form id="plaint-form" class="space-y-4 text-xs">
+        <!-- AI CHATBOT ASSISTANT BOX -->
+        <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
+          <div class="flex items-center justify-between border-b pb-2">
+            <span class="text-xs font-bold text-slate-700 flex items-center gap-1">🤖 AI Legal Assistant</span>
+            <span id="trial-badge" class="text-[10px] bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded-full">3 Free Uses Left</span>
+          </div>
+
+          <div id="chat-box" class="h-40 overflow-y-auto text-xs space-y-2 p-1 bg-white rounded border border-slate-200">
+            <div class="bg-slate-100 p-2 rounded text-slate-700">
+              Hello! Tell me what happened in your own words. I will summarize it into neutral court language for your document.
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <input type="text" id="chat-input" placeholder="e.g. My employer owes me salary since May..." class="flex-1 px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+            <button id="send-btn" onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg text-xs transition">
+              Send
+            </button>
+          </div>
+        </div>
+
+        <!-- MANUAL FORM INPUTS -->
+        <form id="plaint-form" class="space-y-3 text-xs pt-2 border-t">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Plaintiff Name (Your Full Name)</label>
             <input type="text" id="plaintiff" value="Thiago Felipe Aggio" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" oninput="updatePreview()" />
@@ -129,12 +136,12 @@
 
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Brief Facts of the Debt / Case</label>
-            <textarea id="facts" rows="4" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" oninput="updatePreview()">The plaintiff states that the defendant owes the specified amount due to an unpaid agreement/invoice incurred on the agreed date, which remains unpaid despite repeated demands.</textarea>
+            <textarea id="facts" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" oninput="updatePreview()">The plaintiff states that the defendant owes the specified amount due to an unpaid agreement, which remains unpaid despite repeated demands.</textarea>
           </div>
         </form>
 
         <!-- ACTION BUTTONS -->
-        <div class="mt-6 pt-4 border-t space-y-3">
+        <div class="pt-2 border-t space-y-3">
           <button id="copy-btn" onclick="copyDocumentText()" class="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg text-xs transition flex items-center justify-center space-x-2">
             <span>📋</span>
             <span id="copy-btn-text">Copy Document Text</span>
@@ -151,15 +158,12 @@
       <div class="lg:col-span-7">
         <div class="bg-slate-200 p-4 md:p-8 rounded-xl shadow-inner flex justify-center">
           
-          <!-- A4 PAPER SHEET -->
           <div id="paper-preview" class="legal-doc bg-white w-full max-w-[595px] min-h-[700px] p-8 md:p-12 shadow-2xl rounded-sm text-slate-900 border border-slate-300 relative text-sm leading-relaxed">
             
-            <!-- WATERMARK BADGE -->
             <div class="absolute top-4 right-4 bg-amber-100 text-amber-800 text-[10px] font-mono px-2 py-1 rounded border border-amber-300">
               DRAFT — FOR ADVOCATE REVIEW
             </div>
 
-            <!-- DOCUMENT HEADER -->
             <div class="text-center font-bold tracking-wide uppercase mb-6 text-xs border-b pb-4">
               IN THE COURT OF SMALL CAUSES AT <span class="border-b border-dashed border-slate-400 font-normal">[DISTRICT/CITY]</span>
             </div>
@@ -168,7 +172,6 @@
               PLAINT FOR RECOVERY OF MONEY
             </div>
 
-            <!-- PARTIES SECTION -->
             <div class="grid grid-cols-2 gap-4 mb-6 text-xs border-b pb-4">
               <div>
                 <span class="text-[10px] uppercase text-slate-500 font-sans block">Plaintiff:</span>
@@ -180,21 +183,18 @@
               </div>
             </div>
 
-            <!-- AMOUNT SECTION -->
             <div class="mb-6 text-xs bg-slate-50 p-3 rounded border">
               <span class="text-[10px] uppercase text-slate-500 font-sans block">Amount Claimed:</span>
               <strong class="text-base text-blue-900">₹ <span id="preview-amount">1000</span>/-</strong>
             </div>
 
-            <!-- FACTS SECTION -->
             <div class="mb-8">
               <span class="text-[10px] uppercase text-slate-500 font-sans block mb-1">Brief Facts of the Case:</span>
               <p id="preview-facts" class="text-xs text-justify leading-normal">
-                The plaintiff states that the defendant owes the specified amount due to an unpaid agreement/invoice incurred on the agreed date, which remains unpaid despite repeated demands.
+                The plaintiff states that the defendant owes the specified amount due to an unpaid agreement, which remains unpaid despite repeated demands.
               </p>
             </div>
 
-            <!-- PRAYER / VERIFICATION CLAUSE -->
             <div class="text-[11px] border-t pt-4 space-y-3 text-slate-700">
               <p><strong>PRAYER:</strong> The Plaintiff prays for a decree of recovery against the Defendant for the said sum along with court costs and applicable interest.</p>
               <p class="text-[10px] italic text-slate-500">I, the Plaintiff above named, verify that the contents of this plaint are true to the best of my knowledge and belief.</p>
@@ -207,9 +207,21 @@
     </div>
   </main>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // TAB SWITCHING LOGIC
+    const BACKEND_URL = "https://myfairday-backend.onrender.com/api/assist";
+    const MAX_FREE_MESSAGES = 3;
+    let messageCount = parseInt(localStorage.getItem('mfd_msg_count') || '0');
+
+    function updateTrialBadge() {
+      const remaining = Math.max(0, MAX_FREE_MESSAGES - messageCount);
+      const badge = document.getElementById('trial-badge');
+      badge.innerText = `${remaining} Free Uses Left`;
+      if (remaining === 0) {
+        badge.className = "text-[10px] bg-red-100 text-red-800 font-semibold px-2 py-0.5 rounded-full";
+      }
+    }
+    updateTrialBadge();
+
     function switchTab(tab) {
       const homeTab = document.getElementById('tab-home');
       const genTab = document.getElementById('tab-generator');
@@ -226,7 +238,6 @@
       }
     }
 
-    // REAL-TIME PREVIEW UPDATER
     function updatePreview() {
       document.getElementById('preview-plaintiff').innerText = document.getElementById('plaintiff').value || '________________';
       document.getElementById('preview-defendant').innerText = document.getElementById('defendant').value || '________________';
@@ -234,7 +245,53 @@
       document.getElementById('preview-facts').innerText = document.getElementById('facts').value || '...';
     }
 
-    // ROBUST COPY FUNCTION WITH FALLBACK
+    async function sendMessage() {
+      if (messageCount >= MAX_FREE_MESSAGES) {
+        alert("You've reached your free trial limit (3 AI responses). Please unlock full access for $1.99!");
+        return;
+      }
+
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatBox = document.getElementById('chat-box');
+      chatBox.innerHTML += `<div class="bg-blue-50 p-2 rounded text-blue-900 text-right"><b>You:</b> ${text}</div>`;
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      messageCount++;
+      localStorage.setItem('mfd_msg_count', messageCount);
+      updateTrialBadge();
+
+      try {
+        const response = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+
+        if (data.reply) {
+          chatBox.innerHTML += `<div class="bg-slate-100 p-2 rounded text-slate-800"><b>AI:</b> ${data.reply}</div>`;
+        }
+
+        if (data.formal_summary) {
+          document.getElementById('facts').value = data.formal_summary;
+          updatePreview();
+        }
+        if (data.amount_detected) {
+          document.getElementById('amount').value = data.amount_detected.replace(/\D/g, '');
+          updatePreview();
+        }
+
+      } catch (err) {
+        chatBox.innerHTML += `<div class="bg-red-50 p-2 rounded text-red-600">Failed to reach assistant. Please try again.</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
     function copyDocumentText() {
       const paperContent = document.getElementById('paper-preview').innerText;
       const btnText = document.getElementById('copy-btn-text');
@@ -257,19 +314,16 @@
           document.execCommand('copy');
           showCopySuccess();
         } catch (err) {
-          alert('Could not copy automatically. Please select text manually.');
+          alert('Please select text manually to copy.');
         }
         document.body.removeChild(textarea);
       }
 
       function showCopySuccess() {
         btnText.innerText = 'Copied to Clipboard! ✓';
-        setTimeout(() => {
-          btnText.innerText = 'Copy Document Text';
-        }, 2000);
+        setTimeout(() => { btnText.innerText = 'Copy Document Text'; }, 2000);
       }
     }
   </script>
 </body>
-</html>
 </html>
