@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyFairDay — Legal Document Help & Templates</title>
+  <title>MyFairDay — Small Claims & Administrative Legal Templates</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Stripe / Razorpay Checkout Script pode ser incluído aqui -->
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
@@ -16,200 +17,443 @@
         <h1 class="text-xl font-bold text-gray-900">MyFairDay</h1>
       </div>
       <nav class="space-x-4 text-sm font-medium">
-        <a href="#templates" class="text-gray-600 hover:text-blue-600">Templates</a>
+        <a href="#free-templates" class="text-green-600 font-bold hover:underline">Free Samples</a>
+        <a href="#paid-templates" class="text-gray-600 hover:text-blue-600">Premium Templates</a>
         <a href="#portals" class="text-gray-600 hover:text-blue-600">Court Portals</a>
       </nav>
     </div>
   </header>
 
-  <!-- Main Hero -->
-  <section class="max-w-7xl mx-auto px-4 py-10 text-center">
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-3">Small Claims & Legal Document Templates for India</h2>
-    <p class="text-gray-600 max-w-2xl mx-auto">Select a document template below, fill in your details, and download a ready-to-use .doc document for Indian courts and legal notices.</p>
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-4 pt-10 pb-6 text-center">
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-3">Small Claims & Administrative Legal Templates</h2>
+    <p class="text-gray-600 max-w-2xl mx-auto">Generate advocate-grade legal notices, plaints, and administrative appeals in minutes.</p>
   </section>
 
-  <!-- 10 Document Templates Grid -->
-  <main id="templates" class="max-w-7xl mx-auto px-4 pb-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- CALL TO ACTION BANNER (Exigido) -->
+  <section class="max-w-7xl mx-auto px-4 my-6">
+    <div class="bg-gradient-to-r from-blue-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-8 text-center shadow-xl border border-blue-700">
+      <h3 class="text-2xl sm:text-4xl font-black tracking-wide uppercase text-amber-400 mb-2">
+        DEFENDA-SE PELO PREÇO DE UM CAFÉ
+      </h3>
+      <p class="text-blue-100 text-sm sm:text-base max-w-xl mx-auto">
+        Get instant access to court-tested legal documents and administrative petitions starting at just $3.99. No expensive legal retainer fees required.
+      </p>
+    </div>
+  </section>
 
-      <!-- Template Cards -->
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+  <!-- SECTION 1: 3 FREE HIGH-CONVERSION TEMPLATES -->
+  <section id="free-templates" class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Free Preview</span>
+        <h3 class="text-2xl font-bold text-gray-900 mt-1">3 Premium Free Templates</h3>
+        <p class="text-xs text-gray-500">Test our ultra-enhanced legal drafting engine for free before buying.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- FREE 1. Unpaid Salary -->
+      <div class="bg-white p-6 rounded-xl border-2 border-green-500 shadow-md flex flex-col justify-between relative overflow-hidden">
+        <span class="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl">100% FREE</span>
         <div>
           <span class="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-800 rounded">Employment</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">1. Unpaid Salary Recovery Plaint</h3>
-          <p class="text-sm text-gray-600 mt-1">For employees seeking unpaid dues or salary from an employer in Small Causes Court.</p>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">1. Unpaid Salary & Wages Recovery Plaint</h4>
+          <p class="text-sm text-gray-600 mt-1">Comprehensive plaint format under Labor Laws including interest calculations and statutory penal claims.</p>
         </div>
-        <button onclick="openModal('Unpaid Salary Recovery Plaint', 'unpaid-salary')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('salary', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2.5 px-4 rounded-lg text-sm font-bold shadow transition-all">Fill & Download Free .doc</button>
       </div>
 
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+      <!-- FREE 2. Rent Security Deposit -->
+      <div class="bg-white p-6 rounded-xl border-2 border-green-500 shadow-md flex flex-col justify-between relative overflow-hidden">
+        <span class="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl">100% FREE</span>
         <div>
           <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-800 rounded">Housing</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">2. Rent Security Deposit Refund</h3>
-          <p class="text-sm text-gray-600 mt-1">Claim money retained by landlords without valid property damage claims.</p>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">2. Rent Security Deposit Refund Notice</h4>
+          <p class="text-sm text-gray-600 mt-1">Enhanced notice claiming landlord deposit refund with strict interest and tenancy agreement violation clauses.</p>
         </div>
-        <button onclick="openModal('Rent Security Deposit Refund', 'security-deposit')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('deposit', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2.5 px-4 rounded-lg text-sm font-bold shadow transition-all">Fill & Download Free .doc</button>
       </div>
 
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-800 rounded">Banking</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">3. Cheque Bounce Legal Notice (Sec 138)</h3>
-          <p class="text-sm text-gray-600 mt-1">Formal notice template under Section 138 of the Negotiable Instruments Act.</p>
-        </div>
-        <button onclick="openModal('Cheque Bounce Legal Notice', 'cheque-bounce')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
-      </div>
-
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-semibold px-2 py-1 bg-purple-100 text-purple-800 rounded">Personal</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">4. Friendly Loan Recovery Claim</h3>
-          <p class="text-sm text-gray-600 mt-1">Recover personal money given to acquaintances or friends based on informal receipts.</p>
-        </div>
-        <button onclick="openModal('Friendly Loan Recovery Claim', 'friendly-loan')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
-      </div>
-
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+      <!-- FREE 3. Defective Goods Consumer Complaint -->
+      <div class="bg-white p-6 rounded-xl border-2 border-green-500 shadow-md flex flex-col justify-between relative overflow-hidden">
+        <span class="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl">100% FREE</span>
         <div>
           <span class="text-xs font-semibold px-2 py-1 bg-orange-100 text-orange-800 rounded">Consumer</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">5. Defective Goods Consumer Complaint</h3>
-          <p class="text-sm text-gray-600 mt-1">Form to submit before the District Consumer Disputes Redressal Forum.</p>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">3. Consumer Protection Forum Petition</h4>
+          <p class="text-sm text-gray-600 mt-1">District Consumer Commission petition complete with mental agony compensation & product replacement demands.</p>
         </div>
-        <button onclick="openModal('Defective Goods Complaint', 'consumer-goods')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('consumer', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2.5 px-4 rounded-lg text-sm font-bold shadow transition-all">Fill & Download Free .doc</button>
       </div>
 
+    </div>
+  </section>
+
+  <!-- SECTION 2: PAID PREMIUM TEMPLATES ($ 3.99 - $ 4.50) -->
+  <main id="paid-templates" class="max-w-7xl mx-auto px-4 pb-16 pt-6">
+    <div class="mb-6">
+      <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Instant Download</span>
+      <h3 class="text-2xl font-bold text-gray-900 mt-1">17 Specialized & Administrative Templates</h3>
+      <p class="text-xs text-gray-500">Select your document, fill in the tailored details, and unlock instant .doc download.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- 4. Cheque Bounce -->
       <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
         <div>
-          <span class="text-xs font-semibold px-2 py-1 bg-indigo-100 text-indigo-800 rounded">Business</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">6. Freelancer Unpaid Invoice Notice</h3>
-          <p class="text-sm text-gray-600 mt-1">Demand payment for completed service or invoice dues from corporate clients.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-800 rounded">Banking</span>
+            <span class="text-sm font-black text-blue-600">$ 4.25</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">4. Cheque Bounce Legal Notice (Sec 138)</h4>
+          <p class="text-sm text-gray-600 mt-1">Statutory 15-day demand notice under Negotiable Instruments Act.</p>
         </div>
-        <button onclick="openModal('Freelancer Unpaid Invoice Notice', 'freelancer-invoice')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('cheque', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.25)</button>
       </div>
 
+      <!-- 5. Friendly Loan -->
       <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
         <div>
-          <span class="text-xs font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded">Education</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">7. Institute Fee Refund Claim</h3>
-          <p class="text-sm text-gray-600 mt-1">Request refund of advance admission/course fees upon course cancellation.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-purple-100 text-purple-800 rounded">Personal</span>
+            <span class="text-sm font-black text-blue-600">$ 3.99</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">5. Friendly Loan Recovery Claim</h4>
+          <p class="text-sm text-gray-600 mt-1">Personal debt claim based on bank transfers or informal receipts.</p>
         </div>
-        <button onclick="openModal('Institute Fee Refund Claim', 'fee-refund')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('loan', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 3.99)</button>
       </div>
 
+      <!-- 6. Freelancer Invoice -->
       <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
         <div>
-          <span class="text-xs font-semibold px-2 py-1 bg-pink-100 text-pink-800 rounded">Property</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">8. Property Damage Compensation</h3>
-          <p class="text-sm text-gray-600 mt-1">Claim recovery for accidental or deliberate damage caused to private property.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-indigo-100 text-indigo-800 rounded">Business</span>
+            <span class="text-sm font-black text-blue-600">$ 4.50</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">6. Freelancer Unpaid Invoice Notice</h4>
+          <p class="text-sm text-gray-600 mt-1">Formal recovery demand for independent contractors and service providers.</p>
         </div>
-        <button onclick="openModal('Property Damage Compensation', 'property-damage')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('invoice', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.50)</button>
       </div>
 
+      <!-- 7. Institute Fee Refund -->
       <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
         <div>
-          <span class="text-xs font-semibold px-2 py-1 bg-teal-100 text-teal-800 rounded">Travel</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">9. Travel Ticket Refund Request</h3>
-          <p class="text-sm text-gray-600 mt-1">Claim reimbursement for cancelled flights, trains, or unfulfilled agency tours.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded">Education</span>
+            <span class="text-sm font-black text-blue-600">$ 3.99</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">7. Institute Fee Refund Claim</h4>
+          <p class="text-sm text-gray-600 mt-1">Refund claim for coaching institutes, colleges, or admission fees.</p>
         </div>
-        <button onclick="openModal('Travel Ticket Refund Request', 'travel-refund')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('fee', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 3.99)</button>
       </div>
 
+      <!-- 8. Property Damage -->
       <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
         <div>
-          <span class="text-xs font-semibold px-2 py-1 bg-gray-100 text-gray-800 rounded">Contract</span>
-          <h3 class="text-lg font-bold text-gray-900 mt-2">10. Breach of Simple Service Contract</h3>
-          <p class="text-sm text-gray-600 mt-1">Suit for damages or non-performance of written or verbal agreements.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-pink-100 text-pink-800 rounded">Property</span>
+            <span class="text-sm font-black text-blue-600">$ 4.25</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">8. Property Damage Compensation</h4>
+          <p class="text-sm text-gray-600 mt-1">Claim recovery for accidental or deliberate damage caused to private assets.</p>
         </div>
-        <button onclick="openModal('Breach of Contract Claim', 'contract-breach')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+        <button onclick="openCustomModal('property', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.25)</button>
+      </div>
+
+      <!-- 9. Travel Refund -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-teal-100 text-teal-800 rounded">Travel</span>
+            <span class="text-sm font-black text-blue-600">$ 3.99</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">9. Airline / Travel Ticket Refund</h4>
+          <p class="text-sm text-gray-600 mt-1">Claim reimbursement for cancelled flights, trains, or booking portal disputes.</p>
+        </div>
+        <button onclick="openCustomModal('travel', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 3.99)</button>
+      </div>
+
+      <!-- 10. Contract Breach -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-gray-100 text-gray-800 rounded">Contract</span>
+            <span class="text-sm font-black text-blue-600">$ 4.50</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">10. Service Contract Breach Claim</h4>
+          <p class="text-sm text-gray-600 mt-1">Claim damages for violation of written service level agreements.</p>
+        </div>
+        <button onclick="openCustomModal('contract', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.50)</button>
+      </div>
+
+      <!-- NEW 11. RTI Application -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-amber-100 text-amber-800 rounded">Administrative</span>
+            <span class="text-sm font-black text-blue-600">$ 3.99</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">11. Right to Information (RTI) Application</h4>
+          <p class="text-sm text-gray-600 mt-1">Official RTI query petition to government departments for pending files/status.</p>
+        </div>
+        <button onclick="openCustomModal('rti', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 3.99)</button>
+      </div>
+
+      <!-- NEW 12. Municipal/Civic Complaint -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-emerald-100 text-emerald-800 rounded">Administrative</span>
+            <span class="text-sm font-black text-blue-600">$ 4.15</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">12. Municipal Civic Nuisance Petition</h4>
+          <p class="text-sm text-gray-600 mt-1">Formal grievance to Municipal Corporation for drainage, roads, or illegal construction.</p>
+        </div>
+        <button onclick="openCustomModal('municipal', 4.15)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.15)</button>
+      </div>
+
+      <!-- NEW 13. Electricity Bill Dispute -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-cyan-100 text-cyan-800 rounded">Utilities</span>
+            <span class="text-sm font-black text-blue-600">$ 3.99</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">13. Excessive Electricity Bill Appeal</h4>
+          <p class="text-sm text-gray-600 mt-1">Administrative dispute notice to Electricity Board for wrong meter readings or tariffs.</p>
+        </div>
+        <button onclick="openCustomModal('electricity', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 3.99)</button>
+      </div>
+
+      <!-- NEW 14. E-Commerce Refund Notice -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-orange-100 text-orange-800 rounded">E-Commerce</span>
+            <span class="text-sm font-black text-blue-600">$ 4.10</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">14. E-Commerce Non-Delivery Notice</h4>
+          <p class="text-sm text-gray-600 mt-1">Pre-litigation legal notice to online marketplaces for non-delivery or refused refunds.</p>
+        </div>
+        <button onclick="openCustomModal('ecommerce', 4.10)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.10)</button>
+      </div>
+
+      <!-- NEW 15. Bank Wrongful Charge Reversal -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-violet-100 text-violet-800 rounded">Banking</span>
+            <span class="text-sm font-black text-blue-600">$ 4.35</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">15. Bank Ombudsman Dispute Notice</h4>
+          <p class="text-sm text-gray-600 mt-1">Formal complaint for unauthorized debit charges, credit card disputes, or penalties.</p>
+        </div>
+        <button onclick="openCustomModal('ombudsman', 4.35)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.35)</button>
+      </div>
+
+      <!-- NEW 16. Insurance Claim Rejection Appeal -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-rose-100 text-rose-800 rounded">Insurance</span>
+            <span class="text-sm font-black text-blue-600">$ 4.50</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">16. Insurance Claim Rejection Appeal</h4>
+          <p class="text-sm text-gray-600 mt-1">Appeal against health, auto, or life insurance company claim repudiation.</p>
+        </div>
+        <button onclick="openCustomModal('insurance', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.50)</button>
+      </div>
+
+      <!-- NEW 17. Tenant Maintenance Dispute -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-lime-100 text-lime-800 rounded">Housing</span>
+            <span class="text-sm font-black text-blue-600">$ 3.99</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">17. Housing Society Maintenance Notice</h4>
+          <p class="text-sm text-gray-600 mt-1">Formal dispute against residential society management for wrongful maintenance fines.</p>
+        </div>
+        <button onclick="openCustomModal('society', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 3.99)</button>
+      </div>
+
+      <!-- NEW 18. Telecom/Broadband Complaint -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-sky-100 text-sky-800 rounded">Telecom</span>
+            <span class="text-sm font-black text-blue-600">$ 3.99</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">18. Telecom Appellate Authority Notice</h4>
+          <p class="text-sm text-gray-600 mt-1">Grievance petition for unfulfilled fiber broadband service or wrongful mobile billing.</p>
+        </div>
+        <button onclick="openCustomModal('telecom', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 3.99)</button>
+      </div>
+
+      <!-- NEW 19. Hospital/Medical Overcharging -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-800 rounded">Medical</span>
+            <span class="text-sm font-black text-blue-600">$ 4.50</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">19. Hospital Overcharging & Negligence Claim</h4>
+          <p class="text-sm text-gray-600 mt-1">Formal legal representation for inflated medical billing and deficient healthcare services.</p>
+        </div>
+        <button onclick="openCustomModal('medical', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.50)</button>
+      </div>
+
+      <!-- NEW 20. Vehicle Service Defect Notice -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold px-2 py-1 bg-zinc-100 text-zinc-800 rounded">Automotive</span>
+            <span class="text-sm font-black text-blue-600">$ 4.25</span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mt-2">20. Automobile Service Center Dispute</h4>
+          <p class="text-sm text-gray-600 mt-1">Notice to authorized dealership/service center for deficient repairs or faulty parts.</p>
+        </div>
+        <button onclick="openCustomModal('automotive', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Buy & Download ($ 4.25)</button>
       </div>
 
     </div>
   </main>
 
-  <!-- Official Court Portals Footer Section -->
+  <!-- Portals Footer -->
   <footer id="portals" class="bg-gray-900 text-gray-300 py-10 border-t border-gray-800">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
-        <h3 class="text-lg font-bold text-white mb-3">Official Indian Court Portals</h3>
-        <p class="text-sm text-gray-400 mb-4">Direct links to verified government portals for case filing, tracking, and dispute redressal.</p>
+        <h3 class="text-lg font-bold text-white mb-3">Official Indian Legal & Court Portals</h3>
         <ul class="space-y-2 text-sm">
-          <li>👉 <a href="https://ecourts.gov.in/ecourts_home/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">eCourts India (National Portal)</a></li>
-          <li>👉 <a href="https://e-jagriti.gov.in" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">e-Daakhil / e-Jagriti (Consumer Court Filing)</a></li>
-          <li>👉 <a href="https://delhicourts.nic.in" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Delhi District Courts Portal</a></li>
-          <li>👉 <a href="https://samadhaan.msme.gov.in/MyMsme/MSEFC/MSEFC_Welcome.aspx" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">MSME Samadhaan (Delayed Payment Portal)</a></li>
+          <li>🔗 <a href="https://ecourts.gov.in/ecourts_home/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">eCourts Services India</a></li>
+          <li>🔗 <a href="https://edaakhil.nic.in" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">e-Daakhil Portal (Consumer Complaints)</a></li>
+          <li>🔗 <a href="https://e-jagriti.gov.in" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">e-Jagriti Consumer Commission</a></li>
+          <li>🔗 <a href="https://samadhaan.msme.gov.in" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">MSME Samadhaan Portal</a></li>
         </ul>
       </div>
       <div class="text-sm text-gray-400">
-        <h3 class="text-lg font-bold text-white mb-3">Legal Disclaimer</h3>
-        <p>MyFairDay is an automated document formatting tool. We do not offer legal advice, legal representation, or legal diagnoses. Please review all documents with a qualified advocate before submitting them to any court.</p>
+        <h3 class="text-lg font-bold text-white mb-3">About MyFairDay</h3>
+        <p>Providing high-precision legal petitions, small claims plaints, and administrative applications for immediate download.</p>
       </div>
     </div>
   </footer>
 
-  <!-- Modal Form for Document Filling -->
+  <!-- DYNAMIC MODAL FORM -->
   <div id="docModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl">
-      <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4">Fill Document Details</h3>
-      <form id="docForm" class="space-y-4" onsubmit="generateDoc(event)">
-        <input type="hidden" id="docType">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start mb-2">
         <div>
-          <label class="block text-xs font-semibold text-gray-700">PLAINTIFF (Your Full Name)</label>
-          <input type="text" id="modalPlaintiff" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+          <h3 id="modalTitle" class="text-xl font-bold text-gray-900">Document Details</h3>
+          <p id="modalSubtitle" class="text-xs text-blue-600 font-semibold"></p>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700">DEFENDANT (Opposing Party/Company)</label>
-          <input type="text" id="modalDefendant" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+        <span id="modalPriceTag" class="text-xs font-bold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">FREE</span>
+      </div>
+      
+      <form id="docForm" class="space-y-4" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" id="currentTemplateKey">
+        <input type="hidden" id="currentTemplatePrice">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700">PLAINTIFF / APPLICANT NAME</label>
+            <input type="text" id="modalPlaintiff" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700">DEFENDANT / OPPOSING PARTY</label>
+            <input type="text" id="modalDefendant" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+          </div>
         </div>
+
         <div>
-          <label class="block text-xs font-semibold text-gray-700">CLAIM AMOUNT (in ₹)</label>
+          <label class="block text-xs font-semibold text-gray-700">CLAIM AMOUNT / DISPUTE VALUE (in ₹)</label>
           <input type="number" id="modalAmount" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
         </div>
+
+        <!-- Dynamic inputs -->
+        <div id="customFieldsContainer" class="space-y-3 bg-blue-50 p-3 rounded-lg border border-blue-100"></div>
+
         <div>
-          <label class="block text-xs font-semibold text-gray-700">BRIEF FACTS OF THE CASE</label>
-          <textarea id="modalFacts" rows="4" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm" placeholder="Summarize what happened or copy text from the AI Assistant..."></textarea>
+          <label class="block text-xs font-semibold text-gray-700">STATEMENT OF FACTS / DESCRIPTION</label>
+          <textarea id="modalFacts" rows="3" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm" placeholder="Summarize the key events and dates..."></textarea>
         </div>
+
         <div class="flex justify-end space-x-3 pt-2">
           <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-semibold">Download .doc</button>
+          <button type="submit" id="submitBtn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-bold shadow">
+            Download .doc
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- FLOATING CHATBOT WIDGET (Bottom Right) -->
-  <div id="ai-chat-widget" class="fixed bottom-5 right-5 z-50">
-    <!-- Chat Window -->
-    <div id="chatWindow" class="hidden w-80 sm:w-96 h-[450px] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3">
-      <div class="bg-slate-900 text-white p-3 font-semibold flex justify-between items-center">
-        <span class="flex items-center space-x-2 text-sm">
-          <span>🤖</span>
-          <span>MyFairDay AI Assistant</span>
-        </span>
-        <button onclick="toggleChat()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
-      </div>
-      <div id="chatMessages" class="flex-1 p-3 overflow-y-auto text-xs space-y-3 bg-gray-50">
-        <div class="bg-gray-200 p-2.5 rounded-lg text-gray-800 max-w-[85%]">
-          Hello! Tell me what happened in plain language. I will convert it into formal facts for your court document.
-        </div>
-      </div>
-      <div class="p-2 border-t border-gray-200 bg-white flex space-x-2">
-        <input type="text" id="chatInput" placeholder="Type what happened..." class="flex-1 text-xs border border-gray-300 rounded-lg p-2 outline-none focus:border-blue-500" onkeydown="if(event.key==='Enter') sendChatMessage()">
-        <button onclick="sendChatMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold">Send</button>
-      </div>
-    </div>
-
-    <!-- Toggle Button -->
-    <button onclick="toggleChat()" class="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl ml-auto cursor-pointer focus:outline-none">
-      💬
-    </button>
-  </div>
-
-  <!-- JavaScript Functions -->
   <script>
-    // Modal Management
-    function openModal(title, type) {
-      document.getElementById('modalTitle').innerText = title;
-      document.getElementById('docType').value = type;
+    // Configuration dictionary for all 20 templates
+    const templateConfigs = {
+      salary: { title: "Unpaid Salary Recovery Plaint", subtitle: "Enhanced Employment Recovery Plaint", fields: [{ id: "f1", label: "Designation/Role", placeholder: "e.g. Lead Software Engineer" }, { id: "f2", label: "Salary Months Pending", placeholder: "e.g. March to May 2026" }] },
+      deposit: { title: "Rent Security Deposit Refund Notice", subtitle: "Enhanced Tenancy Refund Demand", fields: [{ id: "f1", label: "Property Address", placeholder: "e.g. Flat 402, Sunshine Apartments" }, { id: "f2", label: "Vacated Date", placeholder: "e.g. 30th April 2026" }] },
+      consumer: { title: "Defective Goods Consumer Petition", subtitle: "Enhanced District Consumer Forum Claim", fields: [{ id: "f1", label: "Product & Serial No.", placeholder: "e.g. Smart Washing Machine #WM-882" }, { id: "f2", label: "Invoice Date & Bill No.", placeholder: "e.g. Bill #1029 dated 15 Jan 2026" }] },
+      cheque: { title: "Cheque Bounce Legal Notice", subtitle: "Section 138 Statutory Notice", fields: [{ id: "f1", label: "Cheque No. & Bank Name", placeholder: "e.g. Cheque #000123, ICICI Bank" }, { id: "f2", label: "Bounce Memo Date", placeholder: "e.g. 10th June 2026" }] },
+      loan: { title: "Friendly Loan Recovery Claim", subtitle: "Personal Debt Claim Demand", fields: [{ id: "f1", label: "Payment Mode (UPI/Bank/Cash)", placeholder: "e.g. Bank Transfer Ref #99201" }, { id: "f2", label: "Promised Repayment Date", placeholder: "e.g. 1st March 2026" }] },
+      invoice: { title: "Freelancer Unpaid Invoice Notice", subtitle: "Contractor Fee Recovery Notice", fields: [{ id: "f1", label: "Services Provided", placeholder: "e.g. Brand UI Design & Frontend" }, { id: "f2", label: "Invoice Number & Date", placeholder: "e.g. INV-2026-09" }] },
+      fee: { title: "Institute Fee Refund Claim", subtitle: "Educational Tuition Dispute", fields: [{ id: "f1", label: "Course Name & Admission ID", placeholder: "e.g. Data Science Bootcamp #DS-401" }, { id: "f2", label: "Cancellation Date", placeholder: "e.g. 5th June 2026" }] },
+      property: { title: "Property Damage Compensation", subtitle: "Civil Damage Recovery Claim", fields: [{ id: "f1", label: "Damaged Property Item", placeholder: "e.g. Boundary Wall and Car Gate" }, { id: "f2", label: "Incident Date", placeholder: "e.g. 12th May 2026" }] },
+      travel: { title: "Travel Ticket Refund Claim", subtitle: "Airline/Railway Refund Dispute", fields: [{ id: "f1", label: "Booking Reference / PNR", placeholder: "e.g. Flight PNR #AB9821" }, { id: "f2", label: "Cancellation Reason", placeholder: "e.g. Flight cancelled without notification" }] },
+      contract: { title: "Service Contract Breach Claim", subtitle: "Commercial Agreement Dispute", fields: [{ id: "f1", label: "Contract Title & Date", placeholder: "e.g. Vendor Agreement dated 10 Feb 2026" }, { id: "f2", label: "Breached Clause", placeholder: "e.g. Non-delivery of SLAs" }] },
+      
+      // 10 Administrative & Regular Complaints
+      rti: { title: "Right to Information (RTI) Petition", subtitle: "Central/State Public Information Office Request", fields: [{ id: "f1", label: "Government Department Name", placeholder: "e.g. Public Works Department (PWD)" }, { id: "f2", label: "Specific File / Information Requested", placeholder: "e.g. Tender approval status for Road #12" }] },
+      municipal: { title: "Municipal Civic Grievance Petition", subtitle: "Municipal Commissioner Administrative Complaint", fields: [{ id: "f1", label: "Locality / Ward Number", placeholder: "e.g. Ward 14, Indiranagar" }, { id: "f2", label: "Civic Issue (Drainage/Roads/Garbage)", placeholder: "e.g. Overflowing sewage for 3 weeks" }] },
+      electricity: { title: "Electricity Meter / Billing Dispute Notice", subtitle: "State Electricity Distribution Board Appeal", fields: [{ id: "f1", label: "Consumer Connection No.", placeholder: "e.g. Connection #CA-902188" }, { id: "f2", label: "Disputed Bill Period", placeholder: "e.g. Billing cycle May-June 2026" }] },
+      ecommerce: { title: "E-Commerce Non-Delivery / Refund Notice", subtitle: "Online Seller Pre-Litigation Legal Demand", fields: [{ id: "f1", label: "Order ID & Platform", placeholder: "e.g. Order #402-99182 on Portal" }, { id: "f2", label: "Item Purchased", placeholder: "e.g. Laptop Computer" }] },
+      ombudsman: { title: "Banking Ombudsman Dispute Representation", subtitle: "Reserve Bank Ombudsman Dispute", fields: [{ id: "f1", label: "Bank Account / Credit Card No.", placeholder: "e.g. Credit Card Ending #4019" }, { id: "f2", label: "Unauthorized Transaction Details", placeholder: "e.g. Erroneous charge of ₹12,500 on 4th May" }] },
+      insurance: { title: "Insurance Claim Rejection Appeal", subtitle: "IRDAI Ombudsman Pre-Appeal Demand", fields: [{ id: "f1", label: "Insurance Policy & Claim Number", placeholder: "e.g. Policy #POL-8812, Claim #CLM-102" }, { id: "f2", label: "Rejection Reason Cited", placeholder: "e.g. Pre-existing condition false claim" }] },
+      society: { title: "Housing Society Maintenance Dispute", subtitle: "Cooperative Housing Society Legal Notice", fields: [{ id: "f1", label: "Flat Number & Building", placeholder: "e.g. Flat B-201, Green Meadows" }, { id: "f2", label: "Disputed Fine or Charge", placeholder: "e.g. Illegal penalty for elevator usage" }] },
+      telecom: { title: "Telecom Appellate Grievance Notice", subtitle: "TRAI Appellate Authority Complaint", fields: [{ id: "f1", label: "Mobile / Broadband Service No.", placeholder: "e.g. Fiber ID #080-49201" }, { id: "f2", label: "Service Defect", placeholder: "e.g. 14 continuous days without connection" }] },
+      medical: { title: "Hospital Overcharging Complaint", subtitle: "Medical Council & Consumer Forum Notice", fields: [{ id: "f1", label: "Hospital Name & Patient ID", placeholder: "e.g. City Hospital, Patient #88102" }, { id: "f2", label: "Inflated Charges Details", placeholder: "e.g. Unexplained ICU charges surcharge" }] },
+      automotive: { title: "Automobile Service Center Dispute", subtitle: "Vehicle Dealership Statutory Notice", fields: [{ id: "f1", label: "Vehicle Reg No. & Model", placeholder: "e.g. KA-01-MJ-4091, SUV" }, { id: "f2", label: "Job Card No. & Unfixed Defect", placeholder: "e.g. Job Card #9921 - Engine overheating" }] }
+    };
+
+    function openCustomModal(key, price) {
+      const config = templateConfigs[key];
+      if (!config) return;
+
+      document.getElementById('currentTemplateKey').value = key;
+      document.getElementById('currentTemplatePrice').value = price;
+      document.getElementById('modalTitle').innerText = config.title;
+      document.getElementById('modalSubtitle').innerText = config.subtitle;
+
+      const priceTag = document.getElementById('modalPriceTag');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (price === 0) {
+        priceTag.innerText = "100% FREE";
+        priceTag.className = "text-xs font-bold px-2.5 py-1 bg-green-100 text-green-800 rounded-full";
+        submitBtn.innerText = "Download Free .doc";
+        submitBtn.className = "px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-bold shadow";
+      } else {
+        priceTag.innerText = `$ ${price.toFixed(2)}`;
+        priceTag.className = "text-xs font-bold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full";
+        submitBtn.innerText = `Pay $ ${price.toFixed(2)} & Download`;
+        submitBtn.className = "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-bold shadow";
+      }
+
+      const container = document.getElementById('customFieldsContainer');
+      container.innerHTML = '';
+      config.fields.forEach(f => {
+        container.innerHTML += `
+          <div>
+            <label class="block text-xs font-semibold text-blue-900">${f.label.toUpperCase()}</label>
+            <input type="text" id="${f.id}" required class="w-full mt-1 p-2 border border-blue-200 rounded-md text-sm bg-white" placeholder="${f.placeholder}">
+          </div>
+        `;
+      });
+
       document.getElementById('docModal').classList.remove('hidden');
     }
 
@@ -217,43 +461,88 @@
       document.getElementById('docModal').classList.add('hidden');
     }
 
-    // Direct .doc File Generation inside browser
-    function generateDoc(event) {
+    // Handles Logic for Free Download vs Paid Download (Stripe/Razorpay Checkout)
+    function handleFormSubmit(event) {
       event.preventDefault();
-      const title = document.getElementById('modalTitle').innerText;
+      const price = parseFloat(document.getElementById('currentTemplatePrice').value);
+
+      if (price === 0) {
+        // Direct Download for Free Templates
+        triggerDocDownload();
+      } else {
+        // Redireciona para Gateway de Pagamento (Stripe/Razorpay)
+        alert(`Redirecting to secure payment of $ ${price.toFixed(2)}... Upon successful completion, your document download will begin automatically.`);
+        
+        /* 
+          EXEMPLO DE INTEGRAÇÃO COM STRIPE:
+          fetch('/create-checkout-session', {
+            method: 'POST',
+            body: JSON.stringify({ template: key, price: price })
+          })
+          .then(res => res.json())
+          .then(session => stripe.redirectToCheckout({ sessionId: session.id }));
+        */
+        
+        // Simulação após pagamento aprovado:
+        // triggerDocDownload();
+      }
+    }
+
+    // High-Quality Document Generator
+    function triggerDocDownload() {
+      const key = document.getElementById('currentTemplateKey').value;
+      const config = templateConfigs[key];
+
       const plaintiff = document.getElementById('modalPlaintiff').value;
       const defendant = document.getElementById('modalDefendant').value;
       const amount = document.getElementById('modalAmount').value;
       const facts = document.getElementById('modalFacts').value;
 
+      const f1Val = document.getElementById('f1') ? document.getElementById('f1').value : '';
+      const f2Val = document.getElementById('f2') ? document.getElementById('f2').value : '';
+
       const htmlContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><title>${title}</title>
+        <head><meta charset='utf-8'><title>${config.title}</title>
         <style>
-          body { font-family: 'Arial', sans-serif; margin: 40px; line-height: 1.6; }
-          h2 { text-align: center; text-transform: uppercase; margin-bottom: 20px; }
-          .header-table { width: 100%; margin-bottom: 20px; font-weight: bold; }
-          .section-title { font-weight: bold; margin-top: 15px; text-decoration: underline; }
+          body { font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.6; color: #111; }
+          h2 { text-align: center; text-transform: uppercase; font-size: 15pt; margin-bottom: 5px; }
+          h3 { text-align: center; text-transform: uppercase; font-size: 12pt; margin-top: 15px; text-decoration: underline; color: #1e3a8a; }
+          .header-table { width: 100%; margin-top: 20px; margin-bottom: 20px; font-weight: bold; border-collapse: collapse; }
+          .section-title { font-weight: bold; margin-top: 18px; font-size: 11pt; text-transform: uppercase; border-bottom: 1px solid #ccc; }
+          .meta-box { background: #f8fafc; border-left: 4px solid #2563eb; padding: 12px; margin-bottom: 15px; font-size: 10.5pt; }
         </style>
         </head>
         <body>
-          <h2>IN THE COURT OF SMALL CAUSES AT [DISTRICT / CITY]</h2>
+          <h2>IN THE APPROPRIATE LEGAL FORUM / COURT OF SMALL CAUSES</h2>
           <table class="header-table">
             <tr>
-              <td>PLAINTIFF: ${plaintiff}</td>
-              <td style="text-align:right;">DEFENDANT: ${defendant}</td>
+              <td>BEFORE THE MATTER OF: ${plaintiff}</td>
+              <td style="text-align:right;">VS. ${defendant}</td>
             </tr>
           </table>
           <hr/>
-          <h3>CLAIM: ${title.toUpperCase()}</h3>
-          <p><strong>CLAIM AMOUNT:</strong> ₹ ${amount}/-</p>
-          <p class="section-title">BRIEF FACTS OF THE CASE:</p>
+          <h3>${config.title.toUpperCase()}</h3>
+          
+          <div class="meta-box">
+            <p><strong>TOTAL DISPUTE / CLAIM AMOUNT:</strong> ₹ ${amount}/-</p>
+            <p><strong>${config.fields[0].label.toUpperCase()}:</strong> ${f1Val}</p>
+            <p><strong>${config.fields[1].label.toUpperCase()}:</strong> ${f2Val}</p>
+          </div>
+
+          <p class="section-title">STATEMENT OF FACTS AND GROUNDS:</p>
           <p>${facts}</p>
-          <br/>
-          <p class="section-title">PRAYER:</p>
-          <p>The Plaintiff humbly prays for a decree against the Defendant for the recovery of ₹ ${amount}/- along with costs and interest as determined by the court.</p>
-          <br/><br/><br/>
-          <p style="text-align:right;">________________________<br/>(Signature of Plaintiff)</p>
+          
+          <p class="section-title">STATUTORY PRAYER / RELIEF SOUGHT:</p>
+          <p>It is respectfully prayed that the forum/court issue orders directing the Defendant/Opposing party to pay ₹ ${amount}/- together with interest, damages, and legal expenses.</p>
+          
+          <br/><br/>
+          <table style="width:100%;">
+            <tr>
+              <td>Date: _________________</td>
+              <td style="text-align:right;">________________________<br/>(Signature of Applicant/Plaintiff)</td>
+            </tr>
+          </table>
         </body>
         </html>
       `;
@@ -262,62 +551,11 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${title.replace(/\s+/g, '_')}_Document.doc`;
+      a.download = `${config.title.replace(/\s+/g, '_')}.doc`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       closeModal();
-    }
-
-    // Chatbot Widget Management
-    function toggleChat() {
-      const win = document.getElementById('chatWindow');
-      win.classList.toggle('hidden');
-    }
-
-    async function sendChatMessage() {
-      const input = document.getElementById('chatInput');
-      const messages = document.getElementById('chatMessages');
-      const text = input.value.trim();
-
-      if (!text) return;
-
-      // Append user message
-      messages.innerHTML += `<div class="bg-blue-600 text-white p-2.5 rounded-lg max-w-[85%] ml-auto">${text}</div>`;
-      input.value = '';
-      messages.scrollTop = messages.scrollHeight;
-
-      // Loading indicator
-      const loadingId = 'loading-' + Date.now();
-      messages.innerHTML += `<div id="${loadingId}" class="bg-gray-200 p-2.5 rounded-lg text-gray-500 italic max-w-[85%]">Analyzing facts...</div>`;
-      messages.scrollTop = messages.scrollHeight;
-
-      try {
-        const response = await fetch('https://myfairday-backend.onrender.com/api/assist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text })
-        });
-
-        const data = await response.json();
-        document.getElementById(loadingId).remove();
-
-        if (data.formal_summary) {
-          messages.innerHTML += `
-            <div class="bg-gray-200 p-2.5 rounded-lg text-gray-800 max-w-[85%] space-y-2">
-              <p>${data.reply}</p>
-              <div class="bg-white p-2 rounded border border-gray-300 text-gray-900 font-mono text-[11px]">
-                <strong>Formal Facts:</strong><br/>${data.formal_summary}
-              </div>
-            </div>`;
-        } else {
-          messages.innerHTML += `<div class="bg-gray-200 p-2.5 rounded-lg text-gray-800 max-w-[85%]">${data.reply}</div>`;
-        }
-      } catch (err) {
-        document.getElementById(loadingId).remove();
-        messages.innerHTML += `<div class="bg-red-100 text-red-700 p-2.5 rounded-lg max-w-[85%]">Failed to connect to assistant.</div>`;
-      }
-      messages.scrollTop = messages.scrollHeight;
     }
   </script>
 </body>
