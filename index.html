@@ -1,390 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MyFairDay — Free Small Claims Document Assistant</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
-
-<!-- React (no build step needed — this is the UMD/browser version) -->
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<!-- Babel lets the browser understand JSX directly, so no build tool is required -->
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<style>
-  html, body { margin: 0; padding: 0; }
-  * { box-sizing: border-box; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyFairDay — Legal Document Help & Templates</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div id="root"></div>
+<body class="bg-gray-50 font-sans text-gray-800">
 
-<script type="text/babel">
-const { useState, useRef, useEffect } = React;
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl">⚖️</span>
+        <h1 class="text-xl font-bold text-gray-900">MyFairDay</h1>
+      </div>
+      <nav class="space-x-4 text-sm font-medium">
+        <a href="#templates" class="text-gray-600 hover:text-blue-600">Templates</a>
+        <a href="#portals" class="text-gray-600 hover:text-blue-600">Court Portals</a>
+      </nav>
+    </div>
+  </header>
 
-// ---------------------------------------------------------------------------
-// IMPORTANT: point this at your live backend (the one you deployed on Render).
-// ---------------------------------------------------------------------------
-const BACKEND_URL = "https://api.myfairday.org/api/assist";
+  <!-- Main Hero -->
+  <section class="max-w-7xl mx-auto px-4 py-10 text-center">
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-3">Small Claims & Legal Document Templates for India</h2>
+    <p class="text-gray-600 max-w-2xl mx-auto">Select a document template below, fill in your details, and download a ready-to-use .doc document for Indian courts and legal notices.</p>
+  </section>
 
-// ---------------------------------------------------------------------------
-// Small inline icons (no external icon library needed — keeps this a single file)
-// ---------------------------------------------------------------------------
-const Icon = ({ children, size = 18, color = "currentColor", strokeWidth = 1.8 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-       strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    {children}
-  </svg>
-);
-const IconSend = (p) => <Icon {...p}><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></Icon>;
-const IconLandmark = (p) => <Icon {...p}><path d="M3 21h18" /><path d="M4 21V9" /><path d="M20 21V9" /><path d="M2 9l10-6l10 6" /><path d="M8 21v-6" /><path d="M12 21v-6" /><path d="M16 21v-6" /></Icon>;
-const IconShieldCheck = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2l4-4" /></Icon>;
-const IconGlobe = (p) => <Icon {...p}><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.5 2.5 2.5 15.5 0 18" /><path d="M12 3c-2.5 2.5-2.5 15.5 0 18" /></Icon>;
-const IconRotateCcw = (p) => <Icon {...p}><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" /></Icon>;
-const IconCopy = (p) => <Icon {...p}><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></Icon>;
-const IconCheck = (p) => <Icon {...p}><path d="M20 6L9 17L4 12" /></Icon>;
-const IconScroll = (p) => <Icon {...p}><rect x="5" y="3" width="14" height="18" rx="1" /><path d="M8 8h8" /><path d="M8 12h8" /><path d="M8 16h5" /></Icon>;
+  <!-- 10 Document Templates Grid -->
+  <main id="templates" class="max-w-7xl mx-auto px-4 pb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-// ---------------------------------------------------------------------------
-// Safety contract used by the backend — shown here only for reference.
-// (The real enforcement lives server-side in server.js.)
-// ---------------------------------------------------------------------------
+      <!-- Template Cards -->
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-800 rounded">Employment</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">1. Unpaid Salary Recovery Plaint</h3>
+          <p class="text-sm text-gray-600 mt-1">For employees seeking unpaid dues or salary from an employer in Small Causes Court.</p>
+        </div>
+        <button onclick="openModal('Unpaid Salary Recovery Plaint', 'unpaid-salary')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
 
-const STRINGS = {
-  en: {
-    wordmark: "MyFairDay",
-    tagline: "Free small-claims document help for India",
-    disclaimerTitle: "Before you begin",
-    disclaimerBody:
-      "This tool helps you organize facts into a court document format. It does not give legal advice and is not a substitute for a licensed advocate. Please have a lawyer review your document before filing.",
-    disclaimerAccept: "I understand — let's begin",
-    chatIntro:
-      "Tell me what happened, in your own words. I'll help turn it into formal document language.",
-    inputPlaceholder: "Describe what happened…",
-    plaintiffLabel: "Your full name",
-    defendantLabel: "Other party's full name",
-    amountLabel: "Amount owed (₹)",
-    dateLabel: "When did this happen?",
-    continueBtn: "Continue",
-    generateBtn: "Generate draft",
-    startOver: "Start over",
-    copyBtn: "Copy document text",
-    copied: "Copied",
-    docTitle: "PLAINT FOR RECOVERY OF MONEY",
-    docSubtitle: "Small Cause / Small Claim",
-    docPlaintiff: "PLAINTIFF",
-    docDefendant: "DEFENDANT",
-    docFacts: "BRIEF FACTS OF THE CASE",
-    docAmount: "AMOUNT CLAIMED",
-    docWatermark: "DRAFT — FOR ADVOCATE REVIEW",
-    sealed: "Draft ready",
-    thinking: "Organizing…",
-    detailsIntro: "Just a few more details for the document:",
-  },
-  hi: {
-    wordmark: "MyFairDay",
-    tagline: "भारत में लघु वाद हेतु मुफ़्त दस्तावेज़ सहायता",
-    disclaimerTitle: "शुरू करने से पहले",
-    disclaimerBody:
-      "यह उपकरण आपके तथ्यों को न्यायालय दस्तावेज़ के प्रारूप में व्यवस्थित करने में मदद करता है। यह कानूनी सलाह नहीं देता और किसी लाइसेंस-प्राप्त अधिवक्ता का विकल्प नहीं है। दाखिल करने से पहले कृपया किसी वकील से दस्तावेज़ की समीक्षा करवाएँ।",
-    disclaimerAccept: "मैं समझता/समझती हूँ — शुरू करें",
-    chatIntro:
-      "अपने शब्दों में बताएं कि क्या हुआ। मैं इसे औपचारिक दस्तावेज़ भाषा में बदलने में मदद करूँगा।",
-    inputPlaceholder: "जो हुआ उसका वर्णन करें…",
-    plaintiffLabel: "आपका पूरा नाम",
-    defendantLabel: "दूसरे पक्ष का पूरा नाम",
-    amountLabel: "बकाया राशि (₹)",
-    dateLabel: "यह कब हुआ?",
-    continueBtn: "जारी रखें",
-    generateBtn: "प्रारूप बनाएं",
-    startOver: "फिर से शुरू करें",
-    copyBtn: "दस्तावेज़ टेक्स्ट कॉपी करें",
-    copied: "कॉपी हो गया",
-    docTitle: "धन वसूली हेतु वाद-पत्र",
-    docSubtitle: "लघु वाद न्यायालय",
-    docPlaintiff: "वादी",
-    docDefendant: "प्रतिवादी",
-    docFacts: "मामले के संक्षिप्त तथ्य",
-    docAmount: "दावा की गई राशि",
-    docWatermark: "प्रारूप — अधिवक्ता समीक्षा हेतु",
-    sealed: "प्रारूप तैयार",
-    thinking: "व्यवस्थित हो रहा है…",
-    detailsIntro: "दस्तावेज़ के लिए बस कुछ और विवरण चाहिए:",
-  },
-};
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-800 rounded">Housing</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">2. Rent Security Deposit Refund</h3>
+          <p class="text-sm text-gray-600 mt-1">Claim money retained by landlords without valid property damage claims.</p>
+        </div>
+        <button onclick="openModal('Rent Security Deposit Refund', 'security-deposit')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
 
-async function callAssistant(userText) {
-  try {
-    const response = await fetch(BACKEND_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: userText }),
-    });
-    const safeParsed = await response.json();
-    return safeParsed;
-  } catch (e) {
-    return {
-      mode: "redirect",
-      reply: "Sorry, the assistant is temporarily unavailable. Please try again in a moment.",
-      formal_summary: "",
-      amount_detected: "",
-      date_detected: "",
-    };
-  }
-}
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-800 rounded">Banking</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">3. Cheque Bounce Legal Notice (Sec 138)</h3>
+          <p class="text-sm text-gray-600 mt-1">Formal notice template under Section 138 of the Negotiable Instruments Act.</p>
+        </div>
+        <button onclick="openModal('Cheque Bounce Legal Notice', 'cheque-bounce')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
 
-function FieldBlock({ label, value, wide }) {
-  const isFilled = value && value.length > 0;
-  return (
-    <div style={{ ...styles.fieldBlock, ...(wide ? { gridColumn: "1 / -1" } : {}) }}>
-      <div style={styles.fieldBlockLabel}>{label}</div>
-      <div style={{ ...styles.fieldBlockValue, ...(isFilled ? styles.fieldBlockValueFilled : {}) }}>
-        {value || "—"}
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-purple-100 text-purple-800 rounded">Personal</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">4. Friendly Loan Recovery Claim</h3>
+          <p class="text-sm text-gray-600 mt-1">Recover personal money given to acquaintances or friends based on informal receipts.</p>
+        </div>
+        <button onclick="openModal('Friendly Loan Recovery Claim', 'friendly-loan')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-orange-100 text-orange-800 rounded">Consumer</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">5. Defective Goods Consumer Complaint</h3>
+          <p class="text-sm text-gray-600 mt-1">Form to submit before the District Consumer Disputes Redressal Forum.</p>
+        </div>
+        <button onclick="openModal('Defective Goods Complaint', 'consumer-goods')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-indigo-100 text-indigo-800 rounded">Business</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">6. Freelancer Unpaid Invoice Notice</h3>
+          <p class="text-sm text-gray-600 mt-1">Demand payment for completed service or invoice dues from corporate clients.</p>
+        </div>
+        <button onclick="openModal('Freelancer Unpaid Invoice Notice', 'freelancer-invoice')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded">Education</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">7. Institute Fee Refund Claim</h3>
+          <p class="text-sm text-gray-600 mt-1">Request refund of advance admission/course fees upon course cancellation.</p>
+        </div>
+        <button onclick="openModal('Institute Fee Refund Claim', 'fee-refund')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-pink-100 text-pink-800 rounded">Property</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">8. Property Damage Compensation</h3>
+          <p class="text-sm text-gray-600 mt-1">Claim recovery for accidental or deliberate damage caused to private property.</p>
+        </div>
+        <button onclick="openModal('Property Damage Compensation', 'property-damage')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-teal-100 text-teal-800 rounded">Travel</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">9. Travel Ticket Refund Request</h3>
+          <p class="text-sm text-gray-600 mt-1">Claim reimbursement for cancelled flights, trains, or unfulfilled agency tours.</p>
+        </div>
+        <button onclick="openModal('Travel Ticket Refund Request', 'travel-refund')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-1 bg-gray-100 text-gray-800 rounded">Contract</span>
+          <h3 class="text-lg font-bold text-gray-900 mt-2">10. Breach of Simple Service Contract</h3>
+          <p class="text-sm text-gray-600 mt-1">Suit for damages or non-performance of written or verbal agreements.</p>
+        </div>
+        <button onclick="openModal('Breach of Contract Claim', 'contract-breach')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold">Fill & Download .doc</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Official Court Portals Footer Section -->
+  <footer id="portals" class="bg-gray-900 text-gray-300 py-10 border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-bold text-white mb-3">Official Indian Court Portals</h3>
+        <p class="text-sm text-gray-400 mb-4">Direct links to verified government portals for case filing, tracking, and dispute redressal.</p>
+        <ul class="space-y-2 text-sm">
+          <li>👉 <a href="https://ecourts.gov.in/ecourts_home/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">eCourts India (National Portal)</a></li>
+          <li>👉 <a href="https://e-jagriti.gov.in" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">e-Daakhil / e-Jagriti (Consumer Court Filing)</a></li>
+          <li>👉 <a href="https://delhicourts.nic.in" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Delhi District Courts Portal</a></li>
+          <li>👉 <a href="https://samadhaan.msme.gov.in/MyMsme/MSEFC/MSEFC_Welcome.aspx" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">MSME Samadhaan (Delayed Payment Portal)</a></li>
+        </ul>
+      </div>
+      <div class="text-sm text-gray-400">
+        <h3 class="text-lg font-bold text-white mb-3">Legal Disclaimer</h3>
+        <p>MyFairDay is an automated document formatting tool. We do not offer legal advice, legal representation, or legal diagnoses. Please review all documents with a qualified advocate before submitting them to any court.</p>
       </div>
     </div>
-  );
-}
+  </footer>
 
-function App() {
-  const [lang, setLang] = useState("en");
-  const t = STRINGS[lang];
-  const [accepted, setAccepted] = useState(false);
-  const [stage, setStage] = useState("chat");
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [thinking, setThinking] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const scrollRef = useRef(null);
-
-  const [doc, setDoc] = useState({ plaintiff: "", defendant: "", amount: "", date: "", facts: "" });
-  const [details, setDetails] = useState({ plaintiff: "", defendant: "", amount: "", date: "" });
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, thinking]);
-
-  const send = async () => {
-    const text = input.trim();
-    if (!text || thinking) return;
-    setMessages((m) => [...m, { role: "user", text }]);
-    setInput("");
-    setThinking(true);
-    const result = await callAssistant(text);
-    setThinking(false);
-    setMessages((m) => [...m, { role: "assistant", text: result.reply }]);
-    if (result.mode === "extract") {
-      setDoc((d) => ({
-        ...d,
-        facts: result.formal_summary || d.facts,
-        amount: result.amount_detected || d.amount,
-        date: result.date_detected || d.date,
-      }));
-      setDetails((d) => ({
-        ...d,
-        amount: result.amount_detected || d.amount,
-        date: result.date_detected || d.date,
-      }));
-      setTimeout(() => setStage("details"), 600);
-    }
-  };
-
-  const finalizeDetails = () => {
-    setDoc((d) => ({ ...d, ...details }));
-    setStage("done");
-  };
-
-  const reset = () => {
-    setMessages([]);
-    setDoc({ plaintiff: "", defendant: "", amount: "", date: "", facts: "" });
-    setDetails({ plaintiff: "", defendant: "", amount: "", date: "" });
-    setStage("chat");
-    setInput("");
-  };
-
-  const docText = `${t.docTitle}\n${t.docSubtitle}\n\n${t.docPlaintiff}: ${doc.plaintiff || "—"}\n${t.docDefendant}: ${doc.defendant || "—"}\n${t.docAmount}: ₹ ${doc.amount || "—"}\n\n${t.docFacts}:\n${doc.facts || "—"}`;
-
-  const copyDoc = () => {
-    navigator.clipboard.writeText(docText).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
-  };
-
-  return (
-    <div style={styles.app}>
-      <header style={styles.header}>
-        <div style={styles.wordmarkRow}>
-          <IconLandmark size={22} color={INK} strokeWidth={1.6} />
-          <div>
-            <div style={styles.wordmark}>{t.wordmark}</div>
-            <div style={styles.tagline}>{t.tagline}</div>
-          </div>
+  <!-- Modal Form for Document Filling -->
+  <div id="docModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl">
+      <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4">Fill Document Details</h3>
+      <form id="docForm" class="space-y-4" onsubmit="generateDoc(event)">
+        <input type="hidden" id="docType">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700">PLAINTIFF (Your Full Name)</label>
+          <input type="text" id="modalPlaintiff" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
         </div>
-        <button style={styles.langToggle} onClick={() => setLang(lang === "en" ? "hi" : "en")}>
-          <IconGlobe size={15} strokeWidth={1.8} />
-          {lang === "en" ? "हिंदी" : "English"}
-        </button>
-      </header>
-
-      {!accepted ? (
-        <div style={styles.gateWrap}>
-          <div style={styles.gateCard}>
-            <IconShieldCheck size={28} color={SEAL} strokeWidth={1.5} />
-            <h2 style={styles.gateTitle}>{t.disclaimerTitle}</h2>
-            <p style={styles.gateBody}>{t.disclaimerBody}</p>
-            <button style={styles.primaryBtn} onClick={() => setAccepted(true)}>{t.disclaimerAccept}</button>
-          </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700">DEFENDANT (Opposing Party/Company)</label>
+          <input type="text" id="modalDefendant" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
         </div>
-      ) : (
-        <main style={styles.main}>
-          <section style={styles.chatPanel}>
-            <div style={styles.chatScroll} ref={scrollRef}>
-              <div style={styles.introBubble}>{t.chatIntro}</div>
-              {messages.map((m, i) => (
-                <div key={i} style={{ ...styles.bubble, ...(m.role === "user" ? styles.bubbleUser : styles.bubbleBot) }}>
-                  {m.text}
-                </div>
-              ))}
-              {thinking && (
-                <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{t.thinking}</div>
-              )}
-
-              {stage === "details" && (
-                <div style={styles.detailsCard}>
-                  <div style={styles.detailsIntro}>{t.detailsIntro}</div>
-                  <label style={styles.fieldLabel}>{t.plaintiffLabel}</label>
-                  <input style={styles.fieldInput} value={details.plaintiff}
-                    onChange={(e) => setDetails({ ...details, plaintiff: e.target.value })} />
-                  <label style={styles.fieldLabel}>{t.defendantLabel}</label>
-                  <input style={styles.fieldInput} value={details.defendant}
-                    onChange={(e) => setDetails({ ...details, defendant: e.target.value })} />
-                  <label style={styles.fieldLabel}>{t.amountLabel}</label>
-                  <input style={styles.fieldInput} value={details.amount}
-                    onChange={(e) => setDetails({ ...details, amount: e.target.value })} />
-                  <label style={styles.fieldLabel}>{t.dateLabel}</label>
-                  <input style={styles.fieldInput} value={details.date}
-                    onChange={(e) => setDetails({ ...details, date: e.target.value })} />
-                  <button style={styles.primaryBtn} onClick={finalizeDetails}>{t.generateBtn}</button>
-                </div>
-              )}
-            </div>
-
-            {stage === "chat" && (
-              <div style={styles.inputRow}>
-                <input style={styles.chatInput} placeholder={t.inputPlaceholder} value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && send()} />
-                <button style={styles.sendBtn} onClick={send} disabled={thinking}>
-                  <IconSend size={16} strokeWidth={2} color="#fff" />
-                </button>
-              </div>
-            )}
-
-            {stage === "done" && (
-              <div style={styles.inputRow}>
-                <button style={styles.secondaryBtn} onClick={reset}>
-                  <IconRotateCcw size={14} strokeWidth={2} /> {t.startOver}
-                </button>
-                <button style={styles.primaryBtn} onClick={copyDoc}>
-                  {copied ? <IconCheck size={15} /> : <IconCopy size={15} />} {copied ? t.copied : t.copyBtn}
-                </button>
-              </div>
-            )}
-          </section>
-
-          <section style={styles.docPanel}>
-            <div style={styles.paper}>
-              <div style={styles.watermark}>{t.docWatermark}</div>
-              <div style={styles.paperHeaderRow}>
-                <IconScroll size={16} color={INK_SOFT} strokeWidth={1.5} />
-                <span style={styles.paperEyebrow}>{t.docSubtitle}</span>
-              </div>
-              <h1 style={styles.paperTitle}>{t.docTitle}</h1>
-              <div style={styles.divider} />
-              <div style={styles.partyGrid}>
-                <FieldBlock label={t.docPlaintiff} value={doc.plaintiff} />
-                <FieldBlock label={t.docDefendant} value={doc.defendant} />
-              </div>
-              <FieldBlock label={t.docAmount} value={doc.amount ? `₹ ${doc.amount}` : ""} wide />
-              <div style={styles.factsLabel}>{t.docFacts}</div>
-              <div style={{ ...styles.factsBox, ...(doc.facts ? styles.factsBoxFilled : {}) }}>
-                {doc.facts || "···························································"}
-              </div>
-              {stage === "done" && (
-                <div style={styles.sealWrap}>
-                  <div style={styles.seal}><IconShieldCheck size={22} color="#fff" strokeWidth={2} /></div>
-                  <span style={styles.sealLabel}>{t.sealed}</span>
-                </div>
-              )}
-            </div>
-          </section>
-        </main>
-      )}
+        <div>
+          <label class="block text-xs font-semibold text-gray-700">CLAIM AMOUNT (in ₹)</label>
+          <input type="number" id="modalAmount" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700">BRIEF FACTS OF THE CASE</label>
+          <textarea id="modalFacts" rows="4" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm" placeholder="Summarize what happened or copy text from the AI Assistant..."></textarea>
+        </div>
+        <div class="flex justify-end space-x-3 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-semibold">Download .doc</button>
+        </div>
+      </form>
     </div>
-  );
-}
+  </div>
 
-// ---------------------------------------------------------------------------
-// Design tokens
-// ---------------------------------------------------------------------------
-const INK = "#16233B";
-const INK_SOFT = "#5B6572";
-const PAPER = "#F1F2EC";
-const PAPER_WHITE = "#FBFBF8";
-const SEAL = "#B8863B";
-const LINE = "#D8D9CE";
+  <!-- FLOATING CHATBOT WIDGET (Bottom Right) -->
+  <div id="ai-chat-widget" class="fixed bottom-5 right-5 z-50">
+    <!-- Chat Window -->
+    <div id="chatWindow" class="hidden w-80 sm:w-96 h-[450px] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3">
+      <div class="bg-slate-900 text-white p-3 font-semibold flex justify-between items-center">
+        <span class="flex items-center space-x-2 text-sm">
+          <span>🤖</span>
+          <span>MyFairDay AI Assistant</span>
+        </span>
+        <button onclick="toggleChat()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <div id="chatMessages" class="flex-1 p-3 overflow-y-auto text-xs space-y-3 bg-gray-50">
+        <div class="bg-gray-200 p-2.5 rounded-lg text-gray-800 max-w-[85%]">
+          Hello! Tell me what happened in plain language. I will convert it into formal facts for your court document.
+        </div>
+      </div>
+      <div class="p-2 border-t border-gray-200 bg-white flex space-x-2">
+        <input type="text" id="chatInput" placeholder="Type what happened..." class="flex-1 text-xs border border-gray-300 rounded-lg p-2 outline-none focus:border-blue-500" onkeydown="if(event.key==='Enter') sendChatMessage()">
+        <button onclick="sendChatMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold">Send</button>
+      </div>
+    </div>
 
-const styles = {
-  app: { fontFamily: "'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif", background: PAPER, minHeight: "100vh", color: INK, display: "flex", flexDirection: "column" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 28px", borderBottom: `1px solid ${LINE}`, background: PAPER_WHITE },
-  wordmarkRow: { display: "flex", alignItems: "center", gap: 10 },
-  wordmark: { fontFamily: "'Source Serif 4',Georgia,serif", fontWeight: 700, fontSize: 18 },
-  tagline: { fontSize: 11.5, color: INK_SOFT, marginTop: 1 },
-  langToggle: { display: "flex", alignItems: "center", gap: 6, background: "transparent", border: `1px solid ${LINE}`, borderRadius: 20, padding: "6px 14px", fontSize: 12.5, color: INK, cursor: "pointer", fontFamily: "inherit" },
-  gateWrap: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 },
-  gateCard: { background: PAPER_WHITE, border: `1px solid ${LINE}`, borderRadius: 10, padding: "32px 30px", maxWidth: 380, textAlign: "center" },
-  gateTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 20, margin: "14px 0 10px" },
-  gateBody: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, marginBottom: 22 },
-  main: { flex: 1, display: "flex", flexWrap: "wrap", gap: 20, padding: 20, maxWidth: 1180, margin: "0 auto", width: "100%" },
-  chatPanel: { flex: "1 1 380px", minWidth: 320, background: PAPER_WHITE, border: `1px solid ${LINE}`, borderRadius: 10, display: "flex", flexDirection: "column", height: 560 },
-  chatScroll: { flex: 1, overflowY: "auto", padding: 18, display: "flex", flexDirection: "column", gap: 10 },
-  introBubble: { fontSize: 13.5, color: INK_SOFT, background: PAPER, borderRadius: 10, padding: "10px 14px", lineHeight: 1.5 },
-  bubble: { maxWidth: "85%", padding: "10px 14px", borderRadius: 12, fontSize: 13.5, lineHeight: 1.5 },
-  bubbleUser: { alignSelf: "flex-end", background: INK, color: "#fff" },
-  bubbleBot: { alignSelf: "flex-start", background: PAPER, color: INK },
-  bubbleThinking: { color: INK_SOFT, fontStyle: "italic" },
-  detailsCard: { background: PAPER, borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", gap: 4 },
-  detailsIntro: { fontSize: 12.5, color: INK_SOFT, marginBottom: 8 },
-  fieldLabel: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", color: INK_SOFT, textTransform: "uppercase", marginTop: 8 },
-  fieldInput: { border: `1px solid ${LINE}`, borderRadius: 6, padding: "8px 10px", fontSize: 13.5, fontFamily: "inherit", background: "#fff", marginTop: 4, marginBottom: 4 },
-  inputRow: { display: "flex", gap: 8, padding: 14, borderTop: `1px solid ${LINE}` },
-  chatInput: { flex: 1, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 13.5, fontFamily: "inherit" },
-  sendBtn: { width: 38, height: 38, borderRadius: "50%", background: INK, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
-  primaryBtn: { background: INK, color: "#fff", border: "none", borderRadius: 20, padding: "10px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit", marginTop: 10 },
-  secondaryBtn: { background: "transparent", color: INK_SOFT, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" },
-  docPanel: { flex: "1 1 420px", minWidth: 340 },
-  paper: { background: "#fff", border: `1px solid ${LINE}`, borderRadius: 4, padding: "30px 32px", position: "relative", minHeight: 560, boxShadow: "0 1px 3px rgba(22,35,59,0.06)", overflow: "hidden" },
-  watermark: { position: "absolute", top: 14, right: 16, fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: "0.08em", color: "#C6B79A", border: "1px solid #E4D9C2", borderRadius: 3, padding: "2px 8px" },
-  paperHeaderRow: { display: "flex", alignItems: "center", gap: 6, marginBottom: 4 },
-  paperEyebrow: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: INK_SOFT },
-  paperTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 21, fontWeight: 700, margin: "4px 0 14px", lineHeight: 1.3 },
-  divider: { borderTop: `1px solid ${LINE}`, marginBottom: 18 },
-  partyGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 14 },
-  fieldBlock: { minWidth: 0 },
-  fieldBlockLabel: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: "0.06em", color: INK_SOFT, textTransform: "uppercase", marginBottom: 4 },
-  fieldBlockValue: { fontSize: 13.5, color: "#B7B9AE", borderBottom: `1px dashed ${LINE}`, paddingBottom: 6, wordBreak: "break-word" },
-  fieldBlockValueFilled: { color: INK, borderBottom: `1px solid ${INK}` },
-  factsLabel: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: "0.06em", color: INK_SOFT, textTransform: "uppercase", margin: "16px 0 6px" },
-  factsBox: { fontSize: 13.5, lineHeight: 1.7, color: "#C7C9BD", minHeight: 80 },
-  factsBoxFilled: { color: INK },
-  sealWrap: { position: "absolute", bottom: 22, right: 26, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 },
-  seal: { width: 46, height: 46, borderRadius: "50%", background: SEAL, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(184,134,59,0.4)" },
-  sealLabel: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, color: SEAL, letterSpacing: "0.04em" },
-};
+    <!-- Toggle Button -->
+    <button onclick="toggleChat()" class="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl ml-auto cursor-pointer focus:outline-none">
+      💬
+    </button>
+  </div>
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
-</script>
+  <!-- JavaScript Functions -->
+  <script>
+    // Modal Management
+    function openModal(title, type) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('docType').value = type;
+      document.getElementById('docModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('docModal').classList.add('hidden');
+    }
+
+    // Direct .doc File Generation inside browser
+    function generateDoc(event) {
+      event.preventDefault();
+      const title = document.getElementById('modalTitle').innerText;
+      const plaintiff = document.getElementById('modalPlaintiff').value;
+      const defendant = document.getElementById('modalDefendant').value;
+      const amount = document.getElementById('modalAmount').value;
+      const facts = document.getElementById('modalFacts').value;
+
+      const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>${title}</title>
+        <style>
+          body { font-family: 'Arial', sans-serif; margin: 40px; line-height: 1.6; }
+          h2 { text-align: center; text-transform: uppercase; margin-bottom: 20px; }
+          .header-table { width: 100%; margin-bottom: 20px; font-weight: bold; }
+          .section-title { font-weight: bold; margin-top: 15px; text-decoration: underline; }
+        </style>
+        </head>
+        <body>
+          <h2>IN THE COURT OF SMALL CAUSES AT [DISTRICT / CITY]</h2>
+          <table class="header-table">
+            <tr>
+              <td>PLAINTIFF: ${plaintiff}</td>
+              <td style="text-align:right;">DEFENDANT: ${defendant}</td>
+            </tr>
+          </table>
+          <hr/>
+          <h3>CLAIM: ${title.toUpperCase()}</h3>
+          <p><strong>CLAIM AMOUNT:</strong> ₹ ${amount}/-</p>
+          <p class="section-title">BRIEF FACTS OF THE CASE:</p>
+          <p>${facts}</p>
+          <br/>
+          <p class="section-title">PRAYER:</p>
+          <p>The Plaintiff humbly prays for a decree against the Defendant for the recovery of ₹ ${amount}/- along with costs and interest as determined by the court.</p>
+          <br/><br/><br/>
+          <p style="text-align:right;">________________________<br/>(Signature of Plaintiff)</p>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title.replace(/\s+/g, '_')}_Document.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      closeModal();
+    }
+
+    // Chatbot Widget Management
+    function toggleChat() {
+      const win = document.getElementById('chatWindow');
+      win.classList.toggle('hidden');
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const messages = document.getElementById('chatMessages');
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      // Append user message
+      messages.innerHTML += `<div class="bg-blue-600 text-white p-2.5 rounded-lg max-w-[85%] ml-auto">${text}</div>`;
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      // Loading indicator
+      const loadingId = 'loading-' + Date.now();
+      messages.innerHTML += `<div id="${loadingId}" class="bg-gray-200 p-2.5 rounded-lg text-gray-500 italic max-w-[85%]">Analyzing facts...</div>`;
+      messages.scrollTop = messages.scrollHeight;
+
+      try {
+        const response = await fetch('https://myfairday-backend.onrender.com/api/assist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+        document.getElementById(loadingId).remove();
+
+        if (data.formal_summary) {
+          messages.innerHTML += `
+            <div class="bg-gray-200 p-2.5 rounded-lg text-gray-800 max-w-[85%] space-y-2">
+              <p>${data.reply}</p>
+              <div class="bg-white p-2 rounded border border-gray-300 text-gray-900 font-mono text-[11px]">
+                <strong>Formal Facts:</strong><br/>${data.formal_summary}
+              </div>
+            </div>`;
+        } else {
+          messages.innerHTML += `<div class="bg-gray-200 p-2.5 rounded-lg text-gray-800 max-w-[85%]">${data.reply}</div>`;
+        }
+      } catch (err) {
+        document.getElementById(loadingId).remove();
+        messages.innerHTML += `<div class="bg-red-100 text-red-700 p-2.5 rounded-lg max-w-[85%]">Failed to connect to assistant.</div>`;
+      }
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
 </body>
 </html>
