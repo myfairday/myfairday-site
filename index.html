@@ -7,6 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Script Oficial do Gumroad Overlay -->
   <script src="https://gumroad.com/js/gumroad.js"></script>
+  <!-- Lucide Icons para o ícone do Chatbot -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
@@ -30,7 +32,7 @@
     <p class="text-gray-600 max-w-2xl mx-auto text-sm">Generate advocate-grade legal notices, plaints, and administrative appeals in minutes.</p>
   </section>
 
-  <!-- CTA Banner CORRIGIDO -->
+  <!-- CTA Banner -->
   <section class="max-w-7xl mx-auto px-4 my-4">
     <div class="bg-gradient-to-r from-blue-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-6 text-center shadow-xl border border-blue-700">
       <h3 class="text-2xl sm:text-3xl font-black tracking-wide uppercase text-amber-400 mb-1">
@@ -98,7 +100,7 @@
         <button onclick="openCustomModal('cheque', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.25)</button>
       </div>
 
-      <!-- 5. Friendly Loan Recovery (LINK DIRETO DO GUMROAD OVERLAY AQUI) -->
+      <!-- 5. Friendly Loan Recovery -->
       <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
         <div>
           <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-purple-100 text-purple-800 rounded">Personal</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
@@ -262,7 +264,7 @@
     </div>
   </main>
 
-  <!-- FOOTER REVISADO E COM LEGAL DISCLAIMER -->
+  <!-- FOOTER -->
   <footer class="bg-gray-900 text-gray-300 py-10 border-t border-gray-800">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
@@ -331,8 +333,46 @@
     </div>
   </div>
 
+  <!-- LEGAL ASSISTANT CHATBOT WIDGET -->
+  <div class="fixed bottom-5 right-5 z-50">
+    <!-- Chat Button -->
+    <button onclick="toggleChat()" id="chatToggleBtn" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-105">
+      <i data-lucide="message-square" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Chat Box Container -->
+    <div id="chatBox" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col h-[450px]">
+      <!-- Header -->
+      <div class="bg-blue-900 text-white p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
+          <div>
+            <h4 class="text-sm font-bold">MyFairDay AI Assistant</h4>
+            <p class="text-[10px] text-blue-200">24/7 Virtual Legal Help</p>
+          </div>
+        </div>
+        <button onclick="toggleChat()" class="text-blue-200 hover:text-white font-bold text-lg">&times;</button>
+      </div>
+
+      <!-- Messages Area -->
+      <div id="chatMessages" class="flex-1 p-4 overflow-y-auto text-xs space-y-3 bg-gray-50">
+        <div class="bg-white border border-gray-200 p-3 rounded-lg shadow-sm text-gray-700 max-w-[85%]">
+          Hello! 👋 Need help finding the right legal template or have questions about MyFairDay? Ask me below!
+        </div>
+      </div>
+
+      <!-- Input Field -->
+      <form onsubmit="handleChatMessage(event)" class="p-3 bg-white border-t border-gray-200 flex space-x-2">
+        <input type="text" id="chatInput" placeholder="Type your question..." class="flex-1 text-xs p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600" required>
+        <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-700">Send</button>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // Atualizado com seu usuário real do Gumroad
+    // Inicializar Ícones Lucide
+    lucide.createIcons();
+
     const GUMROAD_USER = "myfairday"; 
 
     const templateConfigs = {
@@ -495,6 +535,52 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    }
+
+    // --- FUNÇÕES DO CHATBOT ---
+    function toggleChat() {
+      const chatBox = document.getElementById('chatBox');
+      chatBox.classList.toggle('hidden');
+    }
+
+    function handleChatMessage(event) {
+      event.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const messagesContainer = document.getElementById('chatMessages');
+
+      // Adiciona mensagem do usuário
+      messagesContainer.innerHTML += `
+        <div class="bg-blue-600 text-white p-3 rounded-lg shadow-sm text-xs ml-auto max-w-[85%]">
+          ${text}
+        </div>
+      `;
+
+      input.value = '';
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // Resposta simulada do assistente
+      setTimeout(() => {
+        let reply = "MyFairDay helps you generate legal documents and notices easily. Select any template above to fill out your details and generate your editable Word document!";
+        
+        const lowerText = text.toLowerCase();
+        if (lowerText.includes('free') || lowerText.includes('grátis')) {
+          reply = "We offer 3 free templates! Look for the '3 Premium Free Templates' section at the top to download them instantly.";
+        } else if (lowerText.includes('price') || lowerText.includes('cost') || lowerText.includes('preço')) {
+          reply = "Our premium legal documents start at just $3.99 per template, with no subscription or lawyer retainer fees required.";
+        } else if (lowerText.includes('word') || lowerText.includes('download') || lowerText.includes('format')) {
+          reply = "All documents are instantly generated in editable Microsoft Word (.doc) format so you can customize them as needed!";
+        }
+
+        messagesContainer.innerHTML += `
+          <div class="bg-white border border-gray-200 p-3 rounded-lg shadow-sm text-gray-700 max-w-[85%]">
+            ${reply}
+          </div>
+        `;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 600);
     }
   </script>
 </body>
