@@ -1,252 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFairDay - Small Claims & Legal Dispute Templates</title>
-    
-    <!-- Gumroad Official Overlay Script -->
-    <script src="https://gumroad.com/js/gumroad.js"></script>
-
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --text-muted: #475569;
-            --border: #e2e8f0;
-            --badge-bg: #eff6ff;
-            --badge-text: #1e40af;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        header {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 1.25rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
-            letter-spacing: -0.025em;
-        }
-
-        nav a {
-            margin-left: 1.5rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        nav a:hover {
-            color: var(--primary);
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 3.5rem 1.5rem;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .hero h1 {
-            font-size: 2.75rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            letter-spacing: -0.025em;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 650px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.25rem 0.6rem;
-            background-color: var(--badge-bg);
-            color: var(--badge-text);
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
-
-        .price {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .card h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-        }
-
-        .card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 1.75rem;
-            flex-grow: 1;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            text-align: center;
-            background-color: var(--primary);
-            color: white !important;
-            padding: 0.85rem 1.25rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.95rem;
-            transition: background-color 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        footer {
-            text-align: center;
-            padding: 2.5rem 1.5rem;
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 5rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyFairDay — Small Claims & Administrative Legal Templates</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Script Oficial do Gumroad Overlay -->
+  <script src="https://gumroad.com/js/gumroad.js"></script>
 </head>
-<body>
+<body class="bg-gray-50 font-sans text-gray-800">
 
-    <header>
-        <a href="#" class="logo">MyFairDay</a>
-        <nav>
-            <a href="#templates">Templates & Claims</a>
-        </nav>
-    </header>
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl">⚖️</span>
+        <h1 class="text-xl font-bold text-gray-900">MyFairDay</h1>
+      </div>
+      <nav class="space-x-4 text-sm font-medium">
+        <a href="#free-templates" class="text-green-600 font-bold hover:underline">Free Samples</a>
+        <a href="#paid-templates" class="text-gray-600 hover:text-blue-600">Premium Templates</a>
+      </nav>
+    </div>
+  </header>
 
-    <main class="container">
-        <section class="hero">
-            <h1>Small Claims & Legal Dispute Templates</h1>
-            <p>Automated, legally structured dispute templates and demand letters for personal claims and small claims court preparation.</p>
-        </section>
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-4 pt-10 pb-4 text-center">
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Small Claims & Administrative Legal Templates</h2>
+    <p class="text-gray-600 max-w-2xl mx-auto text-sm">Generate advocate-grade legal notices, plaints, and administrative appeals in minutes.</p>
+  </section>
 
-        <section id="templates">
-            <h2 class="section-title">Available Dispute Templates</h2>
-            
-            <div class="grid">
-                
-                <!-- Product 1: Friendly Loan Recovery Claim -->
-                <div class="card">
-                    <div>
-                        <div class="card-header">
-                            <span class="badge">Personal Debt</span>
-                            <span class="price">$3.99 USD</span>
-                        </div>
-                        <h3>Friendly Loan Recovery Claim</h3>
-                        <p>Personal debt claim template based on bank transfers, messaging history, or informal receipts. Designed to formally demand repayment before court filing.</p>
-                    </div>
-                    <div>
-                        <!-- Gumroad Direct Overlay Link -->
-                        <a class="gumroad-button btn" href="https://myfairday.gumroad.com/l/FriendlyLoanRecoveryClaim">
-                            Fill & Pay ($3.99)
-                        </a>
-                    </div>
-                </div>
+  <!-- CTA Banner CORRIGIDO -->
+  <section class="max-w-7xl mx-auto px-4 my-4">
+    <div class="bg-gradient-to-r from-blue-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-6 text-center shadow-xl border border-blue-700">
+      <h3 class="text-2xl sm:text-3xl font-black tracking-wide uppercase text-amber-400 mb-1">
+        DEFEND YOURSELF FOR THE PRICE OF A COFFEE
+      </h3>
+      <p class="text-blue-100 text-xs sm:text-sm max-w-xl mx-auto">
+        Get instant access to court-tested legal documents and administrative petitions starting at just $3.99. No expensive legal retainer fees required.
+      </p>
+    </div>
+  </section>
 
-                <!-- Product 2: Excessive Electricity Bill Dispute -->
-                <div class="card">
-                    <div>
-                        <div class="card-header">
-                            <span class="badge">Utility Dispute</span>
-                            <span class="price">$9.99 USD</span>
-                        </div>
-                        <h3>Excessive Electricity Bill Dispute</h3>
-                        <p>Formal notice challenging uncharacteristic billing surges and requesting technical verification from the utility provider.</p>
-                    </div>
-                    <div>
-                        <!-- Gumroad Direct Overlay Link (Atualize com seu link quando criar) -->
-                        <a class="gumroad-button btn" href="https://myfairday.gumroad.com/l/ExcessiveElectricityBill">
-                            Fill & Pay ($9.99)
-                        </a>
-                    </div>
-                </div>
+  <!-- FREE TEMPLATES SECTION -->
+  <section id="free-templates" class="max-w-7xl mx-auto px-4 py-6">
+    <div class="mb-4">
+      <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">Free Preview</span>
+      <h3 class="text-xl font-bold text-gray-900 mt-1">3 Premium Free Templates</h3>
+    </div>
 
-            </div>
-        </section>
-    </main>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-5 rounded-xl border-2 border-green-500 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-0.5 bg-blue-100 text-blue-800 rounded">Employment</span>
+          <h4 class="text-base font-bold text-gray-900 mt-2">1. Unpaid Salary Recovery Plaint</h4>
+          <p class="text-xs text-gray-600 mt-1">Comprehensive plaint format under Labor Laws with statutory interest clauses.</p>
+        </div>
+        <button onclick="openCustomModal('salary', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Download Free .doc</button>
+      </div>
 
-    <footer>
-        <p>&copy; 2026 MyFairDay. All rights reserved.</p>
-    </footer>
+      <div class="bg-white p-5 rounded-xl border-2 border-green-500 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-0.5 bg-green-100 text-green-800 rounded">Housing</span>
+          <h4 class="text-base font-bold text-gray-900 mt-2">2. Rent Security Deposit Refund</h4>
+          <p class="text-xs text-gray-600 mt-1">Landlord deposit refund claim with strict penalty demands.</p>
+        </div>
+        <button onclick="openCustomModal('deposit', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Download Free .doc</button>
+      </div>
 
+      <div class="bg-white p-5 rounded-xl border-2 border-green-500 shadow-sm flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-semibold px-2 py-0.5 bg-orange-100 text-orange-800 rounded">Consumer</span>
+          <h4 class="text-base font-bold text-gray-900 mt-2">3. Consumer Protection Petition</h4>
+          <p class="text-xs text-gray-600 mt-1">District Commission petition complete with mental agony compensation.</p>
+        </div>
+        <button onclick="openCustomModal('consumer', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Download Free .doc</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAID TEMPLATES SECTION -->
+  <main id="paid-templates" class="max-w-7xl mx-auto px-4 pb-16 pt-4">
+    <div class="mb-4">
+      <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">Instant Download</span>
+      <h3 class="text-xl font-bold text-gray-900 mt-1">17 Specialized & Administrative Templates</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- 4. Cheque Bounce -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-red-100 text-red-800 rounded">Banking</span><span class="text-sm font-black text-blue-600">$ 4.25</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">4. Cheque Bounce Legal Notice</h4>
+          <p class="text-xs text-gray-600 mt-1">Statutory Section 138 demand notice.</p>
+        </div>
+        <button onclick="openCustomModal('cheque', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.25)</button>
+      </div>
+
+      <!-- 5. Friendly Loan Recovery (LINK DIRETO DO GUMROAD OVERLAY AQUI) -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-purple-100 text-purple-800 rounded">Personal</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">5. Friendly Loan Recovery</h4>
+          <p class="text-xs text-gray-600 mt-1">Personal debt claim based on bank receipts.</p>
+        </div>
+        <a class="gumroad-button mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold text-center block" 
+           href="https://myfairday.gumroad.com/l/FriendlyLoanRecoveryClaim">Fill & Pay ($ 3.99)</a>
+      </div>
+
+      <!-- 6. Freelancer Invoice -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded">Business</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">6. Freelancer Invoice Recovery</h4>
+          <p class="text-xs text-gray-600 mt-1">Recovery demand for contractors.</p>
+        </div>
+        <button onclick="openCustomModal('invoice', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
+      </div>
+
+      <!-- 7. Fee Refund -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded">Education</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">7. Institute Fee Refund Claim</h4>
+          <p class="text-xs text-gray-600 mt-1">Coaching/College tuition refund demand.</p>
+        </div>
+        <button onclick="openCustomModal('fee', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
+      </div>
+
+      <!-- 8. Property Damage -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-pink-100 text-pink-800 rounded">Property</span><span class="text-sm font-black text-blue-600">$ 4.25</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">8. Property Damage Compensation</h4>
+          <p class="text-xs text-gray-600 mt-1">Claim recovery for private asset damage.</p>
+        </div>
+        <button onclick="openCustomModal('property', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.25)</button>
+      </div>
+
+      <!-- 9. Travel Refund -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-teal-100 text-teal-800 rounded">Travel</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">9. Travel Ticket Refund</h4>
+          <p class="text-xs text-gray-600 mt-1">Flight/Train cancelled booking refund.</p>
+        </div>
+        <button onclick="openCustomModal('travel', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
+      </div>
+
+      <!-- 10. Contract Breach -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-gray-100 text-gray-800 rounded">Contract</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">10. Contract Breach Claim</h4>
+          <p class="text-xs text-gray-600 mt-1">Damages for service agreement violations.</p>
+        </div>
+        <button onclick="openCustomModal('contract', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
+      </div>
+
+      <!-- 11. RTI Application -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-800 rounded">Administrative</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">11. RTI Application Petition</h4>
+          <p class="text-xs text-gray-600 mt-1">Official RTI query to government bodies.</p>
+        </div>
+        <button onclick="openCustomModal('rti', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
+      </div>
+
+      <!-- 12. Municipal Complaint -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Administrative</span><span class="text-sm font-black text-blue-600">$ 4.15</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">12. Municipal Civic Petition</h4>
+          <p class="text-xs text-gray-600 mt-1">Formal grievance to Municipal Corporation.</p>
+        </div>
+        <button onclick="openCustomModal('municipal', 4.15)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.15)</button>
+      </div>
+
+      <!-- 13. Electricity Bill -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-cyan-100 text-cyan-800 rounded">Utilities</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">13. Electricity Bill Appeal</h4>
+          <p class="text-xs text-gray-600 mt-1">Dispute notice for wrong meter readings.</p>
+        </div>
+        <button onclick="openCustomModal('electricity', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
+      </div>
+
+      <!-- 14. E-Commerce -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-orange-100 text-orange-800 rounded">E-Commerce</span><span class="text-sm font-black text-blue-600">$ 4.10</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">14. E-Commerce Refund Notice</h4>
+          <p class="text-xs text-gray-600 mt-1">Notice for non-delivery or refused refunds.</p>
+        </div>
+        <button onclick="openCustomModal('ecommerce', 4.10)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.10)</button>
+      </div>
+
+      <!-- 15. Banking Ombudsman -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-violet-100 text-violet-800 rounded">Banking</span><span class="text-sm font-black text-blue-600">$ 4.35</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">15. Bank Ombudsman Dispute</h4>
+          <p class="text-xs text-gray-600 mt-1">Complaint for unauthorized charges/debits.</p>
+        </div>
+        <button onclick="openCustomModal('ombudsman', 4.35)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.35)</button>
+      </div>
+
+      <!-- 16. Insurance -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-rose-100 text-rose-800 rounded">Insurance</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">16. Insurance Claim Rejection Appeal</h4>
+          <p class="text-xs text-gray-600 mt-1">Appeal against insurance claim repudiation.</p>
+        </div>
+        <button onclick="openCustomModal('insurance', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
+      </div>
+
+      <!-- 17. Housing Society -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-lime-100 text-lime-800 rounded">Housing</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">17. Housing Society Dispute</h4>
+          <p class="text-xs text-gray-600 mt-1">Dispute against wrongful society fines.</p>
+        </div>
+        <button onclick="openCustomModal('society', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
+      </div>
+
+      <!-- 18. Telecom -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-sky-100 text-sky-800 rounded">Telecom</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">18. Telecom Grievance Notice</h4>
+          <p class="text-xs text-gray-600 mt-1">Grievance for fiber broadband outages.</p>
+        </div>
+        <button onclick="openCustomModal('telecom', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
+      </div>
+
+      <!-- 19. Medical -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-red-100 text-red-800 rounded">Medical</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">19. Hospital Overcharging Claim</h4>
+          <p class="text-xs text-gray-600 mt-1">Notice for inflated healthcare billing.</p>
+        </div>
+        <button onclick="openCustomModal('medical', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
+      </div>
+
+      <!-- 20. Automotive -->
+      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-zinc-100 text-zinc-800 rounded">Automotive</span><span class="text-sm font-black text-blue-600">$ 4.25</span></div>
+          <h4 class="text-base font-bold text-gray-900 mt-2">20. Automobile Service Dispute</h4>
+          <p class="text-xs text-gray-600 mt-1">Notice for faulty dealership repairs.</p>
+        </div>
+        <button onclick="openCustomModal('automotive', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.25)</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER REVISADO E COM LEGAL DISCLAIMER -->
+  <footer class="bg-gray-900 text-gray-300 py-10 border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-bold text-white mb-2">About MyFairDay</h3>
+        <p class="text-xs text-gray-400 leading-relaxed">
+          MyFairDay provides self-service automated legal document templates and administrative forms for informational and organizational purposes.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-amber-400 mb-2">Legal Disclaimer</h3>
+        <p class="text-xs text-gray-400 leading-relaxed">
+          MyFairDay is <strong>not a law firm</strong>, does not provide legal advice, representation, or legal services, and is not a substitute for a licensed attorney. Use of our self-service templates does not create an attorney-client relationship. Please consult a qualified attorney for specific legal counsel.
+        </p>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 pt-8 text-center text-xs text-gray-500 border-t border-gray-800 mt-8">
+      © MyFairDay. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- DYNAMIC MODAL FORM -->
+  <div id="docModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <h3 id="modalTitle" class="text-xl font-bold text-gray-900">Document Details</h3>
+          <p id="modalSubtitle" class="text-xs text-blue-600 font-semibold"></p>
+        </div>
+        <span id="modalPriceTag" class="text-xs font-bold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">FREE</span>
+      </div>
+      
+      <form id="docForm" class="space-y-4" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" id="currentTemplateKey">
+        <input type="hidden" id="currentTemplatePrice">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700">PLAINTIFF / APPLICANT NAME</label>
+            <input type="text" id="modalPlaintiff" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700">DEFENDANT / OPPOSING PARTY</label>
+            <input type="text" id="modalDefendant" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700">CLAIM AMOUNT / DISPUTE VALUE (in $ / ₹)</label>
+          <input type="number" id="modalAmount" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+        </div>
+
+        <div id="customFieldsContainer" class="space-y-3 bg-blue-50 p-3 rounded-lg border border-blue-100"></div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700">STATEMENT OF FACTS / DESCRIPTION</label>
+          <textarea id="modalFacts" rows="3" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm" placeholder="Summarize key facts..."></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700">Cancel</button>
+          <button type="submit" id="submitBtn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-bold shadow">
+            Download .doc
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Atualizado com seu usuário real do Gumroad
+    const GUMROAD_USER = "myfairday"; 
+
+    const templateConfigs = {
+      salary: { title: "Unpaid Salary Recovery Plaint", subtitle: "Enhanced Employment Recovery Plaint", fields: [{ id: "f1", label: "Designation/Role", placeholder: "e.g. Senior Engineer" }, { id: "f2", label: "Salary Months Pending", placeholder: "e.g. March to May 2026" }] },
+      deposit: { title: "Rent Security Deposit Refund Notice", subtitle: "Enhanced Tenancy Refund Demand", fields: [{ id: "f1", label: "Property Address", placeholder: "e.g. Flat 402, Sunshine Apartments" }, { id: "f2", label: "Vacated Date", placeholder: "e.g. 30th April 2026" }] },
+      consumer: { title: "Defective Goods Consumer Petition", subtitle: "Enhanced District Consumer Forum Claim", fields: [{ id: "f1", label: "Product & Serial No.", placeholder: "e.g. Smart Washing Machine #WM-882" }, { id: "f2", label: "Invoice Date & Bill No.", placeholder: "e.g. Bill #1029 dated 15 Jan 2026" }] },
+      cheque: { title: "Cheque Bounce Legal Notice", subtitle: "Section 138 Statutory Notice", fields: [{ id: "f1", label: "Cheque No. & Bank Name", placeholder: "e.g. Cheque #000123, ICICI Bank" }, { id: "f2", label: "Bounce Memo Date", placeholder: "e.g. 10th June 2026" }] },
+      loan: { title: "Friendly Loan Recovery Claim", subtitle: "Personal Debt Claim Demand", fields: [{ id: "f1", label: "Payment Mode (UPI/Bank/Cash)", placeholder: "e.g. Bank Transfer Ref #99201" }, { id: "f2", label: "Promised Repayment Date", placeholder: "e.g. 1st March 2026" }] },
+      invoice: { title: "Freelancer Unpaid Invoice Notice", subtitle: "Contractor Fee Recovery Notice", fields: [{ id: "f1", label: "Services Provided", placeholder: "e.g. Brand UI Design & Frontend" }, { id: "f2", label: "Invoice Number & Date", placeholder: "e.g. INV-2026-09" }] },
+      fee: { title: "Institute Fee Refund Claim", subtitle: "Educational Tuition Dispute", fields: [{ id: "f1", label: "Course Name & Admission ID", placeholder: "e.g. Data Science Bootcamp #DS-401" }, { id: "f2", label: "Cancellation Date", placeholder: "e.g. 5th June 2026" }] },
+      property: { title: "Property Damage Compensation", subtitle: "Civil Damage Recovery Claim", fields: [{ id: "f1", label: "Damaged Property Item", placeholder: "e.g. Boundary Wall and Car Gate" }, { id: "f2", label: "Incident Date", placeholder: "e.g. 12th May 2026" }] },
+      travel: { title: "Travel Ticket Refund Claim", subtitle: "Airline/Railway Refund Dispute", fields: [{ id: "f1", label: "Booking Reference / PNR", placeholder: "e.g. Flight PNR #AB9821" }, { id: "f2", label: "Cancellation Reason", placeholder: "e.g. Flight cancelled without notification" }] },
+      contract: { title: "Service Contract Breach Claim", subtitle: "Commercial Agreement Dispute", fields: [{ id: "f1", label: "Contract Title & Date", placeholder: "e.g. Vendor Agreement dated 10 Feb 2026" }, { id: "f2", label: "Breached Clause", placeholder: "e.g. Non-delivery of SLAs" }] },
+      rti: { title: "Right to Information (RTI) Petition", subtitle: "Public Information Office Request", fields: [{ id: "f1", label: "Government Department Name", placeholder: "e.g. Public Works Department" }, { id: "f2", label: "Specific File / Info Requested", placeholder: "e.g. Tender approval status for Road #12" }] },
+      municipal: { title: "Municipal Civic Grievance Petition", subtitle: "Municipal Commissioner Complaint", fields: [{ id: "f1", label: "Locality / Ward Number", placeholder: "e.g. Ward 14, Indiranagar" }, { id: "f2", label: "Civic Issue", placeholder: "e.g. Overflowing sewage for 3 weeks" }] },
+      electricity: { title: "Electricity Billing Dispute Notice", subtitle: "State Electricity Board Appeal", fields: [{ id: "f1", label: "Consumer Connection No.", placeholder: "e.g. Connection #CA-902188" }, { id: "f2", label: "Disputed Bill Period", placeholder: "e.g. May-June 2026" }] },
+      ecommerce: { title: "E-Commerce Refund Notice", subtitle: "Online Seller Legal Demand", fields: [{ id: "f1", label: "Order ID & Platform", placeholder: "e.g. Order #402-99182" }, { id: "f2", label: "Item Purchased", placeholder: "e.g. Laptop Computer" }] },
+      ombudsman: { title: "Banking Ombudsman Dispute", subtitle: "Reserve Bank Ombudsman Dispute", fields: [{ id: "f1", label: "Bank Account / Card No.", placeholder: "e.g. Card Ending #4019" }, { id: "f2", label: "Unauthorized Transaction", placeholder: "e.g. Erroneous charge of ₹12,500" }] },
+      insurance: { title: "Insurance Claim Rejection Appeal", subtitle: "Insurance Ombudsman Demand", fields: [{ id: "f1", label: "Policy & Claim Number", placeholder: "e.g. Policy #POL-8812" }, { id: "f2", label: "Rejection Reason Cited", placeholder: "e.g. False pre-existing condition" }] },
+      society: { title: "Housing Society Maintenance Dispute", subtitle: "Cooperative Housing Society Notice", fields: [{ id: "f1", label: "Flat Number & Building", placeholder: "e.g. Flat B-201, Green Meadows" }, { id: "f2", label: "Disputed Fine/Charge", placeholder: "e.g. Illegal penalty for elevator usage" }] },
+      telecom: { title: "Telecom Appellate Grievance Notice", subtitle: "TRAI Appellate Authority Complaint", fields: [{ id: "f1", label: "Service No.", placeholder: "e.g. Fiber ID #080-49201" }, { id: "f2", label: "Service Defect", placeholder: "e.g. 14 days without connection" }] },
+      medical: { title: "Hospital Overcharging Complaint", subtitle: "Medical Council & Forum Notice", fields: [{ id: "f1", label: "Hospital Name & Patient ID", placeholder: "e.g. City Hospital, Patient #88102" }, { id: "f2", label: "Inflated Charges Details", placeholder: "e.g. Unexplained ICU surcharge" }] },
+      automotive: { title: "Automobile Service Center Dispute", subtitle: "Vehicle Dealership Statutory Notice", fields: [{ id: "f1", label: "Vehicle Reg No.", placeholder: "e.g. KA-01-MJ-4091" }, { id: "f2", label: "Job Card No. & Defect", placeholder: "e.g. Job Card #9921 - Engine overheating" }] }
+    };
+
+    function openCustomModal(key, price) {
+      const config = templateConfigs[key];
+      if (!config) return;
+
+      document.getElementById('currentTemplateKey').value = key;
+      document.getElementById('currentTemplatePrice').value = price;
+      document.getElementById('modalTitle').innerText = config.title;
+      document.getElementById('modalSubtitle').innerText = config.subtitle;
+
+      const priceTag = document.getElementById('modalPriceTag');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (price === 0) {
+        priceTag.innerText = "100% FREE";
+        priceTag.className = "text-xs font-bold px-2.5 py-1 bg-green-100 text-green-800 rounded-full";
+        submitBtn.innerText = "Download Free .doc";
+        submitBtn.className = "px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs font-bold shadow";
+      } else {
+        priceTag.innerText = `$ ${price.toFixed(2)}`;
+        priceTag.className = "text-xs font-bold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full";
+        submitBtn.innerText = `Pay $ ${price.toFixed(2)} & Download`;
+        submitBtn.className = "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold shadow";
+      }
+
+      const container = document.getElementById('customFieldsContainer');
+      container.innerHTML = '';
+      config.fields.forEach(f => {
+        container.innerHTML += `
+          <div>
+            <label class="block text-xs font-semibold text-blue-900">${f.label.toUpperCase()}</label>
+            <input type="text" id="${f.id}" required class="w-full mt-1 p-2 border border-blue-200 rounded-md text-sm bg-white" placeholder="${f.placeholder}">
+          </div>
+        `;
+      });
+
+      document.getElementById('docModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('docModal').classList.add('hidden');
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const price = parseFloat(document.getElementById('currentTemplatePrice').value);
+      const key = document.getElementById('currentTemplateKey').value;
+
+      const formData = {
+        key: key,
+        plaintiff: document.getElementById('modalPlaintiff').value,
+        defendant: document.getElementById('modalDefendant').value,
+        amount: document.getElementById('modalAmount').value,
+        facts: document.getElementById('modalFacts').value,
+        f1: document.getElementById('f1') ? document.getElementById('f1').value : '',
+        f2: document.getElementById('f2') ? document.getElementById('f2').value : ''
+      };
+
+      if (price === 0) {
+        triggerDocDownload(formData);
+      } else {
+        localStorage.setItem('myfairday_pending_doc', JSON.stringify(formData));
+
+        const gumroadUrl = `https://${GUMROAD_USER}.gumroad.com/l/${key}`;
+        
+        if (window.GumroadOverlay) {
+          GumroadOverlay.open({ url: gumroadUrl });
+        } else {
+          window.location.href = gumroadUrl;
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('paid') === 'true' || urlParams.get('success') === 'true') {
+        const savedData = localStorage.getItem('myfairday_pending_doc');
+        if (savedData) {
+          const formData = JSON.parse(savedData);
+          alert('Payment Successful! Generating your custom document now...');
+          triggerDocDownload(formData);
+          localStorage.removeItem('myfairday_pending_doc');
+        }
+      }
+    });
+
+    function triggerDocDownload(data) {
+      const config = templateConfigs[data.key];
+
+      const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>${config.title}</title>
+        <style>
+          body { font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.6; color: #111; }
+          h2 { text-align: center; font-size: 18pt; margin-bottom: 20px; text-transform: uppercase; }
+          .meta { margin-bottom: 20px; font-size: 11pt; }
+          .section { margin-top: 15px; font-size: 11pt; }
+        </style>
+        </head>
+        <body>
+          <h2>${config.title.toUpperCase()}</h2>
+          <div class='meta'>
+            <p><strong>BEFORE THE COMPETENT LEGAL AUTHORITY / FORUM</strong></p>
+            <p><strong>IN THE MATTER OF:</strong></p>
+            <p><strong>${data.plaintiff.toUpperCase()}</strong> ...PLAINTIFF/APPLICANT</p>
+            <p><strong>VERSUS</strong></p>
+            <p><strong>${data.defendant.toUpperCase()}</strong> ...DEFENDANT/RESPONDENT</p>
+            <p><strong>CLAIM VALUE:</strong> $ / ₹ ${data.amount}</p>
+          </div>
+          <div class='section'>
+            <p><strong>1. DETAILS OF THE DISPUTE:</strong></p>
+            <p>${data.f1 ? '• ' + data.f1 : ''}</p>
+            <p>${data.f2 ? '• ' + data.f2 : ''}</p>
+          </div>
+          <div class='section'>
+            <p><strong>2. STATEMENT OF FACTS:</strong></p>
+            <p>${data.facts}</p>
+          </div>
+          <div class='section'>
+            <p><strong>3. PRAYER / RELIEF SOUGHT:</strong></p>
+            <p>It is most respectfully prayed that this Hon'ble Authority pass an order directing the Defendant to pay the principal amount along with applicable interest and costs.</p>
+          </div>
+          <br><br>
+          <p><strong>(${data.plaintiff})</strong><br>Applicant / Complainant</p>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff', htmlContent], {
+        type: 'application/msword'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${data.key}_claim_document.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
 </body>
 </html>
