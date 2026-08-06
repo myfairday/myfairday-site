@@ -1,587 +1,568 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyFairDay — Small Claims & Administrative Legal Templates</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Script Oficial do Gumroad Overlay -->
-  <script src="https://gumroad.com/js/gumroad.js"></script>
-  <!-- Lucide Icons para o ícone do Chatbot -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MyFairDay Cyber Crew — Stay Safe Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+  html, body { margin: 0; padding: 0; }
+  * { box-sizing: border-box; }
+  ::placeholder { color: #7A8699; }
+</style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body>
+<div id="root"></div>
 
-  <!-- Header -->
-  <header class="bg-white border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <span class="text-2xl">⚖️</span>
-        <h1 class="text-xl font-bold text-gray-900">MyFairDay</h1>
-      </div>
-      <nav class="space-x-4 text-sm font-medium">
-        <a href="#free-templates" class="text-green-600 font-bold hover:underline">Free Samples</a>
-        <a href="#paid-templates" class="text-gray-600 hover:text-blue-600">Premium Templates</a>
-      </nav>
-    </div>
-  </header>
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
 
-  <!-- Hero Section -->
-  <section class="max-w-7xl mx-auto px-4 pt-10 pb-4 text-center">
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Small Claims & Administrative Legal Templates</h2>
-    <p class="text-gray-600 max-w-2xl mx-auto text-sm">Generate advocate-grade legal notices, plaints, and administrative appeals in minutes.</p>
-  </section>
+// ---------------------------------------------------------------------------
+// CONFIG — edit these for your real setup.
+// ---------------------------------------------------------------------------
+const API_BASE = "https://api.myfairday.org";
+const ASSIST_URL = API_BASE + "/api/assist";
+const LICENSE_URL = API_BASE + "/api/verify-license";
+const USAGE_URL = API_BASE + "/api/usage";
+const GUMROAD_CHECKOUT_URL = "https://gumroad.com/l/YOUR-PRODUCT-HERE"; // <-- replace
+const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"; // <-- replace
+const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY"; // <-- replace
+const FREE_LIMIT = 4;
 
-  <!-- CTA Banner -->
-  <section class="max-w-7xl mx-auto px-4 my-4">
-    <div class="bg-gradient-to-r from-blue-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-6 text-center shadow-xl border border-blue-700">
-      <h3 class="text-2xl sm:text-3xl font-black tracking-wide uppercase text-amber-400 mb-1">
-        DEFEND YOURSELF FOR THE PRICE OF A COFFEE
-      </h3>
-      <p class="text-blue-100 text-xs sm:text-sm max-w-xl mx-auto">
-        Get instant access to court-tested legal documents and administrative petitions starting at just $3.99. No expensive legal retainer fees required.
-      </p>
-    </div>
-  </section>
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  <!-- FREE TEMPLATES SECTION -->
-  <section id="free-templates" class="max-w-7xl mx-auto px-4 py-6">
-    <div class="mb-4">
-      <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">Free Preview</span>
-      <h3 class="text-xl font-bold text-gray-900 mt-1">3 Premium Free Templates</h3>
-    </div>
+// ---------------------------------------------------------------------------
+// The Crew — four original characters (not based on any copyrighted IP).
+// Each has its own accent color and a simple abstract emblem built from
+// plain shapes, not a copied costume or logo.
+// ---------------------------------------------------------------------------
+const CREW = [
+  { id: "umbra", name: "Umbra", title: "The Shadow Investigator", color: "#6E7CE0",
+    blurb: "Analyzes suspicious links, messages, and senders — spots what others miss.",
+    blurbHi: "संदिग्ध लिंक, संदेश और भेजने वालों का विश्लेषण करता है।" },
+  { id: "solaris", name: "Solaris", title: "The Incorruptible Guardian", color: "#E0A63B",
+    blurb: "Hardens your defenses — passwords, 2FA, backups, and the basics done right.",
+    blurbHi: "आपकी सुरक्षा मजबूत करता है — पासवर्ड, 2FA, बैकअप।" },
+  { id: "weaver", name: "Weaver", title: "The Net Runner", color: "#3BC9A8",
+    blurb: "Untangles phishing emails and social engineering tricks, fast.",
+    blurbHi: "फ़िशिंग ईमेल और धोखे की चालों को तुरंत सुलझाता है।" },
+  { id: "bumble", name: "Bumble", title: "The Lucky Underdog", color: "#E0673B",
+    blurb: "Gets it wrong so you don't have to — myths busted, no jargon.",
+    blurbHi: "गलतियों से सीखता है — कोई मुश्किल शब्द नहीं, सिर्फ़ मज़ेदार सलाह।" },
+];
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white p-5 rounded-xl border-2 border-green-500 shadow-sm flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-semibold px-2 py-0.5 bg-blue-100 text-blue-800 rounded">Employment</span>
-          <h4 class="text-base font-bold text-gray-900 mt-2">1. Unpaid Salary Recovery Plaint</h4>
-          <p class="text-xs text-gray-600 mt-1">Comprehensive plaint format under Labor Laws with statutory interest clauses.</p>
-        </div>
-        <button onclick="openCustomModal('salary', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Download Free .doc</button>
-      </div>
+// ---------------------------------------------------------------------------
+// Inline icons
+// ---------------------------------------------------------------------------
+const Icon = ({ children, size = 18, color = "currentColor", strokeWidth = 1.8 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+       strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+const IconSend = (p) => <Icon {...p}><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></Icon>;
+const IconShield = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /></Icon>;
+const IconShieldCheck = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2l4-4" /></Icon>;
+const IconGlobe = (p) => <Icon {...p}><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.5 2.5 2.5 15.5 0 18" /><path d="M12 3c-2.5 2.5-2.5 15.5 0 18" /></Icon>;
+const IconRotateCcw = (p) => <Icon {...p}><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" /></Icon>;
+const IconCheck = (p) => <Icon {...p}><path d="M20 6L9 17L4 12" /></Icon>;
+const IconLock = (p) => <Icon {...p}><rect x="4" y="10" width="16" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></Icon>;
+const IconExternal = (p) => <Icon {...p}><path d="M14 4h6v6" /><path d="M10 14L20 4" /><path d="M19 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></Icon>;
+const IconUser = (p) => <Icon {...p}><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></Icon>;
+const IconLogOut = (p) => <Icon {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></Icon>;
+const IconCoffee = (p) => <Icon {...p}><path d="M17 8h1a3 3 0 0 1 0 6h-1" /><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z" /><path d="M6 2v2" /><path d="M10 2v2" /><path d="M14 2v2" /></Icon>;
 
-      <div class="bg-white p-5 rounded-xl border-2 border-green-500 shadow-sm flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-semibold px-2 py-0.5 bg-green-100 text-green-800 rounded">Housing</span>
-          <h4 class="text-base font-bold text-gray-900 mt-2">2. Rent Security Deposit Refund</h4>
-          <p class="text-xs text-gray-600 mt-1">Landlord deposit refund claim with strict penalty demands.</p>
-        </div>
-        <button onclick="openCustomModal('deposit', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Download Free .doc</button>
-      </div>
+// Simple abstract emblem per character — built from shapes only, no
+// copied logos or costumes.
+function Emblem({ id, color, size = 40 }) {
+  const common = { width: size, height: size, viewBox: "0 0 40 40" };
+  if (id === "umbra") return (
+    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><path d="M20 6a14 14 0 1 0 10 24 11 11 0 0 1-10-24Z" fill={color} /></svg>
+  );
+  if (id === "solaris") return (
+    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><circle cx="20" cy="20" r="8" fill={color} />
+      {[0,45,90,135,180,225,270,315].map((a,i)=>(<rect key={i} x="19" y="2" width="2" height="7" fill={color} transform={`rotate(${a} 20 20)`} />))}
+    </svg>
+  );
+  if (id === "weaver") return (
+    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" />
+      <circle cx="20" cy="20" r="3" fill={color} />
+      {[0,60,120,180,240,300].map((a,i)=>(<line key={i} x1="20" y1="20" x2="20" y2="4" stroke={color} strokeWidth="1.6" transform={`rotate(${a} 20 20)`} />))}
+      <circle cx="20" cy="20" r="8" fill="none" stroke={color} strokeWidth="1.4" opacity="0.6" />
+      <circle cx="20" cy="20" r="13" fill="none" stroke={color} strokeWidth="1.4" opacity="0.4" />
+    </svg>
+  );
+  return (
+    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" />
+      <ellipse cx="20" cy="20" rx="12" ry="10" fill={color} />
+      <circle cx="20" cy="12" r="4" fill={color} />
+      <circle cx="16" cy="19" r="1.6" fill="#fff" /><circle cx="24" cy="19" r="1.6" fill="#fff" />
+      <circle cx="16" cy="24" r="1.6" fill="#fff" /><circle cx="24" cy="24" r="1.6" fill="#fff" />
+    </svg>
+  );
+}
 
-      <div class="bg-white p-5 rounded-xl border-2 border-green-500 shadow-sm flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-semibold px-2 py-0.5 bg-orange-100 text-orange-800 rounded">Consumer</span>
-          <h4 class="text-base font-bold text-gray-900 mt-2">3. Consumer Protection Petition</h4>
-          <p class="text-xs text-gray-600 mt-1">District Commission petition complete with mental agony compensation.</p>
-        </div>
-        <button onclick="openCustomModal('consumer', 0)" class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Download Free .doc</button>
-      </div>
-    </div>
-  </section>
+// ---------------------------------------------------------------------------
+// Copy — EN / HI
+// ---------------------------------------------------------------------------
+const STRINGS = {
+  en: {
+    wordmark: "MyFairDay",
+    tagline: "The Cyber Crew — stay safe online",
+    navHome: "Home", navAssistant: "Talk to the Crew",
+    heroEyebrow: "FOUR HEROES. ONE MISSION.",
+    heroTitle: "Meet your Cyber Crew. Stay safe for less than a coffee — $4.50.",
+    heroSub: "Four AI defenders help you spot scams, lock down your accounts, and stay safe online. Create a free account and ask your first 4 questions free.",
+    heroCta: "Meet the Crew — 4 questions free",
+    resourcesTitle: "Official resources (verified, not AI-generated)",
+    resourcesNote: "We link only to official Indian government cyber-safety sources.",
+    resources: [
+      { label: "National Cyber Crime Reporting Portal", url: "https://cybercrime.gov.in" },
+      { label: "Cyber Crime Helpline — dial 1930", url: "https://cybercrime.gov.in" },
+      { label: "CERT-In — Indian Computer Emergency Response Team", url: "https://www.cert-in.org.in" },
+    ],
+    pickTitle: "Choose who you want to talk to",
+    authTitle: "Sign in to continue", authTitleSignup: "Create your free account",
+    emailLabel: "Email", passwordLabel: "Password",
+    loginBtn: "Log in", signupBtn: "Create account",
+    switchToSignup: "New here? Create an account",
+    switchToLogin: "Already have an account? Log in",
+    authLoading: "Please wait…",
+    checkEmail: "Check your email to confirm your account, then log in.",
+    logout: "Log out",
+    disclaimerTitle: "Before you begin",
+    disclaimerBody: "The Crew gives general, educational cybersecurity guidance. It is not a substitute for professional incident response. Never paste real passwords, OTPs, or card numbers into this chat.",
+    disclaimerAccept: "Got it — let's go",
+    chatIntroFor: (name) => `You're talking to ${name}. What's going on?`,
+    inputPlaceholder: "Describe what happened or paste a suspicious message…",
+    thinking: "Thinking…",
+    questionsLeft: (n) => n === 1 ? "1 free question left" : `${n} free questions left`,
+    unlockedBadge: "Unlimited access",
+    paywallTitle: "You've used your 4 free questions",
+    paywallBody: "Unlock unlimited help from the whole Crew — a one-time payment, less than a coffee.",
+    paywallCta: "Get instant access — $4.50",
+    haveCode: "Already paid? Enter your code",
+    licensePlaceholder: "Paste your license key",
+    unlockBtn: "Unlock", unlocking: "Checking…",
+    licenseInvalid: "That code didn't work. Please check it and try again.",
+    switchCharacter: "Switch character",
+    startOver: "Start over",
+  },
+  hi: {
+    wordmark: "MyFairDay",
+    tagline: "साइबर क्रू — ऑनलाइन सुरक्षित रहें",
+    navHome: "होम", navAssistant: "क्रू से बात करें",
+    heroEyebrow: "चार हीरो। एक मिशन।",
+    heroTitle: "अपनी साइबर क्रू से मिलें। एक कॉफ़ी से भी कम में — $4.50।",
+    heroSub: "चार AI रक्षक आपको धोखाधड़ी पहचानने और अपने खातों को सुरक्षित रखने में मदद करते हैं। मुफ़्त खाता बनाएं और पहले 4 सवाल मुफ़्त पूछें।",
+    heroCta: "क्रू से मिलें — 4 सवाल मुफ़्त",
+    resourcesTitle: "आधिकारिक संसाधन (सत्यापित, AI-निर्मित नहीं)",
+    resourcesNote: "हम केवल आधिकारिक भारत सरकार साइबर-सुरक्षा स्रोतों से जोड़ते हैं।",
+    resources: [
+      { label: "राष्ट्रीय साइबर क्राइम रिपोर्टिंग पोर्टल", url: "https://cybercrime.gov.in" },
+      { label: "साइबर क्राइम हेल्पलाइन — 1930 डायल करें", url: "https://cybercrime.gov.in" },
+      { label: "CERT-In — भारतीय कंप्यूटर आपातकालीन प्रतिक्रिया दल", url: "https://www.cert-in.org.in" },
+    ],
+    pickTitle: "किससे बात करना चाहते हैं चुनें",
+    authTitle: "जारी रखने के लिए लॉग इन करें", authTitleSignup: "अपना मुफ़्त खाता बनाएं",
+    emailLabel: "ईमेल", passwordLabel: "पासवर्ड",
+    loginBtn: "लॉग इन करें", signupBtn: "खाता बनाएं",
+    switchToSignup: "नए हैं? खाता बनाएं",
+    switchToLogin: "पहले से खाता है? लॉग इन करें",
+    authLoading: "कृपया प्रतीक्षा करें…",
+    checkEmail: "अपना खाता पुष्ट करने के लिए ईमेल जांचें, फिर लॉग इन करें।",
+    logout: "लॉग आउट",
+    disclaimerTitle: "शुरू करने से पहले",
+    disclaimerBody: "क्रू सामान्य, शैक्षिक साइबर सुरक्षा मार्गदर्शन देती है। यह पेशेवर घटना-प्रतिक्रिया सेवा का विकल्प नहीं है। कृपया कभी भी असली पासवर्ड, OTP, या कार्ड नंबर इस चैट में न डालें।",
+    disclaimerAccept: "समझ गया — चलें",
+    chatIntroFor: (name) => `आप ${name} से बात कर रहे हैं। क्या हुआ बताएं?`,
+    inputPlaceholder: "जो हुआ बताएं या संदिग्ध संदेश पेस्ट करें…",
+    thinking: "सोच रहा है…",
+    questionsLeft: (n) => `${n} मुफ़्त सवाल बचे हैं`,
+    unlockedBadge: "असीमित पहुंच",
+    paywallTitle: "आपके 4 मुफ़्त सवाल पूरे हो गए",
+    paywallBody: "पूरी क्रू से असीमित मदद पाएं — एक बार भुगतान, एक कॉफ़ी से भी कम।",
+    paywallCta: "तुरंत पहुंच पाएं — $4.50",
+    haveCode: "पहले ही भुगतान कर दिया? कोड डालें",
+    licensePlaceholder: "अपना लाइसेंस कोड डालें",
+    unlockBtn: "अनलॉक करें", unlocking: "जांच हो रही है…",
+    licenseInvalid: "यह कोड काम नहीं कर रहा। कृपया जांचें और फिर से कोशिश करें।",
+    switchCharacter: "चरित्र बदलें",
+    startOver: "फिर से शुरू करें",
+  },
+};
 
-  <!-- PAID TEMPLATES SECTION -->
-  <main id="paid-templates" class="max-w-7xl mx-auto px-4 pb-16 pt-4">
-    <div class="mb-4">
-      <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">Instant Download</span>
-      <h3 class="text-xl font-bold text-gray-900 mt-1">17 Specialized & Administrative Templates</h3>
-    </div>
+async function getAccessToken() {
+  const { data } = await sb.auth.getSession();
+  return data && data.session ? data.session.access_token : null;
+}
+async function authedFetch(url, options = {}) {
+  const token = await getAccessToken();
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetch(url, { ...options, headers });
+}
+async function callAssistant(userText, character) {
+  try {
+    const response = await authedFetch(ASSIST_URL, { method: "POST", body: JSON.stringify({ text: userText, character }) });
+    return await response.json();
+  } catch (e) {
+    return { mode: "decline", reply: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
+  }
+}
+async function verifyLicense(key) {
+  try {
+    const response = await authedFetch(LICENSE_URL, { method: "POST", body: JSON.stringify({ license_key: key }) });
+    const data = await response.json();
+    return !!data.valid;
+  } catch (e) { return false; }
+}
+async function fetchUsage() {
+  try {
+    const response = await authedFetch(USAGE_URL, { method: "GET" });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (e) { return null; }
+}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+function App() {
+  const [lang, setLang] = useState("en");
+  const t = STRINGS[lang];
+  const [tab, setTab] = useState("home");
+  const [accepted, setAccepted] = useState(false);
+  const [character, setCharacter] = useState(null);
 
-      <!-- 4. Cheque Bounce -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-red-100 text-red-800 rounded">Banking</span><span class="text-sm font-black text-blue-600">$ 4.25</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">4. Cheque Bounce Legal Notice</h4>
-          <p class="text-xs text-gray-600 mt-1">Statutory Section 138 demand notice.</p>
-        </div>
-        <button onclick="openCustomModal('cheque', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.25)</button>
-      </div>
+  const [session, setSession] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [authNotice, setAuthNotice] = useState("");
 
-      <!-- 5. Friendly Loan Recovery -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-purple-100 text-purple-800 rounded">Personal</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">5. Friendly Loan Recovery</h4>
-          <p class="text-xs text-gray-600 mt-1">Personal debt claim based on bank receipts.</p>
-        </div>
-        <a class="gumroad-button mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold text-center block" 
-           href="https://myfairday.gumroad.com/l/FriendlyLoanRecoveryClaim">Fill & Pay ($ 3.99)</a>
-      </div>
+  const [questionsUsed, setQuestionsUsed] = useState(0);
+  const [unlocked, setUnlocked] = useState(false);
 
-      <!-- 6. Freelancer Invoice -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded">Business</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">6. Freelancer Invoice Recovery</h4>
-          <p class="text-xs text-gray-600 mt-1">Recovery demand for contractors.</p>
-        </div>
-        <button onclick="openCustomModal('invoice', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
-      </div>
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [thinking, setThinking] = useState(false);
+  const scrollRef = useRef(null);
 
-      <!-- 7. Fee Refund -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded">Education</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">7. Institute Fee Refund Claim</h4>
-          <p class="text-xs text-gray-600 mt-1">Coaching/College tuition refund demand.</p>
-        </div>
-        <button onclick="openCustomModal('fee', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
-      </div>
+  const [licenseKey, setLicenseKey] = useState("");
+  const [licenseError, setLicenseError] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [showLicenseForm, setShowLicenseForm] = useState(false);
 
-      <!-- 8. Property Damage -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-pink-100 text-pink-800 rounded">Property</span><span class="text-sm font-black text-blue-600">$ 4.25</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">8. Property Damage Compensation</h4>
-          <p class="text-xs text-gray-600 mt-1">Claim recovery for private asset damage.</p>
-        </div>
-        <button onclick="openCustomModal('property', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.25)</button>
-      </div>
+  useEffect(() => {
+    sb.auth.getSession().then(({ data }) => { setSession(data.session || null); setAuthChecked(true); });
+    const { data: listener } = sb.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
-      <!-- 9. Travel Refund -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-teal-100 text-teal-800 rounded">Travel</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">9. Travel Ticket Refund</h4>
-          <p class="text-xs text-gray-600 mt-1">Flight/Train cancelled booking refund.</p>
-        </div>
-        <button onclick="openCustomModal('travel', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
-      </div>
+  useEffect(() => {
+    if (session) fetchUsage().then((u) => { if (u) { setQuestionsUsed(u.questions_used); setUnlocked(u.unlocked); } });
+  }, [session]);
 
-      <!-- 10. Contract Breach -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-gray-100 text-gray-800 rounded">Contract</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">10. Contract Breach Claim</h4>
-          <p class="text-xs text-gray-600 mt-1">Damages for service agreement violations.</p>
-        </div>
-        <button onclick="openCustomModal('contract', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
-      </div>
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, thinking]);
 
-      <!-- 11. RTI Application -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-800 rounded">Administrative</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">11. RTI Application Petition</h4>
-          <p class="text-xs text-gray-600 mt-1">Official RTI query to government bodies.</p>
-        </div>
-        <button onclick="openCustomModal('rti', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
-      </div>
+  const atLimit = !unlocked && questionsUsed >= FREE_LIMIT;
+  const activeCrew = CREW.find((c) => c.id === character);
 
-      <!-- 12. Municipal Complaint -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Administrative</span><span class="text-sm font-black text-blue-600">$ 4.15</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">12. Municipal Civic Petition</h4>
-          <p class="text-xs text-gray-600 mt-1">Formal grievance to Municipal Corporation.</p>
-        </div>
-        <button onclick="openCustomModal('municipal', 4.15)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.15)</button>
-      </div>
+  const handleAuth = async () => {
+    if (!email.trim() || !password.trim() || authLoading) return;
+    setAuthLoading(true); setAuthError(""); setAuthNotice("");
+    if (authMode === "signup") {
+      const { error } = await sb.auth.signUp({ email: email.trim(), password });
+      setAuthLoading(false);
+      if (error) { setAuthError(error.message); return; }
+      setAuthNotice(t.checkEmail);
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+      setAuthLoading(false);
+      if (error) { setAuthError(error.message); return; }
+    }
+  };
 
-      <!-- 13. Electricity Bill -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-cyan-100 text-cyan-800 rounded">Utilities</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">13. Electricity Bill Appeal</h4>
-          <p class="text-xs text-gray-600 mt-1">Dispute notice for wrong meter readings.</p>
-        </div>
-        <button onclick="openCustomModal('electricity', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
-      </div>
+  const logout = async () => {
+    await sb.auth.signOut();
+    setSession(null); setTab("home"); setAccepted(false); setCharacter(null); setMessages([]);
+  };
 
-      <!-- 14. E-Commerce -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-orange-100 text-orange-800 rounded">E-Commerce</span><span class="text-sm font-black text-blue-600">$ 4.10</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">14. E-Commerce Refund Notice</h4>
-          <p class="text-xs text-gray-600 mt-1">Notice for non-delivery or refused refunds.</p>
-        </div>
-        <button onclick="openCustomModal('ecommerce', 4.10)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.10)</button>
-      </div>
+  const send = async () => {
+    const text = input.trim();
+    if (!text || thinking || atLimit || !character) return;
+    setMessages((m) => [...m, { role: "user", text }]);
+    setInput(""); setThinking(true);
+    const result = await callAssistant(text, character);
+    setThinking(false);
+    setMessages((m) => [...m, { role: "assistant", text: result.reply || "…" }]);
+    if (typeof result.questions_used === "number") setQuestionsUsed(result.questions_used);
+    if (typeof result.unlocked === "boolean") setUnlocked(result.unlocked);
+  };
 
-      <!-- 15. Banking Ombudsman -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-violet-100 text-violet-800 rounded">Banking</span><span class="text-sm font-black text-blue-600">$ 4.35</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">15. Bank Ombudsman Dispute</h4>
-          <p class="text-xs text-gray-600 mt-1">Complaint for unauthorized charges/debits.</p>
-        </div>
-        <button onclick="openCustomModal('ombudsman', 4.35)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.35)</button>
-      </div>
+  const handleUnlock = async () => {
+    if (!licenseKey.trim() || verifying) return;
+    setVerifying(true); setLicenseError("");
+    const ok = await verifyLicense(licenseKey.trim());
+    setVerifying(false);
+    if (ok) {
+      const u = await fetchUsage();
+      if (u) { setQuestionsUsed(u.questions_used); setUnlocked(u.unlocked); }
+    } else {
+      setLicenseError(t.licenseInvalid);
+    }
+  };
 
-      <!-- 16. Insurance -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-rose-100 text-rose-800 rounded">Insurance</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">16. Insurance Claim Rejection Appeal</h4>
-          <p class="text-xs text-gray-600 mt-1">Appeal against insurance claim repudiation.</p>
-        </div>
-        <button onclick="openCustomModal('insurance', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
-      </div>
+  const switchCharacter = () => { setCharacter(null); setMessages([]); };
 
-      <!-- 17. Housing Society -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-lime-100 text-lime-800 rounded">Housing</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">17. Housing Society Dispute</h4>
-          <p class="text-xs text-gray-600 mt-1">Dispute against wrongful society fines.</p>
-        </div>
-        <button onclick="openCustomModal('society', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
-      </div>
-
-      <!-- 18. Telecom -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-sky-100 text-sky-800 rounded">Telecom</span><span class="text-sm font-black text-blue-600">$ 3.99</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">18. Telecom Grievance Notice</h4>
-          <p class="text-xs text-gray-600 mt-1">Grievance for fiber broadband outages.</p>
-        </div>
-        <button onclick="openCustomModal('telecom', 3.99)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 3.99)</button>
-      </div>
-
-      <!-- 19. Medical -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-red-100 text-red-800 rounded">Medical</span><span class="text-sm font-black text-blue-600">$ 4.50</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">19. Hospital Overcharging Claim</h4>
-          <p class="text-xs text-gray-600 mt-1">Notice for inflated healthcare billing.</p>
-        </div>
-        <button onclick="openCustomModal('medical', 4.50)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.50)</button>
-      </div>
-
-      <!-- 20. Automotive -->
-      <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-0.5 bg-zinc-100 text-zinc-800 rounded">Automotive</span><span class="text-sm font-black text-blue-600">$ 4.25</span></div>
-          <h4 class="text-base font-bold text-gray-900 mt-2">20. Automobile Service Dispute</h4>
-          <p class="text-xs text-gray-600 mt-1">Notice for faulty dealership repairs.</p>
-        </div>
-        <button onclick="openCustomModal('automotive', 4.25)" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold">Fill & Pay ($ 4.25)</button>
-      </div>
-
-    </div>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="bg-gray-900 text-gray-300 py-10 border-t border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <h3 class="text-lg font-bold text-white mb-2">About MyFairDay</h3>
-        <p class="text-xs text-gray-400 leading-relaxed">
-          MyFairDay provides self-service automated legal document templates and administrative forms for informational and organizational purposes.
-        </p>
-      </div>
-      <div>
-        <h3 class="text-lg font-bold text-amber-400 mb-2">Legal Disclaimer</h3>
-        <p class="text-xs text-gray-400 leading-relaxed">
-          MyFairDay is <strong>not a law firm</strong>, does not provide legal advice, representation, or legal services, and is not a substitute for a licensed attorney. Use of our self-service templates does not create an attorney-client relationship. Please consult a qualified attorney for specific legal counsel.
-        </p>
-      </div>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 pt-8 text-center text-xs text-gray-500 border-t border-gray-800 mt-8">
-      © MyFairDay. All rights reserved.
-    </div>
-  </footer>
-
-  <!-- DYNAMIC MODAL FORM -->
-  <div id="docModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-start mb-2">
-        <div>
-          <h3 id="modalTitle" class="text-xl font-bold text-gray-900">Document Details</h3>
-          <p id="modalSubtitle" class="text-xs text-blue-600 font-semibold"></p>
-        </div>
-        <span id="modalPriceTag" class="text-xs font-bold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">FREE</span>
-      </div>
-      
-      <form id="docForm" class="space-y-4" onsubmit="handleFormSubmit(event)">
-        <input type="hidden" id="currentTemplateKey">
-        <input type="hidden" id="currentTemplatePrice">
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  return (
+    <div style={styles.app}>
+      <header style={styles.header}>
+        <div style={styles.wordmarkRow}>
+          <IconShield size={22} color={ACCENT} strokeWidth={1.8} />
           <div>
-            <label class="block text-xs font-semibold text-gray-700">PLAINTIFF / APPLICANT NAME</label>
-            <input type="text" id="modalPlaintiff" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-700">DEFENDANT / OPPOSING PARTY</label>
-            <input type="text" id="modalDefendant" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+            <div style={styles.wordmark}>{t.wordmark}</div>
+            <div style={styles.tagline}>{t.tagline}</div>
           </div>
         </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-gray-700">CLAIM AMOUNT / DISPUTE VALUE (in $ / ₹)</label>
-          <input type="number" id="modalAmount" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm">
+        <div style={styles.headerRight}>
+          <nav style={styles.tabNav}>
+            <button style={{ ...styles.tabBtn, ...(tab === "home" ? styles.tabBtnActive : {}) }} onClick={() => setTab("home")}>{t.navHome}</button>
+            <button style={{ ...styles.tabBtn, ...(tab === "assistant" ? styles.tabBtnActive : {}) }} onClick={() => setTab("assistant")}>{t.navAssistant}</button>
+          </nav>
+          {session && <button style={styles.ghostBtn} onClick={logout}><IconLogOut size={14} /> {t.logout}</button>}
+          <button style={styles.ghostBtn} onClick={() => setLang(lang === "en" ? "hi" : "en")}><IconGlobe size={15} /> {lang === "en" ? "हिंदी" : "English"}</button>
         </div>
+      </header>
 
-        <div id="customFieldsContainer" class="space-y-3 bg-blue-50 p-3 rounded-lg border border-blue-100"></div>
+      {tab === "home" && (
+        <div style={styles.heroWrap}>
+          <div style={styles.heroCard}>
+            <div style={styles.heroEyebrow}>{t.heroEyebrow}</div>
+            <h1 style={styles.heroTitle}>{t.heroTitle}</h1>
+            <p style={styles.heroSub}>{t.heroSub}</p>
+            <button style={styles.heroCtaBtn} onClick={() => setTab("assistant")}><IconCoffee size={16} /> {t.heroCta}</button>
 
-        <div>
-          <label class="block text-xs font-semibold text-gray-700">STATEMENT OF FACTS / DESCRIPTION</label>
-          <textarea id="modalFacts" rows="3" required class="w-full mt-1 p-2 border border-gray-300 rounded-md text-sm" placeholder="Summarize key facts..."></textarea>
+            <div style={styles.crewGrid}>
+              {CREW.map((c) => (
+                <div key={c.id} style={{ ...styles.crewCardHome, borderColor: c.color + "55" }}>
+                  <Emblem id={c.id} color={c.color} size={44} />
+                  <div style={styles.crewNameHome}>{c.name}</div>
+                  <div style={{ ...styles.crewTitleHome, color: c.color }}>{c.title}</div>
+                  <div style={styles.crewBlurbHome}>{lang === "hi" ? c.blurbHi : c.blurb}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={styles.resourcesBoxHome}>
+              <div style={styles.resourcesTitle}>{t.resourcesTitle}</div>
+              <div style={styles.resourcesNote}>{t.resourcesNote}</div>
+              {t.resources.map((r, i) => (
+                <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={styles.resourceLink}><IconExternal size={13} /> {r.label}</a>
+              ))}
+            </div>
+          </div>
         </div>
+      )}
 
-        <div class="flex justify-end space-x-3 pt-2">
-          <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700">Cancel</button>
-          <button type="submit" id="submitBtn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-bold shadow">
-            Download .doc
-          </button>
+      {tab === "assistant" && authChecked && !session && (
+        <div style={styles.gateWrap}>
+          <div style={styles.gateCard}>
+            <IconUser size={28} color={ACCENT} strokeWidth={1.5} />
+            <h2 style={styles.gateTitle}>{authMode === "signup" ? t.authTitleSignup : t.authTitle}</h2>
+            <input style={styles.fieldInput} type="email" placeholder={t.emailLabel} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input style={styles.fieldInput} type="password" placeholder={t.passwordLabel} value={password} onChange={(e) => setPassword(e.target.value)} />
+            {authError && <div style={styles.errorText}>{authError}</div>}
+            {authNotice && <div style={styles.noticeText}>{authNotice}</div>}
+            <button style={styles.primaryBtn} onClick={handleAuth} disabled={authLoading}>{authLoading ? t.authLoading : (authMode === "signup" ? t.signupBtn : t.loginBtn)}</button>
+            <button style={styles.linkBtn} onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthError(""); setAuthNotice(""); }}>
+              {authMode === "signup" ? t.switchToLogin : t.switchToSignup}
+            </button>
+          </div>
         </div>
-      </form>
+      )}
+
+      {tab === "assistant" && session && !accepted && (
+        <div style={styles.gateWrap}>
+          <div style={styles.gateCard}>
+            <IconShieldCheck size={28} color={ACCENT} strokeWidth={1.5} />
+            <h2 style={styles.gateTitle}>{t.disclaimerTitle}</h2>
+            <p style={styles.gateBody}>{t.disclaimerBody}</p>
+            <button style={styles.primaryBtn} onClick={() => setAccepted(true)}>{t.disclaimerAccept}</button>
+          </div>
+        </div>
+      )}
+
+      {tab === "assistant" && session && accepted && !character && (
+        <div style={styles.pickWrap}>
+          <h2 style={styles.pickTitle}>{t.pickTitle}</h2>
+          <div style={styles.crewGrid}>
+            {CREW.map((c) => (
+              <button key={c.id} style={{ ...styles.crewCard, borderColor: c.color }} onClick={() => setCharacter(c.id)}>
+                <Emblem id={c.id} color={c.color} size={52} />
+                <div style={styles.crewName}>{c.name}</div>
+                <div style={{ ...styles.crewTitle, color: c.color }}>{c.title}</div>
+                <div style={styles.crewBlurb}>{lang === "hi" ? c.blurbHi : c.blurb}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "assistant" && session && accepted && character && (
+        <main style={styles.main}>
+          <section style={styles.chatPanel}>
+            <div style={styles.chatHeaderRow}>
+              <div style={styles.activeCrewBadge}>
+                <Emblem id={activeCrew.id} color={activeCrew.color} size={26} />
+                <span>{activeCrew.name}</span>
+              </div>
+              <div style={styles.chatHeaderRight}>
+                {unlocked ? (
+                  <span style={styles.badgeUnlocked}><IconCheck size={12} /> {t.unlockedBadge}</span>
+                ) : (
+                  <span style={styles.badgeCount}>{t.questionsLeft(Math.max(0, FREE_LIMIT - questionsUsed))}</span>
+                )}
+                <button style={styles.linkBtnSmall} onClick={switchCharacter}><IconRotateCcw size={12} /> {t.switchCharacter}</button>
+              </div>
+            </div>
+
+            <div style={styles.chatScroll} ref={scrollRef}>
+              <div style={{ ...styles.introBubble, borderLeft: `3px solid ${activeCrew.color}` }}>{t.chatIntroFor(activeCrew.name)}</div>
+              {messages.map((m, i) => (
+                <div key={i} style={{ ...styles.bubble, ...(m.role === "user" ? styles.bubbleUser : { ...styles.bubbleBot, borderLeft: `3px solid ${activeCrew.color}` }) }}>{m.text}</div>
+              ))}
+              {thinking && <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{t.thinking}</div>}
+            </div>
+
+            {!atLimit ? (
+              <div style={styles.inputRow}>
+                <input style={styles.chatInput} placeholder={t.inputPlaceholder} value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send(); } }} />
+                <button style={{ ...styles.sendBtn, background: activeCrew.color }} onClick={send} disabled={thinking}><IconSend size={16} strokeWidth={2} color="#fff" /></button>
+              </div>
+            ) : (
+              <div style={styles.paywallBox}>
+                <IconLock size={22} color={ACCENT} />
+                <div style={styles.paywallTitle}>{t.paywallTitle}</div>
+                <div style={styles.paywallBody}>{t.paywallBody}</div>
+                <a style={styles.paywallCtaBtn} href={GUMROAD_CHECKOUT_URL} target="_blank" rel="noopener noreferrer"><IconCoffee size={15} /> {t.paywallCta}</a>
+                {!showLicenseForm ? (
+                  <button style={styles.linkBtn} onClick={() => setShowLicenseForm(true)}>{t.haveCode}</button>
+                ) : (
+                  <div style={styles.licenseRow}>
+                    <input style={styles.fieldInput} placeholder={t.licensePlaceholder} value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} />
+                    <button style={styles.secondaryBtn} onClick={handleUnlock} disabled={verifying}>{verifying ? t.unlocking : t.unlockBtn}</button>
+                    {licenseError && <div style={styles.errorText}>{licenseError}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        </main>
+      )}
     </div>
-  </div>
+  );
+}
 
-  <!-- LEGAL ASSISTANT CHATBOT WIDGET -->
-  <div class="fixed bottom-5 right-5 z-50">
-    <!-- Chat Button -->
-    <button onclick="toggleChat()" id="chatToggleBtn" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-105">
-      <i data-lucide="message-square" class="w-6 h-6"></i>
-    </button>
+// ---------------------------------------------------------------------------
+// Design tokens — deep navy "ops room" base, one accent color per hero.
+// ---------------------------------------------------------------------------
+const INK = "#0E1524";
+const INK_SOFT = "#8B96AC";
+const PANEL = "#151D2E";
+const PANEL_LIGHT = "#1C2740";
+const LINE = "#2A3550";
+const TEXT = "#E7EAF2";
+const ACCENT = "#6E7CE0";
 
-    <!-- Chat Box Container -->
-    <div id="chatBox" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col h-[450px]">
-      <!-- Header -->
-      <div class="bg-blue-900 text-white p-4 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <div class="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
-          <div>
-            <h4 class="text-sm font-bold">MyFairDay AI Assistant</h4>
-            <p class="text-[10px] text-blue-200">24/7 Virtual Legal Help</p>
-          </div>
-        </div>
-        <button onclick="toggleChat()" class="text-blue-200 hover:text-white font-bold text-lg">&times;</button>
-      </div>
+const styles = {
+  app: { fontFamily: "'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif", background: INK, minHeight: "100vh", color: TEXT, display: "flex", flexDirection: "column" },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderBottom: `1px solid ${LINE}`, background: PANEL, flexWrap: "wrap", gap: 12 },
+  wordmarkRow: { display: "flex", alignItems: "center", gap: 10 },
+  wordmark: { fontFamily: "'Source Serif 4',Georgia,serif", fontWeight: 700, fontSize: 18, color: TEXT },
+  tagline: { fontSize: 11.5, color: INK_SOFT, marginTop: 1 },
+  headerRight: { display: "flex", alignItems: "center", gap: 10 },
+  tabNav: { display: "flex", gap: 4, background: INK, borderRadius: 20, padding: 4 },
+  tabBtn: { border: "none", background: "transparent", padding: "6px 14px", borderRadius: 16, fontSize: 12.5, color: INK_SOFT, cursor: "pointer", fontFamily: "inherit" },
+  tabBtnActive: { background: ACCENT, color: "#fff" },
+  ghostBtn: { display: "flex", alignItems: "center", gap: 6, background: "transparent", border: `1px solid ${LINE}`, borderRadius: 20, padding: "6px 14px", fontSize: 12.5, color: TEXT, cursor: "pointer", fontFamily: "inherit" },
 
-      <!-- Messages Area -->
-      <div id="chatMessages" class="flex-1 p-4 overflow-y-auto text-xs space-y-3 bg-gray-50">
-        <div class="bg-white border border-gray-200 p-3 rounded-lg shadow-sm text-gray-700 max-w-[85%]">
-          Hello! 👋 Need help finding the right legal template or have questions about MyFairDay? Ask me below!
-        </div>
-      </div>
+  heroWrap: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 },
+  heroCard: { maxWidth: 760, textAlign: "center", padding: "20px 10px" },
+  heroEyebrow: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, letterSpacing: "0.14em", color: ACCENT, marginBottom: 14 },
+  heroTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 34, lineHeight: 1.25, margin: "0 0 16px", color: TEXT },
+  heroSub: { fontSize: 15, color: INK_SOFT, lineHeight: 1.6, marginBottom: 26, maxWidth: 520, marginLeft: "auto", marginRight: "auto" },
+  heroCtaBtn: { background: ACCENT, color: "#fff", border: "none", borderRadius: 24, padding: "14px 28px", fontSize: 14.5, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit", marginBottom: 40 },
 
-      <!-- Input Field -->
-      <form onsubmit="handleChatMessage(event)" class="p-3 bg-white border-t border-gray-200 flex space-x-2">
-        <input type="text" id="chatInput" placeholder="Type your question..." class="flex-1 text-xs p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600" required>
-        <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-700">Send</button>
-      </form>
-    </div>
-  </div>
+  crewGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginTop: 10 },
+  crewCardHome: { background: PANEL, border: "1px solid", borderRadius: 12, padding: "18px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 },
+  crewNameHome: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 15, fontWeight: 700, marginTop: 6 },
+  crewTitleHome: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, letterSpacing: "0.04em" },
+  crewBlurbHome: { fontSize: 11.5, color: INK_SOFT, lineHeight: 1.5, marginTop: 4 },
 
-  <script>
-    // Inicializar Ícones Lucide
-    lucide.createIcons();
+  resourcesBoxHome: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: 16, marginTop: 40, textAlign: "left" },
+  resourcesTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", textTransform: "uppercase", color: INK_SOFT, marginBottom: 4 },
+  resourcesNote: { fontSize: 11, color: "#5C6883", marginBottom: 10, lineHeight: 1.5 },
+  resourceLink: { display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: TEXT, textDecoration: "none", padding: "6px 0", borderTop: `1px solid ${LINE}` },
 
-    const GUMROAD_USER = "myfairday"; 
+  gateWrap: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 },
+  gateCard: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: "32px 30px", maxWidth: 380, textAlign: "center", display: "flex", flexDirection: "column", gap: 4 },
+  gateTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 20, margin: "14px 0 10px", color: TEXT },
+  gateBody: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, marginBottom: 22 },
+  noticeText: { fontSize: 12, color: "#5FC98D", marginTop: 4 },
+  errorText: { color: "#E0736E", fontSize: 11.5 },
 
-    const templateConfigs = {
-      salary: { title: "Unpaid Salary Recovery Plaint", subtitle: "Enhanced Employment Recovery Plaint", fields: [{ id: "f1", label: "Designation/Role", placeholder: "e.g. Senior Engineer" }, { id: "f2", label: "Salary Months Pending", placeholder: "e.g. March to May 2026" }] },
-      deposit: { title: "Rent Security Deposit Refund Notice", subtitle: "Enhanced Tenancy Refund Demand", fields: [{ id: "f1", label: "Property Address", placeholder: "e.g. Flat 402, Sunshine Apartments" }, { id: "f2", label: "Vacated Date", placeholder: "e.g. 30th April 2026" }] },
-      consumer: { title: "Defective Goods Consumer Petition", subtitle: "Enhanced District Consumer Forum Claim", fields: [{ id: "f1", label: "Product & Serial No.", placeholder: "e.g. Smart Washing Machine #WM-882" }, { id: "f2", label: "Invoice Date & Bill No.", placeholder: "e.g. Bill #1029 dated 15 Jan 2026" }] },
-      cheque: { title: "Cheque Bounce Legal Notice", subtitle: "Section 138 Statutory Notice", fields: [{ id: "f1", label: "Cheque No. & Bank Name", placeholder: "e.g. Cheque #000123, ICICI Bank" }, { id: "f2", label: "Bounce Memo Date", placeholder: "e.g. 10th June 2026" }] },
-      loan: { title: "Friendly Loan Recovery Claim", subtitle: "Personal Debt Claim Demand", fields: [{ id: "f1", label: "Payment Mode (UPI/Bank/Cash)", placeholder: "e.g. Bank Transfer Ref #99201" }, { id: "f2", label: "Promised Repayment Date", placeholder: "e.g. 1st March 2026" }] },
-      invoice: { title: "Freelancer Unpaid Invoice Notice", subtitle: "Contractor Fee Recovery Notice", fields: [{ id: "f1", label: "Services Provided", placeholder: "e.g. Brand UI Design & Frontend" }, { id: "f2", label: "Invoice Number & Date", placeholder: "e.g. INV-2026-09" }] },
-      fee: { title: "Institute Fee Refund Claim", subtitle: "Educational Tuition Dispute", fields: [{ id: "f1", label: "Course Name & Admission ID", placeholder: "e.g. Data Science Bootcamp #DS-401" }, { id: "f2", label: "Cancellation Date", placeholder: "e.g. 5th June 2026" }] },
-      property: { title: "Property Damage Compensation", subtitle: "Civil Damage Recovery Claim", fields: [{ id: "f1", label: "Damaged Property Item", placeholder: "e.g. Boundary Wall and Car Gate" }, { id: "f2", label: "Incident Date", placeholder: "e.g. 12th May 2026" }] },
-      travel: { title: "Travel Ticket Refund Claim", subtitle: "Airline/Railway Refund Dispute", fields: [{ id: "f1", label: "Booking Reference / PNR", placeholder: "e.g. Flight PNR #AB9821" }, { id: "f2", label: "Cancellation Reason", placeholder: "e.g. Flight cancelled without notification" }] },
-      contract: { title: "Service Contract Breach Claim", subtitle: "Commercial Agreement Dispute", fields: [{ id: "f1", label: "Contract Title & Date", placeholder: "e.g. Vendor Agreement dated 10 Feb 2026" }, { id: "f2", label: "Breached Clause", placeholder: "e.g. Non-delivery of SLAs" }] },
-      rti: { title: "Right to Information (RTI) Petition", subtitle: "Public Information Office Request", fields: [{ id: "f1", label: "Government Department Name", placeholder: "e.g. Public Works Department" }, { id: "f2", label: "Specific File / Info Requested", placeholder: "e.g. Tender approval status for Road #12" }] },
-      municipal: { title: "Municipal Civic Grievance Petition", subtitle: "Municipal Commissioner Complaint", fields: [{ id: "f1", label: "Locality / Ward Number", placeholder: "e.g. Ward 14, Indiranagar" }, { id: "f2", label: "Civic Issue", placeholder: "e.g. Overflowing sewage for 3 weeks" }] },
-      electricity: { title: "Electricity Billing Dispute Notice", subtitle: "State Electricity Board Appeal", fields: [{ id: "f1", label: "Consumer Connection No.", placeholder: "e.g. Connection #CA-902188" }, { id: "f2", label: "Disputed Bill Period", placeholder: "e.g. May-June 2026" }] },
-      ecommerce: { title: "E-Commerce Refund Notice", subtitle: "Online Seller Legal Demand", fields: [{ id: "f1", label: "Order ID & Platform", placeholder: "e.g. Order #402-99182" }, { id: "f2", label: "Item Purchased", placeholder: "e.g. Laptop Computer" }] },
-      ombudsman: { title: "Banking Ombudsman Dispute", subtitle: "Reserve Bank Ombudsman Dispute", fields: [{ id: "f1", label: "Bank Account / Card No.", placeholder: "e.g. Card Ending #4019" }, { id: "f2", label: "Unauthorized Transaction", placeholder: "e.g. Erroneous charge of ₹12,500" }] },
-      insurance: { title: "Insurance Claim Rejection Appeal", subtitle: "Insurance Ombudsman Demand", fields: [{ id: "f1", label: "Policy & Claim Number", placeholder: "e.g. Policy #POL-8812" }, { id: "f2", label: "Rejection Reason Cited", placeholder: "e.g. False pre-existing condition" }] },
-      society: { title: "Housing Society Maintenance Dispute", subtitle: "Cooperative Housing Society Notice", fields: [{ id: "f1", label: "Flat Number & Building", placeholder: "e.g. Flat B-201, Green Meadows" }, { id: "f2", label: "Disputed Fine/Charge", placeholder: "e.g. Illegal penalty for elevator usage" }] },
-      telecom: { title: "Telecom Appellate Grievance Notice", subtitle: "TRAI Appellate Authority Complaint", fields: [{ id: "f1", label: "Service No.", placeholder: "e.g. Fiber ID #080-49201" }, { id: "f2", label: "Service Defect", placeholder: "e.g. 14 days without connection" }] },
-      medical: { title: "Hospital Overcharging Complaint", subtitle: "Medical Council & Forum Notice", fields: [{ id: "f1", label: "Hospital Name & Patient ID", placeholder: "e.g. City Hospital, Patient #88102" }, { id: "f2", label: "Inflated Charges Details", placeholder: "e.g. Unexplained ICU surcharge" }] },
-      automotive: { title: "Automobile Service Center Dispute", subtitle: "Vehicle Dealership Statutory Notice", fields: [{ id: "f1", label: "Vehicle Reg No.", placeholder: "e.g. KA-01-MJ-4091" }, { id: "f2", label: "Job Card No. & Defect", placeholder: "e.g. Job Card #9921 - Engine overheating" }] }
-    };
+  pickWrap: { flex: 1, padding: "40px 20px", maxWidth: 900, margin: "0 auto", width: "100%", textAlign: "center" },
+  pickTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 24, marginBottom: 24, color: TEXT },
+  crewCard: { background: PANEL, border: "2px solid", borderRadius: 14, padding: "22px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", fontFamily: "inherit" },
+  crewName: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 17, fontWeight: 700, marginTop: 8, color: TEXT },
+  crewTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em" },
+  crewBlurb: { fontSize: 12, color: INK_SOFT, lineHeight: 1.5, marginTop: 4 },
 
-    function openCustomModal(key, price) {
-      const config = templateConfigs[key];
-      if (!config) return;
+  main: { flex: 1, display: "flex", justifyContent: "center", padding: 20 },
+  chatPanel: { flex: "1 1 600px", maxWidth: 700, minWidth: 320, background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, display: "flex", flexDirection: "column", height: 620 },
+  chatHeaderRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${LINE}` },
+  activeCrewBadge: { display: "flex", alignItems: "center", gap: 8, fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 15, fontWeight: 700 },
+  chatHeaderRight: { display: "flex", alignItems: "center", gap: 8 },
+  badgeCount: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: INK_SOFT, background: INK, borderRadius: 12, padding: "3px 10px" },
+  badgeUnlocked: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: "#5FC98D", background: "#173327", borderRadius: 12, padding: "3px 10px", display: "flex", alignItems: "center", gap: 4 },
+  linkBtnSmall: { background: "none", border: "none", color: INK_SOFT, fontSize: 11, display: "flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "inherit" },
+  chatScroll: { flex: 1, overflowY: "auto", padding: 18, display: "flex", flexDirection: "column", gap: 10 },
+  introBubble: { fontSize: 13.5, color: INK_SOFT, background: PANEL_LIGHT, borderRadius: "0 10px 10px 0", padding: "10px 14px", lineHeight: 1.5 },
+  bubble: { maxWidth: "85%", padding: "10px 14px", borderRadius: 12, fontSize: 13.5, lineHeight: 1.5 },
+  bubbleUser: { alignSelf: "flex-end", background: ACCENT, color: "#fff" },
+  bubbleBot: { alignSelf: "flex-start", background: PANEL_LIGHT, color: TEXT, borderRadius: "0 10px 10px 0" },
+  bubbleThinking: { color: INK_SOFT, fontStyle: "italic" },
+  inputRow: { display: "flex", gap: 8, padding: 14, borderTop: `1px solid ${LINE}` },
+  chatInput: { flex: 1, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 13.5, fontFamily: "inherit", background: INK, color: TEXT },
+  sendBtn: { width: 38, height: 38, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
 
-      document.getElementById('currentTemplateKey').value = key;
-      document.getElementById('currentTemplatePrice').value = price;
-      document.getElementById('modalTitle').innerText = config.title;
-      document.getElementById('modalSubtitle').innerText = config.subtitle;
+  fieldInput: { border: `1px solid ${LINE}`, borderRadius: 6, padding: "8px 10px", fontSize: 13.5, fontFamily: "inherit", background: INK, color: TEXT, marginTop: 4, marginBottom: 4, width: "100%" },
+  primaryBtn: { background: ACCENT, color: "#fff", border: "none", borderRadius: 20, padding: "10px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit", marginTop: 10 },
+  secondaryBtn: { background: "transparent", color: TEXT, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" },
+  linkBtn: { background: "none", border: "none", color: INK_SOFT, fontSize: 12, textDecoration: "underline", cursor: "pointer", marginTop: 10, fontFamily: "inherit" },
 
-      const priceTag = document.getElementById('modalPriceTag');
-      const submitBtn = document.getElementById('submitBtn');
+  paywallBox: { padding: "20px 18px", borderTop: `1px solid ${LINE}`, textAlign: "center", background: PANEL_LIGHT },
+  paywallTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 16, fontWeight: 700, margin: "8px 0 4px", color: TEXT },
+  paywallBody: { fontSize: 12.5, color: INK_SOFT, marginBottom: 14, lineHeight: 1.5 },
+  paywallCtaBtn: { background: ACCENT, color: "#fff", textDecoration: "none", borderRadius: 20, padding: "12px 22px", fontSize: 13.5, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit" },
+  licenseRow: { marginTop: 14, display: "flex", flexDirection: "column", gap: 6, alignItems: "center" },
+};
 
-      if (price === 0) {
-        priceTag.innerText = "100% FREE";
-        priceTag.className = "text-xs font-bold px-2.5 py-1 bg-green-100 text-green-800 rounded-full";
-        submitBtn.innerText = "Download Free .doc";
-        submitBtn.className = "px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs font-bold shadow";
-      } else {
-        priceTag.innerText = `$ ${price.toFixed(2)}`;
-        priceTag.className = "text-xs font-bold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full";
-        submitBtn.innerText = `Pay $ ${price.toFixed(2)} & Download`;
-        submitBtn.className = "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold shadow";
-      }
-
-      const container = document.getElementById('customFieldsContainer');
-      container.innerHTML = '';
-      config.fields.forEach(f => {
-        container.innerHTML += `
-          <div>
-            <label class="block text-xs font-semibold text-blue-900">${f.label.toUpperCase()}</label>
-            <input type="text" id="${f.id}" required class="w-full mt-1 p-2 border border-blue-200 rounded-md text-sm bg-white" placeholder="${f.placeholder}">
-          </div>
-        `;
-      });
-
-      document.getElementById('docModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('docModal').classList.add('hidden');
-    }
-
-    function handleFormSubmit(event) {
-      event.preventDefault();
-      const price = parseFloat(document.getElementById('currentTemplatePrice').value);
-      const key = document.getElementById('currentTemplateKey').value;
-
-      const formData = {
-        key: key,
-        plaintiff: document.getElementById('modalPlaintiff').value,
-        defendant: document.getElementById('modalDefendant').value,
-        amount: document.getElementById('modalAmount').value,
-        facts: document.getElementById('modalFacts').value,
-        f1: document.getElementById('f1') ? document.getElementById('f1').value : '',
-        f2: document.getElementById('f2') ? document.getElementById('f2').value : ''
-      };
-
-      if (price === 0) {
-        triggerDocDownload(formData);
-      } else {
-        localStorage.setItem('myfairday_pending_doc', JSON.stringify(formData));
-
-        const gumroadUrl = `https://${GUMROAD_USER}.gumroad.com/l/${key}`;
-        
-        if (window.GumroadOverlay) {
-          GumroadOverlay.open({ url: gumroadUrl });
-        } else {
-          window.location.href = gumroadUrl;
-        }
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('paid') === 'true' || urlParams.get('success') === 'true') {
-        const savedData = localStorage.getItem('myfairday_pending_doc');
-        if (savedData) {
-          const formData = JSON.parse(savedData);
-          alert('Payment Successful! Generating your custom document now...');
-          triggerDocDownload(formData);
-          localStorage.removeItem('myfairday_pending_doc');
-        }
-      }
-    });
-
-    function triggerDocDownload(data) {
-      const config = templateConfigs[data.key];
-
-      const htmlContent = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><title>${config.title}</title>
-        <style>
-          body { font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.6; color: #111; }
-          h2 { text-align: center; font-size: 18pt; margin-bottom: 20px; text-transform: uppercase; }
-          .meta { margin-bottom: 20px; font-size: 11pt; }
-          .section { margin-top: 15px; font-size: 11pt; }
-        </style>
-        </head>
-        <body>
-          <h2>${config.title.toUpperCase()}</h2>
-          <div class='meta'>
-            <p><strong>BEFORE THE COMPETENT LEGAL AUTHORITY / FORUM</strong></p>
-            <p><strong>IN THE MATTER OF:</strong></p>
-            <p><strong>${data.plaintiff.toUpperCase()}</strong> ...PLAINTIFF/APPLICANT</p>
-            <p><strong>VERSUS</strong></p>
-            <p><strong>${data.defendant.toUpperCase()}</strong> ...DEFENDANT/RESPONDENT</p>
-            <p><strong>CLAIM VALUE:</strong> $ / ₹ ${data.amount}</p>
-          </div>
-          <div class='section'>
-            <p><strong>1. DETAILS OF THE DISPUTE:</strong></p>
-            <p>${data.f1 ? '• ' + data.f1 : ''}</p>
-            <p>${data.f2 ? '• ' + data.f2 : ''}</p>
-          </div>
-          <div class='section'>
-            <p><strong>2. STATEMENT OF FACTS:</strong></p>
-            <p>${data.facts}</p>
-          </div>
-          <div class='section'>
-            <p><strong>3. PRAYER / RELIEF SOUGHT:</strong></p>
-            <p>It is most respectfully prayed that this Hon'ble Authority pass an order directing the Defendant to pay the principal amount along with applicable interest and costs.</p>
-          </div>
-          <br><br>
-          <p><strong>(${data.plaintiff})</strong><br>Applicant / Complainant</p>
-        </body>
-        </html>
-      `;
-
-      const blob = new Blob(['\ufeff', htmlContent], {
-        type: 'application/msword'
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${data.key}_claim_document.doc`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    // --- FUNÇÕES DO CHATBOT ---
-    function toggleChat() {
-      const chatBox = document.getElementById('chatBox');
-      chatBox.classList.toggle('hidden');
-    }
-
-    function handleChatMessage(event) {
-      event.preventDefault();
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const messagesContainer = document.getElementById('chatMessages');
-
-      // Adiciona mensagem do usuário
-      messagesContainer.innerHTML += `
-        <div class="bg-blue-600 text-white p-3 rounded-lg shadow-sm text-xs ml-auto max-w-[85%]">
-          ${text}
-        </div>
-      `;
-
-      input.value = '';
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-      // Resposta simulada do assistente
-      setTimeout(() => {
-        let reply = "MyFairDay helps you generate legal documents and notices easily. Select any template above to fill out your details and generate your editable Word document!";
-        
-        const lowerText = text.toLowerCase();
-        if (lowerText.includes('free') || lowerText.includes('grátis')) {
-          reply = "We offer 3 free templates! Look for the '3 Premium Free Templates' section at the top to download them instantly.";
-        } else if (lowerText.includes('price') || lowerText.includes('cost') || lowerText.includes('preço')) {
-          reply = "Our premium legal documents start at just $3.99 per template, with no subscription or lawyer retainer fees required.";
-        } else if (lowerText.includes('word') || lowerText.includes('download') || lowerText.includes('format')) {
-          reply = "All documents are instantly generated in editable Microsoft Word (.doc) format so you can customize them as needed!";
-        }
-
-        messagesContainer.innerHTML += `
-          <div class="bg-white border border-gray-200 p-3 rounded-lg shadow-sm text-gray-700 max-w-[85%]">
-            ${reply}
-          </div>
-        `;
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }, 600);
-    }
-  </script>
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
 </body>
 </html>
