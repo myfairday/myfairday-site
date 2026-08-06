@@ -10,12 +10,12 @@
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <style>
   html, body { margin: 0; padding: 0; }
   * { box-sizing: border-box; }
   ::placeholder { color: #7A8699; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
 </style>
 </head>
 <body>
@@ -25,46 +25,53 @@
 const { useState, useRef, useEffect } = React;
 
 // ---------------------------------------------------------------------------
-// CONFIG — edit these for your real setup.
+// CONFIG — edit these for your real setup. No accounts, no login: this app
+// is fully stateless on the frontend. Free-question count and unlock status
+// live in localStorage on the visitor's own browser, matching server.js
+// (which has no database and doesn't track users at all).
 // ---------------------------------------------------------------------------
 const API_BASE = "https://api.myfairday.org";
-const ASSIST_URL = API_BASE + "/api/assist";       // single-agent chat
-const CREW_URL = API_BASE + "/api/crew-investigate"; // multi-agent OSINT run (server-side CrewAI)
+const ASSIST_URL = API_BASE + "/api/assist";
+const CREW_URL = API_BASE + "/api/crew-investigate";
 const LICENSE_URL = API_BASE + "/api/verify-license";
-const USAGE_URL = API_BASE + "/api/usage";
 const GUMROAD_CHECKOUT_URL = "https://gumroad.com/l/YOUR-PRODUCT-HERE"; // <-- replace
-const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"; // <-- replace
-const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY"; // <-- replace
 const FREE_LIMIT = 4;
+const STORAGE_KEY = "myfairday_state_v1";
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function loadLocalState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { questionsUsed: 0, unlocked: false, disclaimerSeen: false };
+    const parsed = JSON.parse(raw);
+    return {
+      questionsUsed: typeof parsed.questionsUsed === "number" ? parsed.questionsUsed : 0,
+      unlocked: !!parsed.unlocked,
+      disclaimerSeen: !!parsed.disclaimerSeen,
+    };
+  } catch (e) {
+    return { questionsUsed: 0, unlocked: false, disclaimerSeen: false };
+  }
+}
+function saveLocalState(state) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+}
 
 // ---------------------------------------------------------------------------
 // The Crew — four ORIGINAL characters, each mapped to one concrete OSINT
-// task. This is intentionally NOT based on any copyrighted character, logo,
-// or costume — using Spider-Man/Batman/Superman/Chapolin Colorado as
-// avatars would infringe third-party IP (Marvel/Disney, DC, Chespirito),
-// which is a real legal exposure for a commercial product. These four
-// keep the "team of heroes" feel with original names, colors and emblems.
-//
-// NOTE ON ARCHITECTURE: the actual multi-agent orchestration (a real
-// CrewAI-style pipeline where each agent hands off work to the next) has
-// to run server-side in Python/CrewAI — a browser can't run that framework.
-// This front end just calls CREW_URL with the user's input, and expects
-// the backend to return an ordered array of agent turns plus a final
-// verdict from Scout. See the mock fallback in runCrewInvestigation()
-// for the exact shape expected.
+// task, matching CREW in server.js exactly (ids, order, jobs). Not based on
+// any copyrighted character, logo, or costume.
 // ---------------------------------------------------------------------------
 const CREW = [
   { id: "tracer", name: "Tracer", role: "Link & Domain Investigator", color: "#6E7CE0",
-    blurb: "Traces suspicious URLs — domain age, registrar, redirect chains, hosting reputation." },
+    blurb: "Traces suspicious URLs — domain red flags, typosquatting, mismatched links." },
   { id: "warden", name: "Warden", role: "Sender Verification", color: "#E0A63B",
     blurb: "Checks who's really behind a contact, profile, or email — impersonation red flags." },
   { id: "cipher", name: "Cipher", role: "Phishing & Social Engineering Analyst", color: "#3BC9A8",
-    blurb: "Breaks down the manipulation tactic used in a message — urgency, fear, fake authority." },
+    blurb: "Names the manipulation tactic used in the message — urgency, fear, fake authority." },
   { id: "scout", name: "Scout", role: "Verdict & Cross-Check", color: "#E0673B",
-    blurb: "Cross-references what the rest of the crew found and gives you the final verdict." },
+    blurb: "Cross-references what the rest of the crew found and gives the final verdict." },
 ];
+const CREW_PIPELINE_IDS = ["tracer", "warden", "cipher", "scout"]; // display order for crew mode
 
 // ---------------------------------------------------------------------------
 // Inline icons
@@ -77,18 +84,14 @@ const Icon = ({ children, size = 18, color = "currentColor", strokeWidth = 1.8 }
 );
 const IconSend = (p) => <Icon {...p}><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></Icon>;
 const IconShield = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /></Icon>;
-const IconShieldCheck = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2l4-4" /></Icon>;
-const IconRotateCcw = (p) => <Icon {...p}><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" /></Icon>;
 const IconCheck = (p) => <Icon {...p}><path d="M20 6L9 17L4 12" /></Icon>;
 const IconLock = (p) => <Icon {...p}><rect x="4" y="10" width="16" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></Icon>;
 const IconExternal = (p) => <Icon {...p}><path d="M14 4h6v6" /><path d="M10 14L20 4" /><path d="M19 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></Icon>;
-const IconUser = (p) => <Icon {...p}><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></Icon>;
-const IconLogOut = (p) => <Icon {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></Icon>;
 const IconCoffee = (p) => <Icon {...p}><path d="M17 8h1a3 3 0 0 1 0 6h-1" /><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z" /><path d="M6 2v2" /><path d="M10 2v2" /><path d="M14 2v2" /></Icon>;
 const IconUsers = (p) => <Icon {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></Icon>;
+const IconX = (p) => <Icon {...p}><path d="M18 6L6 18" /><path d="M6 6l12 12" /></Icon>;
 
-// Simple abstract emblem per character — built from shapes only, no
-// copied logos, costumes, or third-party IP.
+// Simple abstract emblem per character — shapes only, no third-party IP.
 function Emblem({ id, color, size = 40 }) {
   const common = { width: size, height: size, viewBox: "0 0 40 40" };
   if (id === "tracer") return (
@@ -118,16 +121,14 @@ function Emblem({ id, color, size = 40 }) {
 }
 
 // ---------------------------------------------------------------------------
-// Copy — single language, globally-worded (no country-specific assumptions).
+// Copy — single language, globally-worded.
 // ---------------------------------------------------------------------------
 const T = {
   wordmark: "MyFairDay",
   tagline: "The Cyber Crew — stay safe online",
-  navHome: "Home", navAssistant: "Talk to the Crew",
-  heroEyebrow: "FOUR AGENTS. ONE INVESTIGATION.",
-  heroTitle: "Meet your Cyber Crew. Stay safe for less than a coffee — $4.50.",
-  heroSub: "Four AI agents, each with one job, work together to check suspicious links, messages, and senders before they hurt you. Create a free account and ask your first 4 questions free.",
-  heroCta: "Meet the Crew — 4 questions free",
+  heroTitle: "Your Cyber Crew is online. Ask anything, or run a full investigation.",
+  heroSub: "Four AI agents, each with one job, check suspicious links, messages, and senders. First 4 questions are free — no account needed.",
+  liveDot: "Active",
   resourcesTitle: "Official resources (verified, not AI-generated)",
   resourcesNote: "Cybercrime reporting is handled by national authorities. These are internationally recognized starting points — look up the equivalent agency in your own country too.",
   resources: [
@@ -135,23 +136,13 @@ const T = {
     { label: "INTERPOL — Cybercrime", url: "https://www.interpol.int/en/Crimes/Cybercrime" },
     { label: "IC3 — FBI Internet Crime Complaint Center (US)", url: "https://www.ic3.gov" },
   ],
-  pickTitle: "Choose how you want to investigate",
-  pickSingleHint: "Talk to one agent",
-  pickCrewHint: "Or run a full crew investigation",
-  crewCta: "Run Crew Investigation",
-  authTitle: "Sign in to continue", authTitleSignup: "Create your free account",
-  emailLabel: "Email", passwordLabel: "Password",
-  loginBtn: "Log in", signupBtn: "Create account",
-  switchToSignup: "New here? Create an account",
-  switchToLogin: "Already have an account? Log in",
-  authLoading: "Please wait…",
-  checkEmail: "Check your email to confirm your account, then log in.",
-  logout: "Log out",
+  crewModeLabel: "Full Crew Investigation",
+  crewModeHint: "All 4 agents look at your case in sequence, ending in Scout's verdict.",
   disclaimerTitle: "Before you begin",
   disclaimerBody: "The Crew gives general, educational cybersecurity guidance. It is not a substitute for professional incident response or law enforcement. Never paste real passwords, OTPs, or card numbers into this chat.",
   disclaimerAccept: "Got it — let's go",
   chatIntroFor: (name) => `You're talking to ${name}. What's going on?`,
-  crewIntro: "Describe the link, message, or sender you want the Crew to investigate. Each agent will check their part, then Scout gives the final verdict.",
+  crewIntro: "Describe the link, message, or sender you want the Crew to investigate. Each agent checks their part, then Scout gives the verdict.",
   inputPlaceholder: "Describe what happened or paste a suspicious message…",
   thinking: "Thinking…",
   investigating: (name) => `${name} is investigating…`,
@@ -164,39 +155,30 @@ const T = {
   licensePlaceholder: "Paste your license key",
   unlockBtn: "Unlock", unlocking: "Checking…",
   licenseInvalid: "That code didn't work. Please check it and try again.",
-  switchCharacter: "Back to picker",
-  startOver: "Start over",
 };
 
-async function getAccessToken() {
-  const { data } = await sb.auth.getSession();
-  return data && data.session ? data.session.access_token : null;
-}
-async function authedFetch(url, options = {}) {
-  const token = await getAccessToken();
-  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return fetch(url, { ...options, headers });
-}
 async function callAssistant(userText, character) {
   try {
-    const response = await authedFetch(ASSIST_URL, { method: "POST", body: JSON.stringify({ text: userText, character }) });
+    const response = await fetch(ASSIST_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: userText, character }),
+    });
     return await response.json();
   } catch (e) {
     return { mode: "decline", reply: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
   }
 }
-// Expected server response shape from CREW_URL (real CrewAI orchestration
-// runs here, server-side):
-// {
-//   turns: [ { agent: "tracer", text: "..." }, { agent: "warden", text: "..." },
-//            { agent: "cipher", text: "..." } ],
-//   verdict: "...",                // Scout's final message
-//   questions_used: 2, unlocked: false
-// }
+// Expected shape from CREW_URL (matches server.js /api/crew-investigate):
+// { turns: [ { agent: "tracer", text: "..." }, { agent: "warden", text: "..." },
+//            { agent: "cipher", text: "..." } ], verdict: "..." }
 async function callCrewInvestigation(userText) {
   try {
-    const response = await authedFetch(CREW_URL, { method: "POST", body: JSON.stringify({ text: userText }) });
+    const response = await fetch(CREW_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: userText }),
+    });
     return await response.json();
   } catch (e) {
     return { turns: [], verdict: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
@@ -204,38 +186,26 @@ async function callCrewInvestigation(userText) {
 }
 async function verifyLicense(key) {
   try {
-    const response = await authedFetch(LICENSE_URL, { method: "POST", body: JSON.stringify({ license_key: key }) });
+    const response = await fetch(LICENSE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ license_key: key }),
+    });
     const data = await response.json();
     return !!data.valid;
   } catch (e) { return false; }
 }
-async function fetchUsage() {
-  try {
-    const response = await authedFetch(USAGE_URL, { method: "GET" });
-    if (!response.ok) return null;
-    return await response.json();
-  } catch (e) { return null; }
-}
 
 function App() {
   const t = T;
-  const [tab, setTab] = useState("home");
-  const [accepted, setAccepted] = useState(false);
-  const [character, setCharacter] = useState(null); // agent id, or "crew"
+  const initial = loadLocalState();
 
-  const [session, setSession] = useState(null);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [authMode, setAuthMode] = useState("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState("");
-  const [authNotice, setAuthNotice] = useState("");
+  const [showDisclaimer, setShowDisclaimer] = useState(!initial.disclaimerSeen);
+  const [character, setCharacter] = useState("crew"); // "crew" or one agent id — crew is the default the moment the site opens
+  const [questionsUsed, setQuestionsUsed] = useState(initial.questionsUsed);
+  const [unlocked, setUnlocked] = useState(initial.unlocked);
 
-  const [questionsUsed, setQuestionsUsed] = useState(0);
-  const [unlocked, setUnlocked] = useState(false);
-
-  const [messages, setMessages] = useState([]); // { role: 'user' | 'agent', agentId?, name?, color?, text }
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [thinkingLabel, setThinkingLabel] = useState("");
@@ -247,14 +217,8 @@ function App() {
   const [showLicenseForm, setShowLicenseForm] = useState(false);
 
   useEffect(() => {
-    sb.auth.getSession().then(({ data }) => { setSession(data.session || null); setAuthChecked(true); });
-    const { data: listener } = sb.auth.onAuthStateChange((_e, s) => setSession(s));
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (session) fetchUsage().then((u) => { if (u) { setQuestionsUsed(u.questions_used); setUnlocked(u.unlocked); } });
-  }, [session]);
+    saveLocalState({ questionsUsed, unlocked, disclaimerSeen: !showDisclaimer });
+  }, [questionsUsed, unlocked, showDisclaimer]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -264,26 +228,6 @@ function App() {
   const isCrewMode = character === "crew";
   const activeCrew = CREW.find((c) => c.id === character);
 
-  const handleAuth = async () => {
-    if (!email.trim() || !password.trim() || authLoading) return;
-    setAuthLoading(true); setAuthError(""); setAuthNotice("");
-    if (authMode === "signup") {
-      const { error } = await sb.auth.signUp({ email: email.trim(), password });
-      setAuthLoading(false);
-      if (error) { setAuthError(error.message); return; }
-      setAuthNotice(t.checkEmail);
-    } else {
-      const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
-      setAuthLoading(false);
-      if (error) { setAuthError(error.message); return; }
-    }
-  };
-
-  const logout = async () => {
-    await sb.auth.signOut();
-    setSession(null); setTab("home"); setAccepted(false); setCharacter(null); setMessages([]);
-  };
-
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
   const sendSingle = async (text) => {
@@ -292,12 +236,9 @@ function App() {
     const result = await callAssistant(text, character);
     setThinking(false);
     setMessages((m) => [...m, { role: "agent", agentId: activeCrew.id, name: activeCrew.name, color: activeCrew.color, text: result.reply || "…" }]);
-    if (typeof result.questions_used === "number") setQuestionsUsed(result.questions_used);
-    if (typeof result.unlocked === "boolean") setUnlocked(result.unlocked);
+    if (!unlocked) setQuestionsUsed((n) => n + 1);
   };
 
-  // Runs the four agents one after another so it reads like the Crew
-  // talking through the case together, ending on Scout's verdict.
   const sendCrew = async (text) => {
     setMessages((m) => [...m, { role: "user", text }]);
     const result = await callCrewInvestigation(text);
@@ -306,24 +247,23 @@ function App() {
       const agent = CREW.find((c) => c.id === turn.agent);
       if (!agent) continue;
       setThinking(true); setThinkingLabel(t.investigating(agent.name));
-      await sleep(500); // paced reveal so it reads like a discussion, not a wall of text
+      await sleep(450);
       setThinking(false);
       setMessages((m) => [...m, { role: "agent", agentId: agent.id, name: agent.name, color: agent.color, text: turn.text }]);
     }
     if (result.verdict) {
       const scout = CREW.find((c) => c.id === "scout");
       setThinking(true); setThinkingLabel(t.investigating(scout.name));
-      await sleep(500);
+      await sleep(450);
       setThinking(false);
       setMessages((m) => [...m, { role: "agent", agentId: "scout", name: scout.name, color: scout.color, text: result.verdict, verdict: true }]);
     }
-    if (typeof result.questions_used === "number") setQuestionsUsed(result.questions_used);
-    if (typeof result.unlocked === "boolean") setUnlocked(result.unlocked);
+    if (!unlocked) setQuestionsUsed((n) => n + 1); // one crew run counts as one question, not four
   };
 
   const send = async () => {
     const text = input.trim();
-    if (!text || thinking || atLimit || !character) return;
+    if (!text || thinking || atLimit) return;
     setInput("");
     if (isCrewMode) await sendCrew(text);
     else await sendSingle(text);
@@ -334,18 +274,24 @@ function App() {
     setVerifying(true); setLicenseError("");
     const ok = await verifyLicense(licenseKey.trim());
     setVerifying(false);
-    if (ok) {
-      const u = await fetchUsage();
-      if (u) { setQuestionsUsed(u.questions_used); setUnlocked(u.unlocked); }
-    } else {
-      setLicenseError(t.licenseInvalid);
-    }
+    if (ok) setUnlocked(true);
+    else setLicenseError(t.licenseInvalid);
   };
-
-  const switchCharacter = () => { setCharacter(null); setMessages([]); };
 
   return (
     <div style={styles.app}>
+      {showDisclaimer && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalCard}>
+            <button style={styles.modalClose} onClick={() => setShowDisclaimer(false)}><IconX size={16} /></button>
+            <IconShield size={26} color={ACCENT} strokeWidth={1.5} />
+            <h2 style={styles.gateTitle}>{t.disclaimerTitle}</h2>
+            <p style={styles.gateBody}>{t.disclaimerBody}</p>
+            <button style={styles.primaryBtn} onClick={() => setShowDisclaimer(false)}>{t.disclaimerAccept}</button>
+          </div>
+        </div>
+      )}
+
       <header style={styles.header}>
         <div style={styles.wordmarkRow}>
           <IconShield size={22} color={ACCENT} strokeWidth={1.8} />
@@ -354,160 +300,105 @@ function App() {
             <div style={styles.tagline}>{t.tagline}</div>
           </div>
         </div>
-        <div style={styles.headerRight}>
-          <nav style={styles.tabNav}>
-            <button style={{ ...styles.tabBtn, ...(tab === "home" ? styles.tabBtnActive : {}) }} onClick={() => setTab("home")}>{t.navHome}</button>
-            <button style={{ ...styles.tabBtn, ...(tab === "assistant" ? styles.tabBtnActive : {}) }} onClick={() => setTab("assistant")}>{t.navAssistant}</button>
-          </nav>
-          {session && <button style={styles.ghostBtn} onClick={logout}><IconLogOut size={14} /> {t.logout}</button>}
-        </div>
+        {unlocked ? (
+          <span style={styles.badgeUnlocked}><IconCheck size={12} /> {t.unlockedBadge}</span>
+        ) : (
+          <span style={styles.badgeCount}>{t.questionsLeft(Math.max(0, FREE_LIMIT - questionsUsed))}</span>
+        )}
       </header>
 
-      {tab === "home" && (
-        <div style={styles.heroWrap}>
-          <div style={styles.heroCard}>
-            <div style={styles.heroEyebrow}>{t.heroEyebrow}</div>
-            <h1 style={styles.heroTitle}>{t.heroTitle}</h1>
-            <p style={styles.heroSub}>{t.heroSub}</p>
-            <button style={styles.heroCtaBtn} onClick={() => setTab("assistant")}><IconCoffee size={16} /> {t.heroCta}</button>
+      <div style={styles.heroStrip}>
+        <h1 style={styles.heroTitle}>{t.heroTitle}</h1>
+        <p style={styles.heroSub}>{t.heroSub}</p>
+      </div>
 
-            <div style={styles.crewGrid}>
-              {CREW.map((c) => (
-                <div key={c.id} style={{ ...styles.crewCardHome, borderColor: c.color + "55" }}>
-                  <Emblem id={c.id} color={c.color} size={44} />
-                  <div style={styles.crewNameHome}>{c.name}</div>
-                  <div style={{ ...styles.crewTitleHome, color: c.color }}>{c.role}</div>
-                  <div style={styles.crewBlurbHome}>{c.blurb}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={styles.resourcesBoxHome}>
-              <div style={styles.resourcesTitle}>{t.resourcesTitle}</div>
-              <div style={styles.resourcesNote}>{t.resourcesNote}</div>
-              {t.resources.map((r, i) => (
-                <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={styles.resourceLink}><IconExternal size={13} /> {r.label}</a>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {tab === "assistant" && authChecked && !session && (
-        <div style={styles.gateWrap}>
-          <div style={styles.gateCard}>
-            <IconUser size={28} color={ACCENT} strokeWidth={1.5} />
-            <h2 style={styles.gateTitle}>{authMode === "signup" ? t.authTitleSignup : t.authTitle}</h2>
-            <input style={styles.fieldInput} type="email" placeholder={t.emailLabel} value={email} onChange={(e) => setEmail(e.target.value)} />
-            <input style={styles.fieldInput} type="password" placeholder={t.passwordLabel} value={password} onChange={(e) => setPassword(e.target.value)} />
-            {authError && <div style={styles.errorText}>{authError}</div>}
-            {authNotice && <div style={styles.noticeText}>{authNotice}</div>}
-            <button style={styles.primaryBtn} onClick={handleAuth} disabled={authLoading}>{authLoading ? t.authLoading : (authMode === "signup" ? t.signupBtn : t.loginBtn)}</button>
-            <button style={styles.linkBtn} onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthError(""); setAuthNotice(""); }}>
-              {authMode === "signup" ? t.switchToLogin : t.switchToSignup}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {tab === "assistant" && session && !accepted && (
-        <div style={styles.gateWrap}>
-          <div style={styles.gateCard}>
-            <IconShieldCheck size={28} color={ACCENT} strokeWidth={1.5} />
-            <h2 style={styles.gateTitle}>{t.disclaimerTitle}</h2>
-            <p style={styles.gateBody}>{t.disclaimerBody}</p>
-            <button style={styles.primaryBtn} onClick={() => setAccepted(true)}>{t.disclaimerAccept}</button>
-          </div>
-        </div>
-      )}
-
-      {tab === "assistant" && session && accepted && !character && (
-        <div style={styles.pickWrap}>
-          <h2 style={styles.pickTitle}>{t.pickTitle}</h2>
-          <div style={styles.pickHint}>{t.pickSingleHint}</div>
-          <div style={styles.crewGrid}>
-            {CREW.map((c) => (
-              <button key={c.id} style={{ ...styles.crewCard, borderColor: c.color }} onClick={() => setCharacter(c.id)}>
-                <Emblem id={c.id} color={c.color} size={52} />
-                <div style={styles.crewName}>{c.name}</div>
-                <div style={{ ...styles.crewTitle, color: c.color }}>{c.role}</div>
-                <div style={styles.crewBlurb}>{c.blurb}</div>
-              </button>
-            ))}
-          </div>
-          <div style={styles.pickHint}>{t.pickCrewHint}</div>
-          <button style={styles.crewModeBtn} onClick={() => setCharacter("crew")}>
-            <IconUsers size={18} /> {t.crewCta}
+      {/* The crew is visible and marked Active the instant the page loads — no login, no picking required to see them working. */}
+      <div style={styles.crewStrip}>
+        <button
+          style={{ ...styles.crewChip, borderColor: isCrewMode ? ACCENT : LINE, background: isCrewMode ? "#1A2340" : PANEL }}
+          onClick={() => setCharacter("crew")}
+        >
+          <IconUsers size={22} color={ACCENT} />
+          <div style={styles.crewChipName}>{t.crewModeLabel}</div>
+          <div style={styles.liveRow}><span style={{ ...styles.liveDot, background: "#5FC98D" }} /> {t.liveDot}</div>
+        </button>
+        {CREW.map((c) => (
+          <button
+            key={c.id}
+            style={{ ...styles.crewChip, borderColor: character === c.id ? c.color : LINE, background: character === c.id ? c.color + "18" : PANEL }}
+            onClick={() => setCharacter(c.id)}
+          >
+            <Emblem id={c.id} color={c.color} size={30} />
+            <div style={styles.crewChipName}>{c.name}</div>
+            <div style={styles.liveRow}><span style={{ ...styles.liveDot, background: "#5FC98D" }} /> {t.liveDot}</div>
           </button>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {tab === "assistant" && session && accepted && character && (
-        <main style={styles.main}>
-          <section style={styles.chatPanel}>
-            <div style={styles.chatHeaderRow}>
-              {isCrewMode ? (
-                <div style={styles.activeCrewBadge}><IconUsers size={20} color={ACCENT} /> <span>Full Crew Investigation</span></div>
-              ) : (
-                <div style={styles.activeCrewBadge}>
-                  <Emblem id={activeCrew.id} color={activeCrew.color} size={26} />
-                  <span>{activeCrew.name}</span>
-                </div>
-              )}
-              <div style={styles.chatHeaderRight}>
-                {unlocked ? (
-                  <span style={styles.badgeUnlocked}><IconCheck size={12} /> {t.unlockedBadge}</span>
-                ) : (
-                  <span style={styles.badgeCount}>{t.questionsLeft(Math.max(0, FREE_LIMIT - questionsUsed))}</span>
-                )}
-                <button style={styles.linkBtnSmall} onClick={switchCharacter}><IconRotateCcw size={12} /> {t.switchCharacter}</button>
-              </div>
-            </div>
-
-            <div style={styles.chatScroll} ref={scrollRef}>
-              <div style={{ ...styles.introBubble, borderLeft: `3px solid ${isCrewMode ? ACCENT : activeCrew.color}` }}>
-                {isCrewMode ? t.crewIntro : t.chatIntroFor(activeCrew.name)}
-              </div>
-              {messages.map((m, i) => (
-                <div key={i} style={{
-                  ...styles.bubble,
-                  ...(m.role === "user" ? styles.bubbleUser : { ...styles.bubbleBot, borderLeft: `3px solid ${m.color}` }),
-                  ...(m.verdict ? styles.bubbleVerdict : {}),
-                }}>
-                  {m.role === "agent" && <div style={{ ...styles.bubbleAgentName, color: m.color }}>{m.name}{m.verdict ? " · Verdict" : ""}</div>}
-                  {m.text}
-                </div>
-              ))}
-              {thinking && <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{thinkingLabel}</div>}
-            </div>
-
-            {!atLimit ? (
-              <div style={styles.inputRow}>
-                <input style={styles.chatInput} placeholder={t.inputPlaceholder} value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send(); } }} />
-                <button style={{ ...styles.sendBtn, background: isCrewMode ? ACCENT : activeCrew.color }} onClick={send} disabled={thinking}><IconSend size={16} strokeWidth={2} color="#fff" /></button>
-              </div>
+      <main style={styles.main}>
+        <section style={styles.chatPanel}>
+          <div style={styles.chatHeaderRow}>
+            {isCrewMode ? (
+              <div style={styles.activeCrewBadge}><IconUsers size={20} color={ACCENT} /> <span>{t.crewModeLabel}</span></div>
             ) : (
-              <div style={styles.paywallBox}>
-                <IconLock size={22} color={ACCENT} />
-                <div style={styles.paywallTitle}>{t.paywallTitle}</div>
-                <div style={styles.paywallBody}>{t.paywallBody}</div>
-                <a style={styles.paywallCtaBtn} href={GUMROAD_CHECKOUT_URL} target="_blank" rel="noopener noreferrer"><IconCoffee size={15} /> {t.paywallCta}</a>
-                {!showLicenseForm ? (
-                  <button style={styles.linkBtn} onClick={() => setShowLicenseForm(true)}>{t.haveCode}</button>
-                ) : (
-                  <div style={styles.licenseRow}>
-                    <input style={styles.fieldInput} placeholder={t.licensePlaceholder} value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} />
-                    <button style={styles.secondaryBtn} onClick={handleUnlock} disabled={verifying}>{verifying ? t.unlocking : t.unlockBtn}</button>
-                    {licenseError && <div style={styles.errorText}>{licenseError}</div>}
-                  </div>
-                )}
+              <div style={styles.activeCrewBadge}>
+                <Emblem id={activeCrew.id} color={activeCrew.color} size={26} />
+                <span>{activeCrew.name}</span>
               </div>
             )}
-          </section>
-        </main>
-      )}
+          </div>
+
+          <div style={styles.chatScroll} ref={scrollRef}>
+            <div style={{ ...styles.introBubble, borderLeft: `3px solid ${isCrewMode ? ACCENT : activeCrew.color}` }}>
+              {isCrewMode ? t.crewIntro : t.chatIntroFor(activeCrew.name)}
+            </div>
+            {messages.map((m, i) => (
+              <div key={i} style={{
+                ...styles.bubble,
+                ...(m.role === "user" ? styles.bubbleUser : { ...styles.bubbleBot, borderLeft: `3px solid ${m.color}` }),
+                ...(m.verdict ? styles.bubbleVerdict : {}),
+              }}>
+                {m.role === "agent" && <div style={{ ...styles.bubbleAgentName, color: m.color }}>{m.name}{m.verdict ? " · Verdict" : ""}</div>}
+                {m.text}
+              </div>
+            ))}
+            {thinking && <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{thinkingLabel}</div>}
+          </div>
+
+          {!atLimit ? (
+            <div style={styles.inputRow}>
+              <input style={styles.chatInput} placeholder={t.inputPlaceholder} value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send(); } }} />
+              <button style={{ ...styles.sendBtn, background: isCrewMode ? ACCENT : activeCrew.color }} onClick={send} disabled={thinking}><IconSend size={16} strokeWidth={2} color="#fff" /></button>
+            </div>
+          ) : (
+            <div style={styles.paywallBox}>
+              <IconLock size={22} color={ACCENT} />
+              <div style={styles.paywallTitle}>{t.paywallTitle}</div>
+              <div style={styles.paywallBody}>{t.paywallBody}</div>
+              <a style={styles.paywallCtaBtn} href={GUMROAD_CHECKOUT_URL} target="_blank" rel="noopener noreferrer"><IconCoffee size={15} /> {t.paywallCta}</a>
+              {!showLicenseForm ? (
+                <button style={styles.linkBtn} onClick={() => setShowLicenseForm(true)}>{t.haveCode}</button>
+              ) : (
+                <div style={styles.licenseRow}>
+                  <input style={styles.fieldInput} placeholder={t.licensePlaceholder} value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} />
+                  <button style={styles.secondaryBtn} onClick={handleUnlock} disabled={verifying}>{verifying ? t.unlocking : t.unlockBtn}</button>
+                  {licenseError && <div style={styles.errorText}>{licenseError}</div>}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+      </main>
+
+      <div style={styles.resourcesBox}>
+        <div style={styles.resourcesTitle}>{t.resourcesTitle}</div>
+        <div style={styles.resourcesNote}>{t.resourcesNote}</div>
+        {t.resources.map((r, i) => (
+          <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={styles.resourceLink}><IconExternal size={13} /> {r.label}</a>
+        ))}
+      </div>
     </div>
   );
 }
@@ -525,58 +416,37 @@ const ACCENT = "#6E7CE0";
 
 const styles = {
   app: { fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: INK, minHeight: "100vh", color: TEXT, display: "flex", flexDirection: "column" },
+
+  modalOverlay: { position: "fixed", inset: 0, background: "rgba(6,9,16,0.72)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 20 },
+  modalCard: { position: "relative", background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: "32px 30px", maxWidth: 380, textAlign: "center", display: "flex", flexDirection: "column", gap: 4 },
+  modalClose: { position: "absolute", top: 12, right: 12, background: "transparent", border: "none", color: INK_SOFT, cursor: "pointer" },
+
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderBottom: `1px solid ${LINE}`, background: PANEL, flexWrap: "wrap", gap: 12 },
   wordmarkRow: { display: "flex", alignItems: "center", gap: 10 },
   wordmark: { fontFamily: "'Source Serif 4',Georgia,serif", fontWeight: 700, fontSize: 18, color: TEXT },
   tagline: { fontSize: 11.5, color: INK_SOFT, marginTop: 1 },
-  headerRight: { display: "flex", alignItems: "center", gap: 10 },
-  tabNav: { display: "flex", gap: 4, background: INK, borderRadius: 20, padding: 4 },
-  tabBtn: { border: "none", background: "transparent", padding: "6px 14px", borderRadius: 16, fontSize: 12.5, color: INK_SOFT, cursor: "pointer", fontFamily: "inherit" },
-  tabBtnActive: { background: ACCENT, color: "#fff" },
-  ghostBtn: { display: "flex", alignItems: "center", gap: 6, background: "transparent", border: `1px solid ${LINE}`, borderRadius: 20, padding: "6px 14px", fontSize: 12.5, color: TEXT, cursor: "pointer", fontFamily: "inherit" },
 
-  heroWrap: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 },
-  heroCard: { maxWidth: 760, textAlign: "center", padding: "20px 10px" },
-  heroEyebrow: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, letterSpacing: "0.14em", color: ACCENT, marginBottom: 14 },
-  heroTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 34, lineHeight: 1.25, margin: "0 0 16px", color: TEXT },
-  heroSub: { fontSize: 15, color: INK_SOFT, lineHeight: 1.6, marginBottom: 26, maxWidth: 540, marginLeft: "auto", marginRight: "auto" },
-  heroCtaBtn: { background: ACCENT, color: "#fff", border: "none", borderRadius: 24, padding: "14px 28px", fontSize: 14.5, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit", marginBottom: 40 },
+  heroStrip: { textAlign: "center", padding: "28px 20px 6px", maxWidth: 720, margin: "0 auto" },
+  heroTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 26, lineHeight: 1.3, margin: "0 0 10px", color: TEXT },
+  heroSub: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, margin: 0 },
 
-  crewGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginTop: 10 },
-  crewCardHome: { background: PANEL, border: "1px solid", borderRadius: 12, padding: "18px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 },
-  crewNameHome: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 15, fontWeight: 700, marginTop: 6 },
-  crewTitleHome: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: "0.02em" },
-  crewBlurbHome: { fontSize: 11.5, color: INK_SOFT, lineHeight: 1.5, marginTop: 4 },
+  crewStrip: { display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", padding: "20px 20px 8px" },
+  crewChip: { border: "1.5px solid", borderRadius: 12, padding: "12px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", minWidth: 108, fontFamily: "inherit" },
+  crewChipName: { fontSize: 12, fontWeight: 600, color: TEXT, marginTop: 2 },
+  liveRow: { display: "flex", alignItems: "center", gap: 4, fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, color: "#5FC98D", letterSpacing: "0.04em" },
+  liveDot: { width: 6, height: 6, borderRadius: "50%", display: "inline-block", animation: "pulse 1.8s ease-in-out infinite" },
 
-  resourcesBoxHome: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: 16, marginTop: 40, textAlign: "left" },
-  resourcesTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", textTransform: "uppercase", color: INK_SOFT, marginBottom: 4 },
-  resourcesNote: { fontSize: 11, color: "#5C6883", marginBottom: 10, lineHeight: 1.5 },
-  resourceLink: { display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: TEXT, textDecoration: "none", padding: "6px 0", borderTop: `1px solid ${LINE}` },
+  badgeCount: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: INK_SOFT, background: INK, borderRadius: 12, padding: "5px 12px" },
+  badgeUnlocked: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: "#5FC98D", background: "#173327", borderRadius: 12, padding: "5px 12px", display: "flex", alignItems: "center", gap: 4 },
 
-  gateWrap: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 },
-  gateCard: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: "32px 30px", maxWidth: 380, textAlign: "center", display: "flex", flexDirection: "column", gap: 4 },
   gateTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 20, margin: "14px 0 10px", color: TEXT },
   gateBody: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, marginBottom: 22 },
-  noticeText: { fontSize: 12, color: "#5FC98D", marginTop: 4 },
   errorText: { color: "#E0736E", fontSize: 11.5 },
 
-  pickWrap: { flex: 1, padding: "40px 20px", maxWidth: 900, margin: "0 auto", width: "100%", textAlign: "center" },
-  pickTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 24, marginBottom: 6, color: TEXT },
-  pickHint: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", textTransform: "uppercase", color: INK_SOFT, margin: "26px 0 14px" },
-  crewCard: { background: PANEL, border: "2px solid", borderRadius: 14, padding: "22px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", fontFamily: "inherit" },
-  crewName: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 17, fontWeight: 700, marginTop: 8, color: TEXT },
-  crewTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: "0.02em" },
-  crewBlurb: { fontSize: 12, color: INK_SOFT, lineHeight: 1.5, marginTop: 4 },
-  crewModeBtn: { background: "transparent", border: `2px solid ${ACCENT}`, color: TEXT, borderRadius: 24, padding: "13px 26px", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit" },
-
-  main: { flex: 1, display: "flex", justifyContent: "center", padding: 20 },
-  chatPanel: { flex: "1 1 600px", maxWidth: 700, minWidth: 320, background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, display: "flex", flexDirection: "column", height: 620 },
+  main: { flex: 1, display: "flex", justifyContent: "center", padding: "12px 20px 20px" },
+  chatPanel: { flex: "1 1 600px", maxWidth: 700, minWidth: 320, background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, display: "flex", flexDirection: "column", height: 560 },
   chatHeaderRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${LINE}` },
   activeCrewBadge: { display: "flex", alignItems: "center", gap: 8, fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 15, fontWeight: 700 },
-  chatHeaderRight: { display: "flex", alignItems: "center", gap: 8 },
-  badgeCount: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: INK_SOFT, background: INK, borderRadius: 12, padding: "3px 10px" },
-  badgeUnlocked: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: "#5FC98D", background: "#173327", borderRadius: 12, padding: "3px 10px", display: "flex", alignItems: "center", gap: 4 },
-  linkBtnSmall: { background: "none", border: "none", color: INK_SOFT, fontSize: 11, display: "flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "inherit" },
   chatScroll: { flex: 1, overflowY: "auto", padding: 18, display: "flex", flexDirection: "column", gap: 10 },
   introBubble: { fontSize: 13.5, color: INK_SOFT, background: PANEL_LIGHT, borderRadius: "0 10px 10px 0", padding: "10px 14px", lineHeight: 1.5 },
   bubble: { maxWidth: "85%", padding: "10px 14px", borderRadius: 12, fontSize: 13.5, lineHeight: 1.5 },
@@ -599,6 +469,11 @@ const styles = {
   paywallBody: { fontSize: 12.5, color: INK_SOFT, marginBottom: 14, lineHeight: 1.5 },
   paywallCtaBtn: { background: ACCENT, color: "#fff", textDecoration: "none", borderRadius: 20, padding: "12px 22px", fontSize: 13.5, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit" },
   licenseRow: { marginTop: 14, display: "flex", flexDirection: "column", gap: 6, alignItems: "center" },
+
+  resourcesBox: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: 16, margin: "0 20px 30px", maxWidth: 700, alignSelf: "center", width: "100%", textAlign: "left" },
+  resourcesTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", textTransform: "uppercase", color: INK_SOFT, marginBottom: 4 },
+  resourcesNote: { fontSize: 11, color: "#5C6883", marginBottom: 10, lineHeight: 1.5 },
+  resourceLink: { display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: TEXT, textDecoration: "none", padding: "6px 0", borderTop: `1px solid ${LINE}` },
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
