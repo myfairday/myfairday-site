@@ -1,1022 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MyFairDay Cyber Crew — Stay Safe Online</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MyFairDay Cyber Crew — Stay Safe Online</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<style>
-  html, body { margin: 0; padding: 0; background-color: #0E1524; color: #E7EAF2; }
-  * { box-sizing: border-box; }
-  ::placeholder { color: #7A8699; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  
-  /* Formatação básica para o texto retornado pelas respostas */
-  .formatted-text p { margin: 0 0 8px 0; }
-  .formatted-text p:last-child { margin-bottom: 0; }
-  .formatted-text strong { color: #FFF; font-weight: 600; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Fair Day | Ferramentas Disruptivas</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --danger: #ef4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 50px; }
+        .header h1 { font-size: 2.5rem; color: var(--accent-color); margin-bottom: 10px; }
+        .header p { color: #94a3b8; font-size: 1.1rem; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #334155; }
+        .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
+        .card p { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5; }
+        
+        input, textarea, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 15px; font-size: 0.9rem; }
+        textarea { resize: vertical; min-height: 80px; }
+        button { width: 100%; padding: 12px; background-color: var(--accent-color); color: #0f172a; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem; }
+        button:hover { background-color: var(--accent-hover); }
+        
+        .result-box { background: #0f172a; padding: 15px; border-radius: 6px; border-left: 4px solid var(--accent-color); margin-top: 15px; font-size: 0.9rem; display: none; white-space: pre-line; word-break: break-all; }
+        .danger-highlight { border-left-color: var(--danger); color: #fca5a5; }
+    </style>
 </head>
 <body>
-<div id="root"></div>
 
-<script type="text/babel">
-const { useState, useRef, useEffect } = React;
-
-// ---------------------------------------------------------------------------
-// CONFIG
-// ---------------------------------------------------------------------------
-const API_BASE = "https://api.myfairday.org";
-const ASSIST_URL = API_BASE + "/api/assist";
-const CREW_URL = API_BASE + "/api/crew-investigate";
-const LICENSE_URL = API_BASE + "/api/verify-license";
-const GUMROAD_CHECKOUT_URL = "https://gumroad.com/l/YOUR-PRODUCT-HERE";
-
-const TESTING_MODE = true;
-const FREE_LIMIT = TESTING_MODE ? Infinity : 4;
-const STORAGE_KEY = "myfairday_state_v1";
-
-function loadLocalState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { questionsUsed: 0, unlocked: false, disclaimerSeen: false };
-    const parsed = JSON.parse(raw);
-    return {
-      questionsUsed: typeof parsed.questionsUsed === "number" ? parsed.questionsUsed : 0,
-      unlocked: !!parsed.unlocked,
-      disclaimerSeen: !!parsed.disclaimerSeen,
-    };
-  } catch (e) {
-    return { questionsUsed: 0, unlocked: false, disclaimerSeen: false };
-  }
-}
-
-function saveLocalState(state) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
-}
-
-// ---------------------------------------------------------------------------
-// Cyber Crew Agents (Alinhados perfeitamente com o CREW do server.js)
-// ---------------------------------------------------------------------------
-const CREW = [
-  { id: "tracer", name: "Tracer", role: "Link & Domain Investigator", color: "#6E7CE0",
-    blurb: "Traces suspicious URLs — domain red flags, typosquatting, mismatched links." },
-  { id: "warden", name: "Warden", role: "Sender Verification", color: "#E0A63B",
-    blurb: "Checks who's really behind a contact, profile, or email — impersonation red flags." },
-  { id: "cipher", name: "Cipher", role: "Phishing & Social Engineering Analyst", color: "#3BC9A8",
-    blurb: "Names the manipulation tactic used in the message — urgency, fear, fake authority." },
-  { id: "scout", name: "Scout", role: "Verdict & Cross-Check", color: "#E0673B",
-    blurb: "Cross-references what the rest of the crew found and gives the final verdict." },
-];
-
-// ---------------------------------------------------------------------------
-// Ícones Inline
-// ---------------------------------------------------------------------------
-const Icon = ({ children, size = 18, color = "currentColor", strokeWidth = 1.8 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-       strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    {children}
-  </svg>
-);
-const IconSend = (p) => <Icon {...p}><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></Icon>;
-const IconShield = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /></Icon>;
-const IconCheck = (p) => <Icon {...p}><path d="M20 6L9 17L4 12" /></Icon>;
-const IconLock = (p) => <Icon {...p}><rect x="4" y="10" width="16" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></Icon>;
-const IconExternal = (p) => <Icon {...p}><path d="M14 4h6v6" /><path d="M10 14L20 4" /><path d="M19 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></Icon>;
-const IconCoffee = (p) => <Icon {...p}><path d="M17 8h1a3 3 0 0 1 0 6h-1" /><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z" /><path d="M6 2v2" /><path d="M10 2v2" /><path d="M14 2v2" /></Icon>;
-const IconUsers = (p) => <Icon {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></Icon>;
-const IconX = (p) => <Icon {...p}><path d="M18 6L6 18" /><path d="M6 6l12 12" /></Icon>;
-
-function Emblem({ id, color, size = 40 }) {
-  const common = { width: size, height: size, viewBox: "0 0 40 40" };
-  if (id === "tracer") return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><path d="M20 6a14 14 0 1 0 10 24 11 11 0 0 1-10-24Z" fill={color} /></svg>
-  );
-  if (id === "warden") return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><circle cx="20" cy="20" r="8" fill={color} />
-      {[0,45,90,135,180,225,270,315].map((a,i)=>(<rect key={i} x="19" y="2" width="2" height="7" fill={color} transform={`rotate(${a} 20 20)`} />))}
-    </svg>
-  );
-  if (id === "cipher") return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" />
-      <circle cx="20" cy="20" r="3" fill={color} />
-      {[0,60,120,180,240,300].map((a,i)=>(<line key={i} x1="20" y1="20" x2="20" y2="4" stroke={color} strokeWidth="1.6" transform={`rotate(${a} 20 20)`} />))}
-      <circle cx="20" cy="20" r="8" fill="none" stroke={color} strokeWidth="1.4" opacity="0.6" />
-      <circle cx="20" cy="20" r="13" fill="none" stroke={color} strokeWidth="1.4" opacity="0.4" />
-    </svg>
-  );
-  return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" />
-      <ellipse cx="20" cy="20" rx="12" ry="10" fill={color} />
-      <circle cx="20" cy="12" r="4" fill={color} />
-      <circle cx="16" cy="19" r="1.6" fill="#fff" /><circle cx="24" cy="19" r="1.6" fill="#fff" />
-      <circle cx="16" cy="24" r="1.6" fill="#fff" /><circle cx="24" cy="24" r="1.6" fill="#fff" />
-    </svg>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Textos
-// ---------------------------------------------------------------------------
-const T = {
-  wordmark: "MyFairDay",
-  tagline: "The Cyber Crew — stay safe online",
-  heroTitle: "Your Cyber Crew is online. Ask anything, or run a full investigation.",
-  heroSub: "Four AI specialists check suspicious links, messages, and senders. First 4 questions are free — no account needed.",
-  liveDot: "Active",
-  resourcesTitle: "Official resources (verified)",
-  resourcesNote: "Cybercrime reporting is handled by national authorities. These are internationally recognized starting points:",
-  resources: [
-    { label: "econsumer.gov — report cross-border scams (ICPEN network)", url: "https://www.econsumer.gov" },
-    { label: "INTERPOL — Cybercrime", url: "https://www.interpol.int/en/Crimes/Cybercrime" },
-    { label: "IC3 — FBI Internet Crime Complaint Center (US)", url: "https://www.ic3.gov" },
-  ],
-  crewModeLabel: "Full Crew Investigation",
-  disclaimerTitle: "Before you begin",
-  disclaimerBody: "The Crew gives general, educational cybersecurity guidance. It is not a substitute for professional incident response or law enforcement. Never paste real passwords, OTPs, or card numbers into this chat.",
-  disclaimerAccept: "Got it — let's go",
-  chatIntroFor: (name) => `You're talking to ${name}. Describe the link, message, or situation you want to analyze.`,
-  crewIntro: "Describe the link, message, or sender you want the Crew to investigate. Each agent checks their part, then Scout gives the verdict.",
-  inputPlaceholder: "Describe what happened or paste a suspicious message…",
-  thinking: "Thinking…",
-  investigating: (name) => `${name} is investigating…`,
-  questionsLeft: (n) => n === 1 ? "1 free question left" : `${n} free questions left`,
-  unlockedBadge: "Unlimited access",
-  paywallTitle: "You've used your 4 free questions",
-  paywallBody: "Unlock unlimited help from the whole Crew — a one-time payment, less than a coffee.",
-  paywallCta: "Get instant access — $4.50",
-  haveCode: "Already paid? Enter your code",
-  licensePlaceholder: "Paste your license key",
-  unlockBtn: "Unlock", unlocking: "Checking…",
-  licenseInvalid: "That code didn't work. Please check it and try again.",
-};
-
-// Formata parágrafos e negritos simples
-function FormattedText({ text }) {
-  if (!text) return null;
-  const paragraphs = text.split("\n\n");
-  return (
-    <div className="formatted-text">
-      {paragraphs.map((p, i) => {
-        const parts = p.split(/(\*\*.*?\*\*)/g);
-        return (
-          <p key={i}>
-            {parts.map((part, j) => {
-              if (part.startsWith("**") && part.endsWith("**")) {
-                return <strong key={j}>{part.slice(2, -2)}</strong>;
-              }
-              return part;
-            })}
-          </p>
-        );
-      })}
+    <div class="header">
+        <h1>My Fair Day ⚡</h1>
+        <p>Ferramentas disruptivas de alta utilidade rodando 100% no seu navegador com privacidade total.</p>
     </div>
-  );
-}
 
-// Calls ao Backend Node.js / Express
-async function callAssistant(userText, character) {
-  try {
-    const response = await fetch(ASSIST_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: userText, character }),
-    });
-    return await response.json();
-  } catch (e) {
-    return { reply: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
-  }
-}
+    <div class="grid">
 
-async function callCrewInvestigation(userText) {
-  try {
-    const response = await fetch(CREW_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: userText }),
-    });
-    return await response.json();
-  } catch (e) {
-    return { turns: [], verdict: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
-  }
-}
-
-async function verifyLicense(key) {
-  try {
-    const response = await fetch(LICENSE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ license_key: key }),
-    });
-    const data = await response.json();
-    return !!data.valid;
-  } catch (e) { return false; }
-}
-
-function App() {
-  const t = T;
-  const initial = loadLocalState();
-
-  const [showDisclaimer, setShowDisclaimer] = useState(!initial.disclaimerSeen);
-  const [character, setCharacter] = useState("crew");
-  const [questionsUsed, setQuestionsUsed] = useState(initial.questionsUsed);
-  const [unlocked, setUnlocked] = useState(initial.unlocked);
-
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [thinking, setThinking] = useState(false);
-  const [thinkingLabel, setThinkingLabel] = useState("");
-  const scrollRef = useRef(null);
-
-  const [licenseKey, setLicenseKey] = useState("");
-  const [licenseError, setLicenseError] = useState("");
-  const [verifying, setVerifying] = useState(false);
-  const [showLicenseForm, setShowLicenseForm] = useState(false);
-
-  useEffect(() => {
-    saveLocalState({ questionsUsed, unlocked, disclaimerSeen: !showDisclaimer });
-  }, [questionsUsed, unlocked, showDisclaimer]);
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, thinking]);
-
-  const atLimit = !unlocked && questionsUsed >= FREE_LIMIT;
-  const isCrewMode = character === "crew";
-  const activeCrew = CREW.find((c) => c.id === character) || CREW[0];
-
-  const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
-
-  const sendSingle = async (text) => {
-    setMessages((m) => [...m, { role: "user", text }]);
-    setThinking(true); 
-    setThinkingLabel(t.thinking);
-    
-    const result = await callAssistant(text, character);
-    
-    setThinking(false);
-    setMessages((m) => [
-      ...m, 
-      { 
-        role: "agent", 
-        agentId: activeCrew.id, 
-        name: activeCrew.name, 
-        color: activeCrew.color, 
-        text: result.reply || result.text || "…" 
-      }
-    ]);
-    if (!unlocked) setQuestionsUsed((n) => n + 1);
-  };
-
-  const sendCrew = async (text) => {
-    setMessages((m) => [...m, { role: "user", text }]);
-    setThinking(true);
-    setThinkingLabel("Contacting the Crew…");
-    
-    const result = await callCrewInvestigation(text);
-    setThinking(false);
-
-    const turns = (result.turns && result.turns.length) ? result.turns : [];
-    
-    for (const turn of turns) {
-      const agent = CREW.find((c) => c.id === turn.agent);
-      if (!agent) continue;
-      setThinking(true); 
-      setThinkingLabel(t.investigating(agent.name));
-      await sleep(400);
-      setThinking(false);
-      setMessages((m) => [
-        ...m, 
-        { role: "agent", agentId: agent.id, name: agent.name, color: agent.color, text: turn.text }
-      ]);
-    }
-
-    if (result.verdict) {
-      const scout = CREW.find((c) => c.id === "scout");
-      setThinking(true); 
-      setThinkingLabel(t.investigating(scout.name));
-      await sleep(400);
-      setThinking(false);
-      setMessages((m) => [
-        ...m, 
-        { role: "agent", agentId: "scout", name: scout.name, color: scout.color, text: result.verdict, verdict: true }
-      ]);
-    }
-    
-    if (!unlocked) setQuestionsUsed((n) => n + 1);
-  };
-
-  const send = async () => {
-    const text = input.trim();
-    if (!text || thinking || atLimit) return;
-    setInput("");
-    if (isCrewMode) await sendCrew(text);
-    else await sendSingle(text);
-  };
-
-  const handleUnlock = async () => {
-    if (!licenseKey.trim() || verifying) return;
-    setVerifying(true); 
-    setLicenseError("");
-    const ok = await verifyLicense(licenseKey.trim());
-    setVerifying(false);
-    if (ok) setUnlocked(true);
-    else setLicenseError(t.licenseInvalid);
-  };
-
-  return (
-    <div style={styles.app}>
-      {showDisclaimer && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalCard}>
-            <button style={styles.modalClose} onClick={() => setShowDisclaimer(false)}><IconX size={16} /></button>
-            <IconShield size={26} color={ACCENT} strokeWidth={1.5} />
-            <h2 style={styles.gateTitle}>{t.disclaimerTitle}</h2>
-            <p style={styles.gateBody}>{t.disclaimerBody}</p>
-            <button style={styles.primaryBtn} onClick={() => setShowDisclaimer(false)}>{t.disclaimerAccept}</button>
-          </div>
+        <!-- FERRAMENTA 1: SANITIZADOR DE DADOS PRIVADOS -->
+        <div class="card">
+            <h2>🔒 Sanitizador de Dados Privados</h2>
+            <p>Remova CPFs, CNPJs, e-mails, telefones e chaves de API do seu texto antes de enviá-lo para IAs públicas.</p>
+            <textarea id="sanitizer-input" placeholder="Cole seu texto, código ou relatório aqui..."></textarea>
+            <button onclick="sanitizarDados()">Sanitizar Texto</button>
+            <div id="sanitizer-output" class="result-box"></div>
         </div>
-      )}
 
-      <header style={styles.header}>
-        <div style={styles.wordmarkRow}>
-          <IconShield size={22} color={ACCENT} strokeWidth={1.8} />
-          <div>
-            <div style={styles.wordmark}>{t.wordmark}</div>
-            <div style={styles.tagline}>{t.tagline}</div>
-          </div>
+        <!-- FERRAMENTA 2: CALCULADORA DE VALOR DE HORA FREELANCER -->
+        <div class="card">
+            <h2>💼 Calculadora Freelancer Real</h2>
+            <p>Descubra quanto cobrar por hora considerando seus custos invisíveis (férias, impostos, hardware e saúde).</p>
+            <input type="number" id="free-salario" placeholder="Salário mensal desejado (R$)">
+            <input type="number" id="free-custos" placeholder="Custos fixos: internet, MEI, luz (R$)">
+            <input type="number" id="free-horas" placeholder="Horas produtivas por dia (ex: 5)" max="24">
+            <button onclick="calcularHoraFreela()">Calcular Valor Hora</button>
+            <div id="free-output" class="result-box"></div>
         </div>
-        {unlocked ? (
-          <span style={styles.badgeUnlocked}><IconCheck size={12} /> {t.unlockedBadge}</span>
-        ) : (
-          <span style={styles.badgeCount}>{t.questionsLeft(Math.max(0, FREE_LIMIT - questionsUsed))}</span>
-        )}
-      </header>
 
-      <div style={styles.heroStrip}>
-        <h1 style={styles.heroTitle}>{t.heroTitle}</h1>
-        <p style={styles.heroSub}>{t.heroSub}</p>
-      </div>
+        <!-- FERRAMENTA 3: LINDADOR DE COPYS CLICHÊS -->
+        <div class="card">
+            <h2>✍️ O Limpador de Clichês</h2>
+            <p>Cole seu texto de vendas ou e-mail. Nós destacamos termos saturados que afastam clientes e sugerimos melhorias.</p>
+            <textarea id="copy-input" placeholder="Ex: Baixe nosso método revolucionário e mude seu mindset hoje mesmo!..."></textarea>
+            <button onclick="limparCopy()">Analisar Escrita</button>
+            <div id="copy-output" class="result-box danger-highlight"></div>
+        </div>
 
-      <div style={styles.crewStrip}>
-        <button
-          style={{ ...styles.crewChip, borderColor: isCrewMode ? ACCENT : LINE, background: isCrewMode ? "#1A2340" : PANEL }}
-          onClick={() => setCharacter("crew")}
-        >
-          <IconUsers size={22} color={ACCENT} />
-          <div style={styles.crewChipName}>{t.crewModeLabel}</div>
-          <div style={styles.liveRow}><span style={{ ...styles.liveDot, background: "#5FC98D" }} /> {t.liveDot}</div>
-        </button>
-        {CREW.map((c) => (
-          <button
-            key={c.id}
-            style={{ ...styles.crewChip, borderColor: character === c.id ? c.color : LINE, background: character === c.id ? c.color + "18" : PANEL }}
-            onClick={() => setCharacter(c.id)}
-          >
-            <Emblem id={c.id} color={c.color} size={30} />
-            <div style={styles.crewChipName}>{c.name}</div>
-            <div style={styles.liveRow}><span style={{ ...styles.liveDot, background: "#5FC98D" }} /> {t.liveDot}</div>
-          </button>
-        ))}
-      </div>
+        <!-- FERRAMENTA 4: SIMULADOR DE FINANCIAMENTO REVERSO -->
+        <div class="card">
+            <h2>📉 Amortização Inteligente (SAC)</h2>
+            <p>Simule como pagar parcelas de trás para frente reduz agressivamente os juros do seu banco.</p>
+            <input type="number" id="fin-total" placeholder="Valor total financiado (R$)">
+            <input type="number" id="fin-parcelas" placeholder="Total de parcelas originais (ex: 360)">
+            <input type="number" id="fin-juros" placeholder="Taxa de juros anual % (ex: 9.5)" step="0.1">
+            <button onclick="simularAmortizacao()">Ver Impacto do Dinheiro</button>
+            <div id="fin-output" class="result-box"></div>
+        </div>
 
-      <main style={styles.main}>
-        <section style={styles.chatPanel}>
-          <div style={styles.chatHeaderRow}>
-            {isCrewMode ? (
-              <div style={styles.activeCrewBadge}><IconUsers size={20} color={ACCENT} /> <span>{t.crewModeLabel}</span></div>
-            ) : (
-              <div style={styles.activeCrewBadge}>
-                <Emblem id={activeCrew.id} color={activeCrew.color} size={26} />
-                <span>{activeCrew.name}</span>
-              </div>
-            )}
-          </div>
+        <!-- FERRAMENTA 5: RASTREADOR DE ASSINATURAS INVISÍVEIS -->
+        <div class="card">
+            <h2>💸 Rastreador de Custos Fantasmas</h2>
+            <p>Netflix, Spotify, softwares... veja o impacto real acumulado dessas pequenas cobranças anualmente.</p>
+            <textarea id="sub-input" placeholder="Netflix: 55.90&#10;Spotify: 24.90&#10;iCloud: 14.90"></textarea>
+            <button onclick="calcularAssinaturas()">Calcular Impacto Anual</button>
+            <div id="sub-output" class="result-box danger-highlight"></div>
+        </div>
 
-          <div style={styles.chatScroll} ref={scrollRef}>
-            <div style={{ ...styles.introBubble, borderLeft: `3px solid ${isCrewMode ? ACCENT : activeCrew.color}` }}>
-              {isCrewMode ? t.crewIntro : t.chatIntroFor(activeCrew.name)}
-            </div>
-            {messages.map((m, i) => (
-              <div key={i} style={{
-                ...styles.bubble,
-                ...(m.role === "user" ? styles.bubbleUser : { ...styles.bubbleBot, borderLeft: `3px solid ${m.color}` }),
-                ...(m.verdict ? styles.bubbleVerdict : {}),
-              }}>
-                {m.role === "agent" && <div style={{ ...styles.bubbleAgentName, color: m.color }}>{m.name}{m.verdict ? " · Verdict" : ""}</div>}
-                <FormattedText text={m.text} />
-              </div>
-            ))}
-            {thinking && <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{thinkingLabel}</div>}
-          </div>
+        <!-- FERRAMENTA 6: ENCURTADOR DE LINKS PRIVADO SEM BANCO DE DADOS -->
+        <div class="card">
+            <h2>🔗 Link Criptografado Sem Nuvem</h2>
+            <p>Gere um link encurtado onde o destino está salvo dentro da própria URL usando criptografia Base64.</p>
+            <input type="url" id="link-input" placeholder="https://exemplo-de-link-muito-longo.com">
+            <button onclick="gerarLinkPrivado()">Gerar Link Privado</button>
+            <div id="link-output" class="result-box"></div>
+        </div>
 
-          {!atLimit ? (
-            <div style={styles.inputRow}>
-              <input style={styles.chatInput} placeholder={t.inputPlaceholder} value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send(); } }} />
-              <button style={{ ...styles.sendBtn, background: isCrewMode ? ACCENT : activeCrew.color }} onClick={send} disabled={thinking}><IconSend size={16} strokeWidth={2} color="#fff" /></button>
-            </div>
-          ) : (
-            <div style={styles.paywallBox}>
-              <IconLock size={22} color={ACCENT} />
-              <div style={styles.paywallTitle}>{t.paywallTitle}</div>
-              <div style={styles.paywallBody}>{t.paywallBody}</div>
-              <a style={styles.paywallCtaBtn} href={GUMROAD_CHECKOUT_URL} target="_blank" rel="noopener noreferrer"><IconCoffee size={15} /> {t.paywallCta}</a>
-              {!showLicenseForm ? (
-                <button style={styles.linkBtn} onClick={() => setShowLicenseForm(true)}>{t.haveCode}</button>
-              ) : (
-                <div style={styles.licenseRow}>
-                  <input style={styles.fieldInput} placeholder={t.licensePlaceholder} value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} />
-                  <button style={styles.secondaryBtn} onClick={handleUnlock} disabled={verifying}>{verifying ? t.unlocking : t.unlockBtn}</button>
-                  {licenseError && <div style={styles.errorText}>{licenseError}</div>}
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-      </main>
-
-      <div style={styles.resourcesBox}>
-        <div style={styles.resourcesTitle}>{t.resourcesTitle}</div>
-        <div style={styles.resourcesNote}>{t.resourcesNote}</div>
-        {t.resources.map((r, i) => (
-          <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={styles.resourceLink}><IconExternal size={13} /> {r.label}</a>
-        ))}
-      </div>
     </div>
-  );
-}
 
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-const INK = "#0E1524";
-const INK_SOFT = "#8B96AC";
-const PANEL = "#151D2E";
-const PANEL_LIGHT = "#1C2740";
-const LINE = "#2A3550";
-const TEXT = "#E7EAF2";
-const ACCENT = "#6E7CE0";
+    <script>
+        // 1. MOTOR DO SANITIZADOR DE DADOS
+        function sanitizarDados() {
+            let txt = document.getElementById('sanitizer-input').value;
+            const regexCpf = /\d{3}\.\d{3}\.\d{3}-\d{2}|\d{11}/g;
+            const regexEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+            const regexApiKey = /(sk|key|secret|api)[-_a-zA-Z0-9]{20,60}/gi;
+            
+            let limpo = txt.replace(regexCpf, "[CPF BLOQUEADO]")
+                           .replace(regexEmail, "[E-MAIL BLOQUEADO]")
+                           .replace(regexApiKey, "[CHAVE API REMOVIDA]");
+            
+            let out = document.getElementById('sanitizer-output');
+            out.innerText = "Texto Seguro para IA:\n\n" + limpo;
+            out.style.display = 'block';
+        }
 
-const styles = {
-  app: { fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: INK, minHeight: "100vh", color: TEXT, display: "flex", flexDirection: "column" },
+        // 2. MOTOR DA CALCULADORA FREELANCER
+        function calcularHoraFreela() {
+            let salario = parseFloat(document.getElementById('free-salario').value) || 0;
+            let custos = parseFloat(document.getElementById('free-custos').value) || 0;
+            let horasDia = parseFloat(document.getElementById('free-horas').value) || 5;
+            
+            // Considera 22 dias úteis no mês + margem de 30% para impostos/férias escondidos
+            let custoTotal = (salario + custos) * 1.3;
+            let horasMes = horasDia * 22;
+            let valorHora = custoTotal / horasMes;
+            
+            let out = document.getElementById('free-output');
+            out.innerText = `Para pagar seus custos e ter esse lucro líquido, o valor MÍNIMO da sua hora deve ser:\n\n💰 R$ ${valorHora.toFixed(2)} / hora.`;
+            out.style.display = 'block';
+        }
 
-  modalOverlay: { position: "fixed", inset: 0, background: "rgba(6,9,16,0.72)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 20 },
-  modalCard: { position: "relative", background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: "32px 30px", maxWidth: 380, textAlign: "center", display: "flex", flexDirection: "column", gap: 4 },
-  modalClose: { position: "absolute", top: 12, right: 12, background: "transparent", border: "none", color: INK_SOFT, cursor: "pointer" },
+        // 3. MOTOR DO LIMPADOR DE COPYS
+        function limparCopy() {
+            let txt = document.getElementById('copy-input').value.toLowerCase();
+            const cliches = ["revolucionário", "mindset", "arrasta para cima", "gatilho", "segredo revelado", "sucesso garantido", "mude de vida"];
+            let encontrados = [];
+            
+            cliches.forEach(termo => {
+                if(txt.includes(termo)) encontrados.push(`• "${termo}"`);
+            });
+            
+            let out = document.getElementById('copy-output');
+            if(encontrados.length > 0) {
+                out.innerText = "⚠️ Termos saturados encontrados que reduzem sua conversão:\n\n" + encontrados.join("\n") + "\n\n💡 Dica: Substitua por dados concretos ou chamadas diretas.";
+            } else {
+                out.innerText = "✅ Excelente! Sua copy não usa jargões clichês de mercado.";
+            }
+            out.style.display = 'block';
+        }
 
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderBottom: `1px solid ${LINE}`, background: PANEL, flexWrap: "wrap", gap: 12 },
-  wordmarkRow: { display: "flex", alignItems: "center", gap: 10 },
-  wordmark: { fontFamily: "'Source Serif 4',Georgia,serif", fontWeight: 700, fontSize: 18, color: TEXT },
-  tagline: { fontSize: 11.5, color: INK_SOFT, marginTop: 1 },
+        // 4. MOTOR DA AMORTIZAÇÃO
+        function simularAmortizacao() {
+            let total = parseFloat(document.getElementById('fin-total').value) || 0;
+            let parcelas = parseInt(document.getElementById('fin-parcelas').value) || 1;
+            let jurosAnual = parseFloat(document.getElementById('fin-juros').value) || 0;
+            
+            let jurosMensal = (jurosAnual / 12) / 100;
+            let amortizacaoMes = total / parcelas;
+            let primeiraParcelaJuros = total * jurosMensal;
+            let economiaEstimada = primeiraParcelaJuros * (parcelas * 0.4); // Estimativa de corte de juros reais ao quitar parcelas finais
+            
+            let out = document.getElementById('fin-output');
+            out.innerText = `Resumo do Financiamento:\n• Parcela de Amortização pura: R$ ${amortizacaoMes.toFixed(2)}\n• Se você pagar R$ ${amortizacaoMes.toFixed(2)} extras por mês direto na amortização, estima-se uma economia total de mais de R$ ${economiaEstimada.toFixed(2)} em juros contratuais de longo prazo.`;
+            out.style.display = 'block';
+        }
 
-  heroStrip: { textAlign: "center", padding: "28px 20px 6px", maxWidth: 720, margin: "0 auto" },
-  heroTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 26, lineHeight: 1.3, margin: "0 0 10px", color: TEXT },
-  heroSub: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, margin: 0 },
+        // 5. MOTOR DO RASTREADOR DE ASSINATURAS
 
-  crewStrip: { display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", padding: "20px 20px 8px" },
-  crewChip: { border: "1.5px solid", borderRadius: 12, padding: "12px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", minWidth: 108, fontFamily: "inherit" },
-  crewChipName: { fontSize: 12, fontWeight: 600, color: TEXT, marginTop: 2 },
-  liveRow: { display: "flex", alignItems: "center", gap: 4, fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, color: "#5FC98D", letterSpacing: "0.04em" },
-  liveDot: { width: 6, height: 6, borderRadius: "50%", display: "inline-block", animation: "pulse 1.8s ease-in-out infinite" },
-
-  badgeCount: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: INK_SOFT, background: INK, borderRadius: 12, padding: "5px 12px" },
-  badgeUnlocked: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: "#5FC98D", background: "#173327", borderRadius: 12, padding: "5px 12px", display: "flex", alignItems: "center", gap: 4 },
-
-  gateTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 20, margin: "14px 0 10px", color: TEXT },
-  gateBody: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, marginBottom: 22 },
-  errorText: { color: "#E0736E", fontSize: 11.5 },
-
-  main: { flex: 1, display: "flex", justifyContent: "center", padding: "12px 20px 20px" },
-  chatPanel: { flex: "1 1 600px", maxWidth: 700, minWidth: 320, background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, display: "flex", flexDirection: "column", height: 560 },
-  chatHeaderRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${LINE}` },
-  activeCrewBadge: { display: "flex", alignItems: "center", gap: 8, fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 15, fontWeight: 700 },
-  chatScroll: { flex: 1, overflowY: "auto", padding: 18, display: "flex", flexDirection: "column", gap: 10 },
-  introBubble: { fontSize: 13.5, color: INK_SOFT, background: PANEL_LIGHT, borderRadius: "0 10px 10px 0", padding: "10px 14px", lineHeight: 1.5 },
-  bubble: { maxWidth: "85%", padding: "10px 14px", borderRadius: 12, fontSize: 13.5, lineHeight: 1.5 },
-  bubbleUser: { alignSelf: "flex-end", background: ACCENT, color: "#fff" },
-  bubbleBot: { alignSelf: "flex-start", background: PANEL_LIGHT, color: TEXT, borderRadius: "0 10px 10px 0" },
-  bubbleAgentName: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, letterSpacing: "0.03em", marginBottom: 4, textTransform: "uppercase" },
-  bubbleVerdict: { border: `1px solid ${ACCENT}55`, background: "#1A2340" },
-  bubbleThinking: { color: INK_SOFT, fontStyle: "italic" },
-  inputRow: { display: "flex", gap: 8, padding: 14, borderTop: `1px solid ${LINE}` },
-  chatInput: { flex: 1, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 13.5, fontFamily: "inherit", background: INK, color: TEXT },
-  sendBtn: { width: 38, height: 38, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
-
-  fieldInput: { border: `1px solid ${LINE}`, borderRadius: 6, padding: "8px 10px", fontSize: 13.5, fontFamily: "inherit", background: INK, color: TEXT, marginTop: 4, marginBottom: 4, width: "100%" },
-  primaryBtn: { background: ACCENT, color: "#fff", border: "none", borderRadius: 20, padding: "10px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit", marginTop: 10 },
-  secondaryBtn: { background: "transparent", color: TEXT, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" },
-  linkBtn: { background: "none", border: "none", color: INK_SOFT, fontSize: 12, textDecoration: "underline", cursor: "pointer", marginTop: 10, fontFamily: "inherit" },
-
-  paywallBox: { padding: "20px 18px", borderTop: `1px solid ${LINE}`, textAlign: "center", background: PANEL_LIGHT },
-  paywallTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 16, fontWeight: 700, margin: "8px 0 4px", color: TEXT },
-  paywallBody: { fontSize: 12.5, color: INK_SOFT, marginBottom: 14, lineHeight: 1.5 },
-  paywallCtaBtn: { background: ACCENT, color: "#fff", textDecoration: "none", borderRadius: 20, padding: "12px 22px", fontSize: 13.5, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit" },
-  licenseRow: { marginTop: 14, display: "flex", flexDirection: "column", gap: 6, alignItems: "center" },
-
-  resourcesBox: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: 16, margin: "0 20px 30px", maxWidth: 700, alignSelf: "center", width: "100%", textAlign: "left" },
-  resourcesTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", textTransform: "uppercase", color: INK_SOFT, marginBottom: 4 },
-  resourcesNote: { fontSize: 11, color: "#5C6883", marginBottom: 10, lineHeight: 1.5 },
-  resourceLink: { display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: TEXT, textDecoration: "none", padding: "6px 0", borderTop: `1px solid ${LINE}` },
-};
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
-</script>
-</body>
-</html>
-<style>
-  html, body { margin: 0; padding: 0; }
-  * { box-sizing: border-box; }
-  ::placeholder { color: #7A8699; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-</style>
-</head>
-<body>
-<div id="root"></div>
-
-<script type="text/babel">
-const { useState, useRef, useEffect } = React;
-
-// ---------------------------------------------------------------------------
-// CONFIG — edit these for your real setup. No accounts, no login: this app
-// is fully stateless on the frontend. Free-question count and unlock status
-// live in localStorage on the visitor's own browser, matching server.js
-// (which has no database and doesn't track users at all).
-// ---------------------------------------------------------------------------
-const API_BASE = "https://api.myfairday.org";
-const ASSIST_URL = API_BASE + "/api/assist";
-const CREW_URL = API_BASE + "/api/crew-investigate";
-const LICENSE_URL = API_BASE + "/api/verify-license";
-const GUMROAD_CHECKOUT_URL = "https://gumroad.com/l/YOUR-PRODUCT-HERE"; // <-- replace
-
-// ⚠️ TESTING MODE — the free-question paywall is disabled so you can test
-// the crew without hitting the limit. Before you launch for real, change
-// TESTING_MODE back to false (or just set FREE_LIMIT back to a real number
-// like 4) or nobody will ever need to pay.
-const TESTING_MODE = true;
-const FREE_LIMIT = TESTING_MODE ? Infinity : 4;
-const STORAGE_KEY = "myfairday_state_v1";
-
-function loadLocalState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { questionsUsed: 0, unlocked: false, disclaimerSeen: false };
-    const parsed = JSON.parse(raw);
-    return {
-      questionsUsed: typeof parsed.questionsUsed === "number" ? parsed.questionsUsed : 0,
-      unlocked: !!parsed.unlocked,
-      disclaimerSeen: !!parsed.disclaimerSeen,
-    };
-  } catch (e) {
-    return { questionsUsed: 0, unlocked: false, disclaimerSeen: false };
-  }
-}
-function saveLocalState(state) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
-}
-
-// ---------------------------------------------------------------------------
-// The Crew — four ORIGINAL characters, each mapped to one concrete OSINT
-// task, matching CREW in server.js exactly (ids, order, jobs). Not based on
-// any copyrighted character, logo, or costume.
-// ---------------------------------------------------------------------------
-const CREW = [
-  { id: "tracer", name: "Tracer", role: "Link & Domain Investigator", color: "#6E7CE0",
-    blurb: "Traces suspicious URLs — domain red flags, typosquatting, mismatched links." },
-  { id: "warden", name: "Warden", role: "Sender Verification", color: "#E0A63B",
-    blurb: "Checks who's really behind a contact, profile, or email — impersonation red flags." },
-  { id: "cipher", name: "Cipher", role: "Phishing & Social Engineering Analyst", color: "#3BC9A8",
-    blurb: "Names the manipulation tactic used in the message — urgency, fear, fake authority." },
-  { id: "scout", name: "Scout", role: "Verdict & Cross-Check", color: "#E0673B",
-    blurb: "Cross-references what the rest of the crew found and gives the final verdict." },
-];
-const CREW_PIPELINE_IDS = ["tracer", "warden", "cipher", "scout"]; // display order for crew mode
-
-// ---------------------------------------------------------------------------
-// Inline icons
-// ---------------------------------------------------------------------------
-const Icon = ({ children, size = 18, color = "currentColor", strokeWidth = 1.8 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-       strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    {children}
-  </svg>
-);
-const IconSend = (p) => <Icon {...p}><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></Icon>;
-const IconShield = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /></Icon>;
-const IconCheck = (p) => <Icon {...p}><path d="M20 6L9 17L4 12" /></Icon>;
-const IconLock = (p) => <Icon {...p}><rect x="4" y="10" width="16" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></Icon>;
-const IconExternal = (p) => <Icon {...p}><path d="M14 4h6v6" /><path d="M10 14L20 4" /><path d="M19 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></Icon>;
-const IconCoffee = (p) => <Icon {...p}><path d="M17 8h1a3 3 0 0 1 0 6h-1" /><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z" /><path d="M6 2v2" /><path d="M10 2v2" /><path d="M14 2v2" /></Icon>;
-const IconUsers = (p) => <Icon {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></Icon>;
-const IconX = (p) => <Icon {...p}><path d="M18 6L6 18" /><path d="M6 6l12 12" /></Icon>;
-
-// Simple abstract emblem per character — shapes only, no third-party IP.
-function Emblem({ id, color, size = 40 }) {
-  const common = { width: size, height: size, viewBox: "0 0 40 40" };
-  if (id === "tracer") return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><path d="M20 6a14 14 0 1 0 10 24 11 11 0 0 1-10-24Z" fill={color} /></svg>
-  );
-  if (id === "warden") return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><circle cx="20" cy="20" r="8" fill={color} />
-      {[0,45,90,135,180,225,270,315].map((a,i)=>(<rect key={i} x="19" y="2" width="2" height="7" fill={color} transform={`rotate(${a} 20 20)`} />))}
-    </svg>
-  );
-  if (id === "cipher") return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" />
-      <circle cx="20" cy="20" r="3" fill={color} />
-      {[0,60,120,180,240,300].map((a,i)=>(<line key={i} x1="20" y1="20" x2="20" y2="4" stroke={color} strokeWidth="1.6" transform={`rotate(${a} 20 20)`} />))}
-      <circle cx="20" cy="20" r="8" fill="none" stroke={color} strokeWidth="1.4" opacity="0.6" />
-      <circle cx="20" cy="20" r="13" fill="none" stroke={color} strokeWidth="1.4" opacity="0.4" />
-    </svg>
-  );
-  return (
-    <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" />
-      <ellipse cx="20" cy="20" rx="12" ry="10" fill={color} />
-      <circle cx="20" cy="12" r="4" fill={color} />
-      <circle cx="16" cy="19" r="1.6" fill="#fff" /><circle cx="24" cy="19" r="1.6" fill="#fff" />
-      <circle cx="16" cy="24" r="1.6" fill="#fff" /><circle cx="24" cy="24" r="1.6" fill="#fff" />
-    </svg>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Copy — single language, globally-worded.
-// ---------------------------------------------------------------------------
-const T = {
-  wordmark: "MyFairDay",
-  tagline: "The Cyber Crew — stay safe online",
-  heroTitle: "Your Cyber Crew is online. Ask anything, or run a full investigation.",
-  heroSub: "Four AI agents, each with one job, check suspicious links, messages, and senders. First 4 questions are free — no account needed.",
-  liveDot: "Active",
-  resourcesTitle: "Official resources (verified, not AI-generated)",
-  resourcesNote: "Cybercrime reporting is handled by national authorities. These are internationally recognized starting points — look up the equivalent agency in your own country too.",
-  resources: [
-    { label: "econsumer.gov — report cross-border scams (ICPEN network)", url: "https://www.econsumer.gov" },
-    { label: "INTERPOL — Cybercrime", url: "https://www.interpol.int/en/Crimes/Cybercrime" },
-    { label: "IC3 — FBI Internet Crime Complaint Center (US)", url: "https://www.ic3.gov" },
-  ],
-  crewModeLabel: "Full Crew Investigation",
-  crewModeHint: "All 4 agents look at your case in sequence, ending in Scout's verdict.",
-  disclaimerTitle: "Before you begin",
-  disclaimerBody: "The Crew gives general, educational cybersecurity guidance. It is not a substitute for professional incident response or law enforcement. Never paste real passwords, OTPs, or card numbers into this chat.",
-  disclaimerAccept: "Got it — let's go",
-  chatIntroFor: (name) => `You're talking to ${name}. What's going on?`,
-  crewIntro: "Describe the link, message, or sender you want the Crew to investigate. Each agent checks their part, then Scout gives the verdict.",
-  inputPlaceholder: "Describe what happened or paste a suspicious message…",
-  thinking: "Thinking…",
-  investigating: (name) => `${name} is investigating…`,
-  questionsLeft: (n) => n === 1 ? "1 free question left" : `${n} free questions left`,
-  unlockedBadge: "Unlimited access",
-  paywallTitle: "You've used your 4 free questions",
-  paywallBody: "Unlock unlimited help from the whole Crew — a one-time payment, less than a coffee.",
-  paywallCta: "Get instant access — $4.50",
-  haveCode: "Already paid? Enter your code",
-  licensePlaceholder: "Paste your license key",
-  unlockBtn: "Unlock", unlocking: "Checking…",
-  licenseInvalid: "That code didn't work. Please check it and try again.",
-};
-
-async function callAssistant(userText, character) {
-  try {
-    const response = await fetch(ASSIST_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: userText, character }),
-    });
-    return await response.json();
-  } catch (e) {
-    return { mode: "decline", reply: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
-  }
-}
-// Expected shape from CREW_URL (matches server.js /api/crew-investigate):
-// { turns: [ { agent: "tracer", text: "..." }, { agent: "warden", text: "..." },
-//            { agent: "cipher", text: "..." } ], verdict: "..." }
-async function callCrewInvestigation(userText) {
-  try {
-    const response = await fetch(CREW_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: userText }),
-    });
-    return await response.json();
-  } catch (e) {
-    return { turns: [], verdict: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
-  }
-}
-async function verifyLicense(key) {
-  try {
-    const response = await fetch(LICENSE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ license_key: key }),
-    });
-    const data = await response.json();
-    return !!data.valid;
-  } catch (e) { return false; }
-}
-
-function App() {
-  const t = T;
-  const initial = loadLocalState();
-
-  const [showDisclaimer, setShowDisclaimer] = useState(!initial.disclaimerSeen);
-  const [character, setCharacter] = useState("crew"); // "crew" or one agent id — crew is the default the moment the site opens
-  const [questionsUsed, setQuestionsUsed] = useState(initial.questionsUsed);
-  const [unlocked, setUnlocked] = useState(initial.unlocked);
-
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [thinking, setThinking] = useState(false);
-  const [thinkingLabel, setThinkingLabel] = useState("");
-  const scrollRef = useRef(null);
-
-  const [licenseKey, setLicenseKey] = useState("");
-  const [licenseError, setLicenseError] = useState("");
-  const [verifying, setVerifying] = useState(false);
-  const [showLicenseForm, setShowLicenseForm] = useState(false);
-
-  useEffect(() => {
-    saveLocalState({ questionsUsed, unlocked, disclaimerSeen: !showDisclaimer });
-  }, [questionsUsed, unlocked, showDisclaimer]);
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, thinking]);
-
-  const atLimit = !unlocked && questionsUsed >= FREE_LIMIT;
-  const isCrewMode = character === "crew";
-  const activeCrew = CREW.find((c) => c.id === character);
-
-  const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
-
-  const sendSingle = async (text) => {
-    setMessages((m) => [...m, { role: "user", text }]);
-    setThinking(true); setThinkingLabel(t.thinking);
-    const result = await callAssistant(text, character);
-    setThinking(false);
-    setMessages((m) => [...m, { role: "agent", agentId: activeCrew.id, name: activeCrew.name, color: activeCrew.color, text: result.reply || "…" }]);
-    if (!unlocked) setQuestionsUsed((n) => n + 1);
-  };
-
-  const sendCrew = async (text) => {
-    setMessages((m) => [...m, { role: "user", text }]);
-    const result = await callCrewInvestigation(text);
-    const turns = (result.turns && result.turns.length) ? result.turns : [];
-    for (const turn of turns) {
-      const agent = CREW.find((c) => c.id === turn.agent);
-      if (!agent) continue;
-      setThinking(true); setThinkingLabel(t.investigating(agent.name));
-      await sleep(450);
-      setThinking(false);
-      setMessages((m) => [...m, { role: "agent", agentId: agent.id, name: agent.name, color: agent.color, text: turn.text }]);
-    }
-    if (result.verdict) {
-      const scout = CREW.find((c) => c.id === "scout");
-      setThinking(true); setThinkingLabel(t.investigating(scout.name));
-      await sleep(450);
-      setThinking(false);
-      setMessages((m) => [...m, { role: "agent", agentId: "scout", name: scout.name, color: scout.color, text: result.verdict, verdict: true }]);
-    }
-    if (!unlocked) setQuestionsUsed((n) => n + 1); // one crew run counts as one question, not four
-  };
-
-  const send = async () => {
-    const text = input.trim();
-    if (!text || thinking || atLimit) return;
-    setInput("");
-    if (isCrewMode) await sendCrew(text);
-    else await sendSingle(text);
-  };
-
-  const handleUnlock = async () => {
-    if (!licenseKey.trim() || verifying) return;
-    setVerifying(true); setLicenseError("");
-    const ok = await verifyLicense(licenseKey.trim());
-    setVerifying(false);
-    if (ok) setUnlocked(true);
-    else setLicenseError(t.licenseInvalid);
-  };
-
-  return (
-    <div style={styles.app}>
-      {showDisclaimer && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalCard}>
-            <button style={styles.modalClose} onClick={() => setShowDisclaimer(false)}><IconX size={16} /></button>
-            <IconShield size={26} color={ACCENT} strokeWidth={1.5} />
-            <h2 style={styles.gateTitle}>{t.disclaimerTitle}</h2>
-            <p style={styles.gateBody}>{t.disclaimerBody}</p>
-            <button style={styles.primaryBtn} onClick={() => setShowDisclaimer(false)}>{t.disclaimerAccept}</button>
-          </div>
-        </div>
-      )}
-
-      <header style={styles.header}>
-        <div style={styles.wordmarkRow}>
-          <IconShield size={22} color={ACCENT} strokeWidth={1.8} />
-          <div>
-            <div style={styles.wordmark}>{t.wordmark}</div>
-            <div style={styles.tagline}>{t.tagline}</div>
-          </div>
-        </div>
-        {unlocked ? (
-          <span style={styles.badgeUnlocked}><IconCheck size={12} /> {t.unlockedBadge}</span>
-        ) : (
-          <span style={styles.badgeCount}>{t.questionsLeft(Math.max(0, FREE_LIMIT - questionsUsed))}</span>
-        )}
-      </header>
-
-      <div style={styles.heroStrip}>
-        <h1 style={styles.heroTitle}>{t.heroTitle}</h1>
-        <p style={styles.heroSub}>{t.heroSub}</p>
-      </div>
-
-      {/* The crew is visible and marked Active the instant the page loads — no login, no picking required to see them working. */}
-      <div style={styles.crewStrip}>
-        <button
-          style={{ ...styles.crewChip, borderColor: isCrewMode ? ACCENT : LINE, background: isCrewMode ? "#1A2340" : PANEL }}
-          onClick={() => setCharacter("crew")}
-        >
-          <IconUsers size={22} color={ACCENT} />
-          <div style={styles.crewChipName}>{t.crewModeLabel}</div>
-          <div style={styles.liveRow}><span style={{ ...styles.liveDot, background: "#5FC98D" }} /> {t.liveDot}</div>
-        </button>
-        {CREW.map((c) => (
-          <button
-            key={c.id}
-            style={{ ...styles.crewChip, borderColor: character === c.id ? c.color : LINE, background: character === c.id ? c.color + "18" : PANEL }}
-            onClick={() => setCharacter(c.id)}
-          >
-            <Emblem id={c.id} color={c.color} size={30} />
-            <div style={styles.crewChipName}>{c.name}</div>
-            <div style={styles.liveRow}><span style={{ ...styles.liveDot, background: "#5FC98D" }} /> {t.liveDot}</div>
-          </button>
-        ))}
-      </div>
-
-      <main style={styles.main}>
-        <section style={styles.chatPanel}>
-          <div style={styles.chatHeaderRow}>
-            {isCrewMode ? (
-              <div style={styles.activeCrewBadge}><IconUsers size={20} color={ACCENT} /> <span>{t.crewModeLabel}</span></div>
-            ) : (
-              <div style={styles.activeCrewBadge}>
-                <Emblem id={activeCrew.id} color={activeCrew.color} size={26} />
-                <span>{activeCrew.name}</span>
-              </div>
-            )}
-          </div>
-
-          <div style={styles.chatScroll} ref={scrollRef}>
-            <div style={{ ...styles.introBubble, borderLeft: `3px solid ${isCrewMode ? ACCENT : activeCrew.color}` }}>
-              {isCrewMode ? t.crewIntro : t.chatIntroFor(activeCrew.name)}
-            </div>
-            {messages.map((m, i) => (
-              <div key={i} style={{
-                ...styles.bubble,
-                ...(m.role === "user" ? styles.bubbleUser : { ...styles.bubbleBot, borderLeft: `3px solid ${m.color}` }),
-                ...(m.verdict ? styles.bubbleVerdict : {}),
-              }}>
-                {m.role === "agent" && <div style={{ ...styles.bubbleAgentName, color: m.color }}>{m.name}{m.verdict ? " · Verdict" : ""}</div>}
-                {m.text}
-              </div>
-            ))}
-            {thinking && <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{thinkingLabel}</div>}
-          </div>
-
-          {!atLimit ? (
-            <div style={styles.inputRow}>
-              <input style={styles.chatInput} placeholder={t.inputPlaceholder} value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send(); } }} />
-              <button style={{ ...styles.sendBtn, background: isCrewMode ? ACCENT : activeCrew.color }} onClick={send} disabled={thinking}><IconSend size={16} strokeWidth={2} color="#fff" /></button>
-            </div>
-          ) : (
-            <div style={styles.paywallBox}>
-              <IconLock size={22} color={ACCENT} />
-              <div style={styles.paywallTitle}>{t.paywallTitle}</div>
-              <div style={styles.paywallBody}>{t.paywallBody}</div>
-              <a style={styles.paywallCtaBtn} href={GUMROAD_CHECKOUT_URL} target="_blank" rel="noopener noreferrer"><IconCoffee size={15} /> {t.paywallCta}</a>
-              {!showLicenseForm ? (
-                <button style={styles.linkBtn} onClick={() => setShowLicenseForm(true)}>{t.haveCode}</button>
-              ) : (
-                <div style={styles.licenseRow}>
-                  <input style={styles.fieldInput} placeholder={t.licensePlaceholder} value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} />
-                  <button style={styles.secondaryBtn} onClick={handleUnlock} disabled={verifying}>{verifying ? t.unlocking : t.unlockBtn}</button>
-                  {licenseError && <div style={styles.errorText}>{licenseError}</div>}
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-      </main>
-
-      <div style={styles.resourcesBox}>
-        <div style={styles.resourcesTitle}>{t.resourcesTitle}</div>
-        <div style={styles.resourcesNote}>{t.resourcesNote}</div>
-        {t.resources.map((r, i) => (
-          <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={styles.resourceLink}><IconExternal size={13} /> {r.label}</a>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Design tokens — deep navy "ops room" base, one accent color per agent.
-// ---------------------------------------------------------------------------
-const INK = "#0E1524";
-const INK_SOFT = "#8B96AC";
-const PANEL = "#151D2E";
-const PANEL_LIGHT = "#1C2740";
-const LINE = "#2A3550";
-const TEXT = "#E7EAF2";
-const ACCENT = "#6E7CE0";
-
-const styles = {
-  app: { fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: INK, minHeight: "100vh", color: TEXT, display: "flex", flexDirection: "column" },
-
-  modalOverlay: { position: "fixed", inset: 0, background: "rgba(6,9,16,0.72)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 20 },
-  modalCard: { position: "relative", background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: "32px 30px", maxWidth: 380, textAlign: "center", display: "flex", flexDirection: "column", gap: 4 },
-  modalClose: { position: "absolute", top: 12, right: 12, background: "transparent", border: "none", color: INK_SOFT, cursor: "pointer" },
-
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderBottom: `1px solid ${LINE}`, background: PANEL, flexWrap: "wrap", gap: 12 },
-  wordmarkRow: { display: "flex", alignItems: "center", gap: 10 },
-  wordmark: { fontFamily: "'Source Serif 4',Georgia,serif", fontWeight: 700, fontSize: 18, color: TEXT },
-  tagline: { fontSize: 11.5, color: INK_SOFT, marginTop: 1 },
-
-  heroStrip: { textAlign: "center", padding: "28px 20px 6px", maxWidth: 720, margin: "0 auto" },
-  heroTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 26, lineHeight: 1.3, margin: "0 0 10px", color: TEXT },
-  heroSub: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, margin: 0 },
-
-  crewStrip: { display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", padding: "20px 20px 8px" },
-  crewChip: { border: "1.5px solid", borderRadius: 12, padding: "12px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", minWidth: 108, fontFamily: "inherit" },
-  crewChipName: { fontSize: 12, fontWeight: 600, color: TEXT, marginTop: 2 },
-  liveRow: { display: "flex", alignItems: "center", gap: 4, fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, color: "#5FC98D", letterSpacing: "0.04em" },
-  liveDot: { width: 6, height: 6, borderRadius: "50%", display: "inline-block", animation: "pulse 1.8s ease-in-out infinite" },
-
-  badgeCount: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: INK_SOFT, background: INK, borderRadius: 12, padding: "5px 12px" },
-  badgeUnlocked: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, color: "#5FC98D", background: "#173327", borderRadius: 12, padding: "5px 12px", display: "flex", alignItems: "center", gap: 4 },
-
-  gateTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 20, margin: "14px 0 10px", color: TEXT },
-  gateBody: { fontSize: 13.5, color: INK_SOFT, lineHeight: 1.6, marginBottom: 22 },
-  errorText: { color: "#E0736E", fontSize: 11.5 },
-
-  main: { flex: 1, display: "flex", justifyContent: "center", padding: "12px 20px 20px" },
-  chatPanel: { flex: "1 1 600px", maxWidth: 700, minWidth: 320, background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, display: "flex", flexDirection: "column", height: 560 },
-  chatHeaderRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${LINE}` },
-  activeCrewBadge: { display: "flex", alignItems: "center", gap: 8, fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 15, fontWeight: 700 },
-  chatScroll: { flex: 1, overflowY: "auto", padding: 18, display: "flex", flexDirection: "column", gap: 10 },
-  introBubble: { fontSize: 13.5, color: INK_SOFT, background: PANEL_LIGHT, borderRadius: "0 10px 10px 0", padding: "10px 14px", lineHeight: 1.5 },
-  bubble: { maxWidth: "85%", padding: "10px 14px", borderRadius: 12, fontSize: 13.5, lineHeight: 1.5 },
-  bubbleUser: { alignSelf: "flex-end", background: ACCENT, color: "#fff" },
-  bubbleBot: { alignSelf: "flex-start", background: PANEL_LIGHT, color: TEXT, borderRadius: "0 10px 10px 0" },
-  bubbleAgentName: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, letterSpacing: "0.03em", marginBottom: 4, textTransform: "uppercase" },
-  bubbleVerdict: { border: `1px solid ${ACCENT}55`, background: "#1A2340" },
-  bubbleThinking: { color: INK_SOFT, fontStyle: "italic" },
-  inputRow: { display: "flex", gap: 8, padding: 14, borderTop: `1px solid ${LINE}` },
-  chatInput: { flex: 1, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 13.5, fontFamily: "inherit", background: INK, color: TEXT },
-  sendBtn: { width: 38, height: 38, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
-
-  fieldInput: { border: `1px solid ${LINE}`, borderRadius: 6, padding: "8px 10px", fontSize: 13.5, fontFamily: "inherit", background: INK, color: TEXT, marginTop: 4, marginBottom: 4, width: "100%" },
-  primaryBtn: { background: ACCENT, color: "#fff", border: "none", borderRadius: 20, padding: "10px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit", marginTop: 10 },
-  secondaryBtn: { background: "transparent", color: TEXT, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" },
-  linkBtn: { background: "none", border: "none", color: INK_SOFT, fontSize: 12, textDecoration: "underline", cursor: "pointer", marginTop: 10, fontFamily: "inherit" },
-
-  paywallBox: { padding: "20px 18px", borderTop: `1px solid ${LINE}`, textAlign: "center", background: PANEL_LIGHT },
-  paywallTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 16, fontWeight: 700, margin: "8px 0 4px", color: TEXT },
-  paywallBody: { fontSize: 12.5, color: INK_SOFT, marginBottom: 14, lineHeight: 1.5 },
-  paywallCtaBtn: { background: ACCENT, color: "#fff", textDecoration: "none", borderRadius: 20, padding: "12px 22px", fontSize: 13.5, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit" },
-  licenseRow: { marginTop: 14, display: "flex", flexDirection: "column", gap: 6, alignItems: "center" },
-
-  resourcesBox: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: 16, margin: "0 20px 30px", maxWidth: 700, alignSelf: "center", width: "100%", textAlign: "left" },
-  resourcesTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", textTransform: "uppercase", color: INK_SOFT, marginBottom: 4 },
-  resourcesNote: { fontSize: 11, color: "#5C6883", marginBottom: 10, lineHeight: 1.5 },
-  resourceLink: { display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: TEXT, textDecoration: "none", padding: "6px 0", borderTop: `1px solid ${LINE}` },
-};
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
-</script>
-</body>
-</html>
