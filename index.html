@@ -35,7 +35,13 @@ const ASSIST_URL = API_BASE + "/api/assist";
 const CREW_URL = API_BASE + "/api/crew-investigate";
 const LICENSE_URL = API_BASE + "/api/verify-license";
 const GUMROAD_CHECKOUT_URL = "https://gumroad.com/l/YOUR-PRODUCT-HERE"; // <-- replace
-const FREE_LIMIT = 4;
+
+// ⚠️ TESTING MODE — the free-question paywall is disabled so you can test
+// the crew without hitting the limit. Before you launch for real, change
+// TESTING_MODE back to false (or just set FREE_LIMIT back to a real number
+// like 4) or nobody will ever need to pay.
+const TESTING_MODE = true;
+const FREE_LIMIT = TESTING_MODE ? Infinity : 4;
 const STORAGE_KEY = "myfairday_state_v1";
 
 function loadLocalState() {
