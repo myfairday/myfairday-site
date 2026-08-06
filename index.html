@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MyFairDay Cyber Crew — Stay Safe Online</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -28,7 +28,8 @@ const { useState, useRef, useEffect } = React;
 // CONFIG — edit these for your real setup.
 // ---------------------------------------------------------------------------
 const API_BASE = "https://api.myfairday.org";
-const ASSIST_URL = API_BASE + "/api/assist";
+const ASSIST_URL = API_BASE + "/api/assist";       // single-agent chat
+const CREW_URL = API_BASE + "/api/crew-investigate"; // multi-agent OSINT run (server-side CrewAI)
 const LICENSE_URL = API_BASE + "/api/verify-license";
 const USAGE_URL = API_BASE + "/api/usage";
 const GUMROAD_CHECKOUT_URL = "https://gumroad.com/l/YOUR-PRODUCT-HERE"; // <-- replace
@@ -39,23 +40,30 @@ const FREE_LIMIT = 4;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ---------------------------------------------------------------------------
-// The Crew — four original characters (not based on any copyrighted IP).
-// Each has its own accent color and a simple abstract emblem built from
-// plain shapes, not a copied costume or logo.
+// The Crew — four ORIGINAL characters, each mapped to one concrete OSINT
+// task. This is intentionally NOT based on any copyrighted character, logo,
+// or costume — using Spider-Man/Batman/Superman/Chapolin Colorado as
+// avatars would infringe third-party IP (Marvel/Disney, DC, Chespirito),
+// which is a real legal exposure for a commercial product. These four
+// keep the "team of heroes" feel with original names, colors and emblems.
+//
+// NOTE ON ARCHITECTURE: the actual multi-agent orchestration (a real
+// CrewAI-style pipeline where each agent hands off work to the next) has
+// to run server-side in Python/CrewAI — a browser can't run that framework.
+// This front end just calls CREW_URL with the user's input, and expects
+// the backend to return an ordered array of agent turns plus a final
+// verdict from Scout. See the mock fallback in runCrewInvestigation()
+// for the exact shape expected.
 // ---------------------------------------------------------------------------
 const CREW = [
-  { id: "umbra", name: "Umbra", title: "The Shadow Investigator", color: "#6E7CE0",
-    blurb: "Analyzes suspicious links, messages, and senders — spots what others miss.",
-    blurbHi: "संदिग्ध लिंक, संदेश और भेजने वालों का विश्लेषण करता है।" },
-  { id: "solaris", name: "Solaris", title: "The Incorruptible Guardian", color: "#E0A63B",
-    blurb: "Hardens your defenses — passwords, 2FA, backups, and the basics done right.",
-    blurbHi: "आपकी सुरक्षा मजबूत करता है — पासवर्ड, 2FA, बैकअप।" },
-  { id: "weaver", name: "Weaver", title: "The Net Runner", color: "#3BC9A8",
-    blurb: "Untangles phishing emails and social engineering tricks, fast.",
-    blurbHi: "फ़िशिंग ईमेल और धोखे की चालों को तुरंत सुलझाता है।" },
-  { id: "bumble", name: "Bumble", title: "The Lucky Underdog", color: "#E0673B",
-    blurb: "Gets it wrong so you don't have to — myths busted, no jargon.",
-    blurbHi: "गलतियों से सीखता है — कोई मुश्किल शब्द नहीं, सिर्फ़ मज़ेदार सलाह।" },
+  { id: "tracer", name: "Tracer", role: "Link & Domain Investigator", color: "#6E7CE0",
+    blurb: "Traces suspicious URLs — domain age, registrar, redirect chains, hosting reputation." },
+  { id: "warden", name: "Warden", role: "Sender Verification", color: "#E0A63B",
+    blurb: "Checks who's really behind a contact, profile, or email — impersonation red flags." },
+  { id: "cipher", name: "Cipher", role: "Phishing & Social Engineering Analyst", color: "#3BC9A8",
+    blurb: "Breaks down the manipulation tactic used in a message — urgency, fear, fake authority." },
+  { id: "scout", name: "Scout", role: "Verdict & Cross-Check", color: "#E0673B",
+    blurb: "Cross-references what the rest of the crew found and gives you the final verdict." },
 ];
 
 // ---------------------------------------------------------------------------
@@ -70,7 +78,6 @@ const Icon = ({ children, size = 18, color = "currentColor", strokeWidth = 1.8 }
 const IconSend = (p) => <Icon {...p}><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></Icon>;
 const IconShield = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /></Icon>;
 const IconShieldCheck = (p) => <Icon {...p}><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2l4-4" /></Icon>;
-const IconGlobe = (p) => <Icon {...p}><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.5 2.5 2.5 15.5 0 18" /><path d="M12 3c-2.5 2.5-2.5 15.5 0 18" /></Icon>;
 const IconRotateCcw = (p) => <Icon {...p}><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" /></Icon>;
 const IconCheck = (p) => <Icon {...p}><path d="M20 6L9 17L4 12" /></Icon>;
 const IconLock = (p) => <Icon {...p}><rect x="4" y="10" width="16" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></Icon>;
@@ -78,20 +85,21 @@ const IconExternal = (p) => <Icon {...p}><path d="M14 4h6v6" /><path d="M10 14L2
 const IconUser = (p) => <Icon {...p}><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></Icon>;
 const IconLogOut = (p) => <Icon {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></Icon>;
 const IconCoffee = (p) => <Icon {...p}><path d="M17 8h1a3 3 0 0 1 0 6h-1" /><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z" /><path d="M6 2v2" /><path d="M10 2v2" /><path d="M14 2v2" /></Icon>;
+const IconUsers = (p) => <Icon {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></Icon>;
 
 // Simple abstract emblem per character — built from shapes only, no
-// copied logos or costumes.
+// copied logos, costumes, or third-party IP.
 function Emblem({ id, color, size = 40 }) {
   const common = { width: size, height: size, viewBox: "0 0 40 40" };
-  if (id === "umbra") return (
+  if (id === "tracer") return (
     <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><path d="M20 6a14 14 0 1 0 10 24 11 11 0 0 1-10-24Z" fill={color} /></svg>
   );
-  if (id === "solaris") return (
+  if (id === "warden") return (
     <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" /><circle cx="20" cy="20" r="8" fill={color} />
       {[0,45,90,135,180,225,270,315].map((a,i)=>(<rect key={i} x="19" y="2" width="2" height="7" fill={color} transform={`rotate(${a} 20 20)`} />))}
     </svg>
   );
-  if (id === "weaver") return (
+  if (id === "cipher") return (
     <svg {...common}><circle cx="20" cy="20" r="18" fill={color} opacity="0.15" />
       <circle cx="20" cy="20" r="3" fill={color} />
       {[0,60,120,180,240,300].map((a,i)=>(<line key={i} x1="20" y1="20" x2="20" y2="4" stroke={color} strokeWidth="1.6" transform={`rotate(${a} 20 20)`} />))}
@@ -110,93 +118,54 @@ function Emblem({ id, color, size = 40 }) {
 }
 
 // ---------------------------------------------------------------------------
-// Copy — EN / HI
+// Copy — single language, globally-worded (no country-specific assumptions).
 // ---------------------------------------------------------------------------
-const STRINGS = {
-  en: {
-    wordmark: "MyFairDay",
-    tagline: "The Cyber Crew — stay safe online",
-    navHome: "Home", navAssistant: "Talk to the Crew",
-    heroEyebrow: "FOUR HEROES. ONE MISSION.",
-    heroTitle: "Meet your Cyber Crew. Stay safe for less than a coffee — $4.50.",
-    heroSub: "Four AI defenders help you spot scams, lock down your accounts, and stay safe online. Create a free account and ask your first 4 questions free.",
-    heroCta: "Meet the Crew — 4 questions free",
-    resourcesTitle: "Official resources (verified, not AI-generated)",
-    resourcesNote: "We link only to official Indian government cyber-safety sources.",
-    resources: [
-      { label: "National Cyber Crime Reporting Portal", url: "https://cybercrime.gov.in" },
-      { label: "Cyber Crime Helpline — dial 1930", url: "https://cybercrime.gov.in" },
-      { label: "CERT-In — Indian Computer Emergency Response Team", url: "https://www.cert-in.org.in" },
-    ],
-    pickTitle: "Choose who you want to talk to",
-    authTitle: "Sign in to continue", authTitleSignup: "Create your free account",
-    emailLabel: "Email", passwordLabel: "Password",
-    loginBtn: "Log in", signupBtn: "Create account",
-    switchToSignup: "New here? Create an account",
-    switchToLogin: "Already have an account? Log in",
-    authLoading: "Please wait…",
-    checkEmail: "Check your email to confirm your account, then log in.",
-    logout: "Log out",
-    disclaimerTitle: "Before you begin",
-    disclaimerBody: "The Crew gives general, educational cybersecurity guidance. It is not a substitute for professional incident response. Never paste real passwords, OTPs, or card numbers into this chat.",
-    disclaimerAccept: "Got it — let's go",
-    chatIntroFor: (name) => `You're talking to ${name}. What's going on?`,
-    inputPlaceholder: "Describe what happened or paste a suspicious message…",
-    thinking: "Thinking…",
-    questionsLeft: (n) => n === 1 ? "1 free question left" : `${n} free questions left`,
-    unlockedBadge: "Unlimited access",
-    paywallTitle: "You've used your 4 free questions",
-    paywallBody: "Unlock unlimited help from the whole Crew — a one-time payment, less than a coffee.",
-    paywallCta: "Get instant access — $4.50",
-    haveCode: "Already paid? Enter your code",
-    licensePlaceholder: "Paste your license key",
-    unlockBtn: "Unlock", unlocking: "Checking…",
-    licenseInvalid: "That code didn't work. Please check it and try again.",
-    switchCharacter: "Switch character",
-    startOver: "Start over",
-  },
-  hi: {
-    wordmark: "MyFairDay",
-    tagline: "साइबर क्रू — ऑनलाइन सुरक्षित रहें",
-    navHome: "होम", navAssistant: "क्रू से बात करें",
-    heroEyebrow: "चार हीरो। एक मिशन।",
-    heroTitle: "अपनी साइबर क्रू से मिलें। एक कॉफ़ी से भी कम में — $4.50।",
-    heroSub: "चार AI रक्षक आपको धोखाधड़ी पहचानने और अपने खातों को सुरक्षित रखने में मदद करते हैं। मुफ़्त खाता बनाएं और पहले 4 सवाल मुफ़्त पूछें।",
-    heroCta: "क्रू से मिलें — 4 सवाल मुफ़्त",
-    resourcesTitle: "आधिकारिक संसाधन (सत्यापित, AI-निर्मित नहीं)",
-    resourcesNote: "हम केवल आधिकारिक भारत सरकार साइबर-सुरक्षा स्रोतों से जोड़ते हैं।",
-    resources: [
-      { label: "राष्ट्रीय साइबर क्राइम रिपोर्टिंग पोर्टल", url: "https://cybercrime.gov.in" },
-      { label: "साइबर क्राइम हेल्पलाइन — 1930 डायल करें", url: "https://cybercrime.gov.in" },
-      { label: "CERT-In — भारतीय कंप्यूटर आपातकालीन प्रतिक्रिया दल", url: "https://www.cert-in.org.in" },
-    ],
-    pickTitle: "किससे बात करना चाहते हैं चुनें",
-    authTitle: "जारी रखने के लिए लॉग इन करें", authTitleSignup: "अपना मुफ़्त खाता बनाएं",
-    emailLabel: "ईमेल", passwordLabel: "पासवर्ड",
-    loginBtn: "लॉग इन करें", signupBtn: "खाता बनाएं",
-    switchToSignup: "नए हैं? खाता बनाएं",
-    switchToLogin: "पहले से खाता है? लॉग इन करें",
-    authLoading: "कृपया प्रतीक्षा करें…",
-    checkEmail: "अपना खाता पुष्ट करने के लिए ईमेल जांचें, फिर लॉग इन करें।",
-    logout: "लॉग आउट",
-    disclaimerTitle: "शुरू करने से पहले",
-    disclaimerBody: "क्रू सामान्य, शैक्षिक साइबर सुरक्षा मार्गदर्शन देती है। यह पेशेवर घटना-प्रतिक्रिया सेवा का विकल्प नहीं है। कृपया कभी भी असली पासवर्ड, OTP, या कार्ड नंबर इस चैट में न डालें।",
-    disclaimerAccept: "समझ गया — चलें",
-    chatIntroFor: (name) => `आप ${name} से बात कर रहे हैं। क्या हुआ बताएं?`,
-    inputPlaceholder: "जो हुआ बताएं या संदिग्ध संदेश पेस्ट करें…",
-    thinking: "सोच रहा है…",
-    questionsLeft: (n) => `${n} मुफ़्त सवाल बचे हैं`,
-    unlockedBadge: "असीमित पहुंच",
-    paywallTitle: "आपके 4 मुफ़्त सवाल पूरे हो गए",
-    paywallBody: "पूरी क्रू से असीमित मदद पाएं — एक बार भुगतान, एक कॉफ़ी से भी कम।",
-    paywallCta: "तुरंत पहुंच पाएं — $4.50",
-    haveCode: "पहले ही भुगतान कर दिया? कोड डालें",
-    licensePlaceholder: "अपना लाइसेंस कोड डालें",
-    unlockBtn: "अनलॉक करें", unlocking: "जांच हो रही है…",
-    licenseInvalid: "यह कोड काम नहीं कर रहा। कृपया जांचें और फिर से कोशिश करें।",
-    switchCharacter: "चरित्र बदलें",
-    startOver: "फिर से शुरू करें",
-  },
+const T = {
+  wordmark: "MyFairDay",
+  tagline: "The Cyber Crew — stay safe online",
+  navHome: "Home", navAssistant: "Talk to the Crew",
+  heroEyebrow: "FOUR AGENTS. ONE INVESTIGATION.",
+  heroTitle: "Meet your Cyber Crew. Stay safe for less than a coffee — $4.50.",
+  heroSub: "Four AI agents, each with one job, work together to check suspicious links, messages, and senders before they hurt you. Create a free account and ask your first 4 questions free.",
+  heroCta: "Meet the Crew — 4 questions free",
+  resourcesTitle: "Official resources (verified, not AI-generated)",
+  resourcesNote: "Cybercrime reporting is handled by national authorities. These are internationally recognized starting points — look up the equivalent agency in your own country too.",
+  resources: [
+    { label: "econsumer.gov — report cross-border scams (ICPEN network)", url: "https://www.econsumer.gov" },
+    { label: "INTERPOL — Cybercrime", url: "https://www.interpol.int/en/Crimes/Cybercrime" },
+    { label: "IC3 — FBI Internet Crime Complaint Center (US)", url: "https://www.ic3.gov" },
+  ],
+  pickTitle: "Choose how you want to investigate",
+  pickSingleHint: "Talk to one agent",
+  pickCrewHint: "Or run a full crew investigation",
+  crewCta: "Run Crew Investigation",
+  authTitle: "Sign in to continue", authTitleSignup: "Create your free account",
+  emailLabel: "Email", passwordLabel: "Password",
+  loginBtn: "Log in", signupBtn: "Create account",
+  switchToSignup: "New here? Create an account",
+  switchToLogin: "Already have an account? Log in",
+  authLoading: "Please wait…",
+  checkEmail: "Check your email to confirm your account, then log in.",
+  logout: "Log out",
+  disclaimerTitle: "Before you begin",
+  disclaimerBody: "The Crew gives general, educational cybersecurity guidance. It is not a substitute for professional incident response or law enforcement. Never paste real passwords, OTPs, or card numbers into this chat.",
+  disclaimerAccept: "Got it — let's go",
+  chatIntroFor: (name) => `You're talking to ${name}. What's going on?`,
+  crewIntro: "Describe the link, message, or sender you want the Crew to investigate. Each agent will check their part, then Scout gives the final verdict.",
+  inputPlaceholder: "Describe what happened or paste a suspicious message…",
+  thinking: "Thinking…",
+  investigating: (name) => `${name} is investigating…`,
+  questionsLeft: (n) => n === 1 ? "1 free question left" : `${n} free questions left`,
+  unlockedBadge: "Unlimited access",
+  paywallTitle: "You've used your 4 free questions",
+  paywallBody: "Unlock unlimited help from the whole Crew — a one-time payment, less than a coffee.",
+  paywallCta: "Get instant access — $4.50",
+  haveCode: "Already paid? Enter your code",
+  licensePlaceholder: "Paste your license key",
+  unlockBtn: "Unlock", unlocking: "Checking…",
+  licenseInvalid: "That code didn't work. Please check it and try again.",
+  switchCharacter: "Back to picker",
+  startOver: "Start over",
 };
 
 async function getAccessToken() {
@@ -217,6 +186,22 @@ async function callAssistant(userText, character) {
     return { mode: "decline", reply: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
   }
 }
+// Expected server response shape from CREW_URL (real CrewAI orchestration
+// runs here, server-side):
+// {
+//   turns: [ { agent: "tracer", text: "..." }, { agent: "warden", text: "..." },
+//            { agent: "cipher", text: "..." } ],
+//   verdict: "...",                // Scout's final message
+//   questions_used: 2, unlocked: false
+// }
+async function callCrewInvestigation(userText) {
+  try {
+    const response = await authedFetch(CREW_URL, { method: "POST", body: JSON.stringify({ text: userText }) });
+    return await response.json();
+  } catch (e) {
+    return { turns: [], verdict: "Sorry, the crew is temporarily unavailable. Please try again in a moment." };
+  }
+}
 async function verifyLicense(key) {
   try {
     const response = await authedFetch(LICENSE_URL, { method: "POST", body: JSON.stringify({ license_key: key }) });
@@ -233,11 +218,10 @@ async function fetchUsage() {
 }
 
 function App() {
-  const [lang, setLang] = useState("en");
-  const t = STRINGS[lang];
+  const t = T;
   const [tab, setTab] = useState("home");
   const [accepted, setAccepted] = useState(false);
-  const [character, setCharacter] = useState(null);
+  const [character, setCharacter] = useState(null); // agent id, or "crew"
 
   const [session, setSession] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
@@ -251,9 +235,10 @@ function App() {
   const [questionsUsed, setQuestionsUsed] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
 
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]); // { role: 'user' | 'agent', agentId?, name?, color?, text }
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [thinkingLabel, setThinkingLabel] = useState("");
   const scrollRef = useRef(null);
 
   const [licenseKey, setLicenseKey] = useState("");
@@ -276,6 +261,7 @@ function App() {
   }, [messages, thinking]);
 
   const atLimit = !unlocked && questionsUsed >= FREE_LIMIT;
+  const isCrewMode = character === "crew";
   const activeCrew = CREW.find((c) => c.id === character);
 
   const handleAuth = async () => {
@@ -298,16 +284,49 @@ function App() {
     setSession(null); setTab("home"); setAccepted(false); setCharacter(null); setMessages([]);
   };
 
+  const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
+  const sendSingle = async (text) => {
+    setMessages((m) => [...m, { role: "user", text }]);
+    setThinking(true); setThinkingLabel(t.thinking);
+    const result = await callAssistant(text, character);
+    setThinking(false);
+    setMessages((m) => [...m, { role: "agent", agentId: activeCrew.id, name: activeCrew.name, color: activeCrew.color, text: result.reply || "…" }]);
+    if (typeof result.questions_used === "number") setQuestionsUsed(result.questions_used);
+    if (typeof result.unlocked === "boolean") setUnlocked(result.unlocked);
+  };
+
+  // Runs the four agents one after another so it reads like the Crew
+  // talking through the case together, ending on Scout's verdict.
+  const sendCrew = async (text) => {
+    setMessages((m) => [...m, { role: "user", text }]);
+    const result = await callCrewInvestigation(text);
+    const turns = (result.turns && result.turns.length) ? result.turns : [];
+    for (const turn of turns) {
+      const agent = CREW.find((c) => c.id === turn.agent);
+      if (!agent) continue;
+      setThinking(true); setThinkingLabel(t.investigating(agent.name));
+      await sleep(500); // paced reveal so it reads like a discussion, not a wall of text
+      setThinking(false);
+      setMessages((m) => [...m, { role: "agent", agentId: agent.id, name: agent.name, color: agent.color, text: turn.text }]);
+    }
+    if (result.verdict) {
+      const scout = CREW.find((c) => c.id === "scout");
+      setThinking(true); setThinkingLabel(t.investigating(scout.name));
+      await sleep(500);
+      setThinking(false);
+      setMessages((m) => [...m, { role: "agent", agentId: "scout", name: scout.name, color: scout.color, text: result.verdict, verdict: true }]);
+    }
+    if (typeof result.questions_used === "number") setQuestionsUsed(result.questions_used);
+    if (typeof result.unlocked === "boolean") setUnlocked(result.unlocked);
+  };
+
   const send = async () => {
     const text = input.trim();
     if (!text || thinking || atLimit || !character) return;
-    setMessages((m) => [...m, { role: "user", text }]);
-    setInput(""); setThinking(true);
-    const result = await callAssistant(text, character);
-    setThinking(false);
-    setMessages((m) => [...m, { role: "assistant", text: result.reply || "…" }]);
-    if (typeof result.questions_used === "number") setQuestionsUsed(result.questions_used);
-    if (typeof result.unlocked === "boolean") setUnlocked(result.unlocked);
+    setInput("");
+    if (isCrewMode) await sendCrew(text);
+    else await sendSingle(text);
   };
 
   const handleUnlock = async () => {
@@ -341,7 +360,6 @@ function App() {
             <button style={{ ...styles.tabBtn, ...(tab === "assistant" ? styles.tabBtnActive : {}) }} onClick={() => setTab("assistant")}>{t.navAssistant}</button>
           </nav>
           {session && <button style={styles.ghostBtn} onClick={logout}><IconLogOut size={14} /> {t.logout}</button>}
-          <button style={styles.ghostBtn} onClick={() => setLang(lang === "en" ? "hi" : "en")}><IconGlobe size={15} /> {lang === "en" ? "हिंदी" : "English"}</button>
         </div>
       </header>
 
@@ -358,8 +376,8 @@ function App() {
                 <div key={c.id} style={{ ...styles.crewCardHome, borderColor: c.color + "55" }}>
                   <Emblem id={c.id} color={c.color} size={44} />
                   <div style={styles.crewNameHome}>{c.name}</div>
-                  <div style={{ ...styles.crewTitleHome, color: c.color }}>{c.title}</div>
-                  <div style={styles.crewBlurbHome}>{lang === "hi" ? c.blurbHi : c.blurb}</div>
+                  <div style={{ ...styles.crewTitleHome, color: c.color }}>{c.role}</div>
+                  <div style={styles.crewBlurbHome}>{c.blurb}</div>
                 </div>
               ))}
             </div>
@@ -406,16 +424,21 @@ function App() {
       {tab === "assistant" && session && accepted && !character && (
         <div style={styles.pickWrap}>
           <h2 style={styles.pickTitle}>{t.pickTitle}</h2>
+          <div style={styles.pickHint}>{t.pickSingleHint}</div>
           <div style={styles.crewGrid}>
             {CREW.map((c) => (
               <button key={c.id} style={{ ...styles.crewCard, borderColor: c.color }} onClick={() => setCharacter(c.id)}>
                 <Emblem id={c.id} color={c.color} size={52} />
                 <div style={styles.crewName}>{c.name}</div>
-                <div style={{ ...styles.crewTitle, color: c.color }}>{c.title}</div>
-                <div style={styles.crewBlurb}>{lang === "hi" ? c.blurbHi : c.blurb}</div>
+                <div style={{ ...styles.crewTitle, color: c.color }}>{c.role}</div>
+                <div style={styles.crewBlurb}>{c.blurb}</div>
               </button>
             ))}
           </div>
+          <div style={styles.pickHint}>{t.pickCrewHint}</div>
+          <button style={styles.crewModeBtn} onClick={() => setCharacter("crew")}>
+            <IconUsers size={18} /> {t.crewCta}
+          </button>
         </div>
       )}
 
@@ -423,10 +446,14 @@ function App() {
         <main style={styles.main}>
           <section style={styles.chatPanel}>
             <div style={styles.chatHeaderRow}>
-              <div style={styles.activeCrewBadge}>
-                <Emblem id={activeCrew.id} color={activeCrew.color} size={26} />
-                <span>{activeCrew.name}</span>
-              </div>
+              {isCrewMode ? (
+                <div style={styles.activeCrewBadge}><IconUsers size={20} color={ACCENT} /> <span>Full Crew Investigation</span></div>
+              ) : (
+                <div style={styles.activeCrewBadge}>
+                  <Emblem id={activeCrew.id} color={activeCrew.color} size={26} />
+                  <span>{activeCrew.name}</span>
+                </div>
+              )}
               <div style={styles.chatHeaderRight}>
                 {unlocked ? (
                   <span style={styles.badgeUnlocked}><IconCheck size={12} /> {t.unlockedBadge}</span>
@@ -438,11 +465,20 @@ function App() {
             </div>
 
             <div style={styles.chatScroll} ref={scrollRef}>
-              <div style={{ ...styles.introBubble, borderLeft: `3px solid ${activeCrew.color}` }}>{t.chatIntroFor(activeCrew.name)}</div>
+              <div style={{ ...styles.introBubble, borderLeft: `3px solid ${isCrewMode ? ACCENT : activeCrew.color}` }}>
+                {isCrewMode ? t.crewIntro : t.chatIntroFor(activeCrew.name)}
+              </div>
               {messages.map((m, i) => (
-                <div key={i} style={{ ...styles.bubble, ...(m.role === "user" ? styles.bubbleUser : { ...styles.bubbleBot, borderLeft: `3px solid ${activeCrew.color}` }) }}>{m.text}</div>
+                <div key={i} style={{
+                  ...styles.bubble,
+                  ...(m.role === "user" ? styles.bubbleUser : { ...styles.bubbleBot, borderLeft: `3px solid ${m.color}` }),
+                  ...(m.verdict ? styles.bubbleVerdict : {}),
+                }}>
+                  {m.role === "agent" && <div style={{ ...styles.bubbleAgentName, color: m.color }}>{m.name}{m.verdict ? " · Verdict" : ""}</div>}
+                  {m.text}
+                </div>
               ))}
-              {thinking && <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{t.thinking}</div>}
+              {thinking && <div style={{ ...styles.bubble, ...styles.bubbleBot, ...styles.bubbleThinking }}>{thinkingLabel}</div>}
             </div>
 
             {!atLimit ? (
@@ -450,7 +486,7 @@ function App() {
                 <input style={styles.chatInput} placeholder={t.inputPlaceholder} value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); send(); } }} />
-                <button style={{ ...styles.sendBtn, background: activeCrew.color }} onClick={send} disabled={thinking}><IconSend size={16} strokeWidth={2} color="#fff" /></button>
+                <button style={{ ...styles.sendBtn, background: isCrewMode ? ACCENT : activeCrew.color }} onClick={send} disabled={thinking}><IconSend size={16} strokeWidth={2} color="#fff" /></button>
               </div>
             ) : (
               <div style={styles.paywallBox}>
@@ -477,7 +513,7 @@ function App() {
 }
 
 // ---------------------------------------------------------------------------
-// Design tokens — deep navy "ops room" base, one accent color per hero.
+// Design tokens — deep navy "ops room" base, one accent color per agent.
 // ---------------------------------------------------------------------------
 const INK = "#0E1524";
 const INK_SOFT = "#8B96AC";
@@ -488,7 +524,7 @@ const TEXT = "#E7EAF2";
 const ACCENT = "#6E7CE0";
 
 const styles = {
-  app: { fontFamily: "'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif", background: INK, minHeight: "100vh", color: TEXT, display: "flex", flexDirection: "column" },
+  app: { fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: INK, minHeight: "100vh", color: TEXT, display: "flex", flexDirection: "column" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", borderBottom: `1px solid ${LINE}`, background: PANEL, flexWrap: "wrap", gap: 12 },
   wordmarkRow: { display: "flex", alignItems: "center", gap: 10 },
   wordmark: { fontFamily: "'Source Serif 4',Georgia,serif", fontWeight: 700, fontSize: 18, color: TEXT },
@@ -503,13 +539,13 @@ const styles = {
   heroCard: { maxWidth: 760, textAlign: "center", padding: "20px 10px" },
   heroEyebrow: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, letterSpacing: "0.14em", color: ACCENT, marginBottom: 14 },
   heroTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 34, lineHeight: 1.25, margin: "0 0 16px", color: TEXT },
-  heroSub: { fontSize: 15, color: INK_SOFT, lineHeight: 1.6, marginBottom: 26, maxWidth: 520, marginLeft: "auto", marginRight: "auto" },
+  heroSub: { fontSize: 15, color: INK_SOFT, lineHeight: 1.6, marginBottom: 26, maxWidth: 540, marginLeft: "auto", marginRight: "auto" },
   heroCtaBtn: { background: ACCENT, color: "#fff", border: "none", borderRadius: 24, padding: "14px 28px", fontSize: 14.5, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit", marginBottom: 40 },
 
   crewGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginTop: 10 },
   crewCardHome: { background: PANEL, border: "1px solid", borderRadius: 12, padding: "18px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 },
   crewNameHome: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 15, fontWeight: 700, marginTop: 6 },
-  crewTitleHome: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, letterSpacing: "0.04em" },
+  crewTitleHome: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: "0.02em" },
   crewBlurbHome: { fontSize: 11.5, color: INK_SOFT, lineHeight: 1.5, marginTop: 4 },
 
   resourcesBoxHome: { background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: 16, marginTop: 40, textAlign: "left" },
@@ -525,11 +561,13 @@ const styles = {
   errorText: { color: "#E0736E", fontSize: 11.5 },
 
   pickWrap: { flex: 1, padding: "40px 20px", maxWidth: 900, margin: "0 auto", width: "100%", textAlign: "center" },
-  pickTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 24, marginBottom: 24, color: TEXT },
+  pickTitle: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 24, marginBottom: 6, color: TEXT },
+  pickHint: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em", textTransform: "uppercase", color: INK_SOFT, margin: "26px 0 14px" },
   crewCard: { background: PANEL, border: "2px solid", borderRadius: 14, padding: "22px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", fontFamily: "inherit" },
   crewName: { fontFamily: "'Source Serif 4',Georgia,serif", fontSize: 17, fontWeight: 700, marginTop: 8, color: TEXT },
-  crewTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, letterSpacing: "0.04em" },
+  crewTitle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: "0.02em" },
   crewBlurb: { fontSize: 12, color: INK_SOFT, lineHeight: 1.5, marginTop: 4 },
+  crewModeBtn: { background: "transparent", border: `2px solid ${ACCENT}`, color: TEXT, borderRadius: 24, padding: "13px 26px", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit" },
 
   main: { flex: 1, display: "flex", justifyContent: "center", padding: 20 },
   chatPanel: { flex: "1 1 600px", maxWidth: 700, minWidth: 320, background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10, display: "flex", flexDirection: "column", height: 620 },
@@ -544,6 +582,8 @@ const styles = {
   bubble: { maxWidth: "85%", padding: "10px 14px", borderRadius: 12, fontSize: 13.5, lineHeight: 1.5 },
   bubbleUser: { alignSelf: "flex-end", background: ACCENT, color: "#fff" },
   bubbleBot: { alignSelf: "flex-start", background: PANEL_LIGHT, color: TEXT, borderRadius: "0 10px 10px 0" },
+  bubbleAgentName: { fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, letterSpacing: "0.03em", marginBottom: 4, textTransform: "uppercase" },
+  bubbleVerdict: { border: `1px solid ${ACCENT}55`, background: "#1A2340" },
   bubbleThinking: { color: INK_SOFT, fontStyle: "italic" },
   inputRow: { display: "flex", gap: 8, padding: 14, borderTop: `1px solid ${LINE}` },
   chatInput: { flex: 1, border: `1px solid ${LINE}`, borderRadius: 20, padding: "10px 16px", fontSize: 13.5, fontFamily: "inherit", background: INK, color: TEXT },
