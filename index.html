@@ -1,174 +1,81 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Fair Day | Ferramentas Disruptivas</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-color: #38bdf8;
-            --accent-hover: #0ea5e9;
-            --danger: #ef4444;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 40px 20px; }
-        .header { text-align: center; margin-bottom: 50px; }
-        .header h1 { font-size: 2.5rem; color: var(--accent-color); margin-bottom: 10px; }
-        .header p { color: #94a3b8; font-size: 1.1rem; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
-        .card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #334155; }
-        .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
-        .card p { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5; }
-        
-        input, textarea, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 15px; font-size: 0.9rem; }
-        textarea { resize: vertical; min-height: 80px; }
-        button { width: 100%; padding: 12px; background-color: var(--accent-color); color: #0f172a; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem; }
-        button:hover { background-color: var(--accent-hover); }
-        
-        .result-box { background: #0f172a; padding: 15px; border-radius: 6px; border-left: 4px solid var(--accent-color); margin-top: 15px; font-size: 0.9rem; display: none; white-space: pre-line; word-break: break-all; }
-        .danger-highlight { border-left-color: var(--danger); color: #fca5a5; }
-    </style>
-</head>
-<body>
+<script>
+  // Função principal chamada pelo botão "Investigar"
+  function rodarInvestigacao() {
+    const input = document.getElementById("userInput") || document.querySelector("textarea") || document.querySelector("input[type='text']");
+    const containerResultados = document.getElementById("chat-box") || document.getElementById("results") || document.getElementById("output");
 
-    <div class="header">
-        <h1>My Fair Day ⚡</h1>
-        <p>Ferramentas disruptivas de alta utilidade rodando 100% no seu navegador com privacidade total.</p>
-    </div>
+    if (!input || !input.value.trim()) {
+      alert("Por favor, digite ou cole um texto para analisar.");
+      return;
+    }
 
-    <div class="grid">
+    const texto = input.value.trim();
 
-        <!-- FERRAMENTA 1: SANITIZADOR DE DADOS PRIVADOS -->
-        <div class="card">
-            <h2>🔒 Sanitizador de Dados Privados</h2>
-            <p>Remova CPFs, CNPJs, e-mails, telefones e chaves de API do seu texto antes de enviá-lo para IAs públicas.</p>
-            <textarea id="sanitizer-input" placeholder="Cole seu texto, código ou relatório aqui..."></textarea>
-            <button onclick="sanitizarDados()">Sanitizar Texto</button>
-            <div id="sanitizer-output" class="result-box"></div>
+    // 1. Executa Análise do Tracer (URLs e Links)
+    const urlRegex = /(https?:\/\/[^\s]+|(?:www\.|[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?)/gi;
+    const links = texto.match(urlRegex) || [];
+    let tracerOutput = "";
+    let tracerScore = 0;
+
+    if (links.length > 0) {
+      tracerOutput = `🔍 **TRACER:** Identifiquei ${links.length} link(s) na mensagem: \`${links.join(", ")}\`. `;
+      if (texto.toLowerCase().includes("http://")) {
+        tracerOutput += "⚠️ Conexão insegura (HTTP).";
+        tracerScore += 30;
+      } else {
+        tracerOutput += "✅ Estrutura de links verificada.";
+      }
+    } else {
+      tracerOutput = "🔍 **TRACER:** Nenhum link direto foi encontrado no texto fornecido.";
+    }
+
+    // 2. Executa Análise do Warden (Identidade/E-mail)
+    let wardenOutput = "";
+    let wardenScore = 0;
+    if (texto.toLowerCase().includes("@gmail.com") && (texto.toLowerCase().includes("banco") || texto.toLowerCase().includes("suporte"))) {
+      wardenOutput = "🛡️ **WARDEN:** ⚠️ Alerta de remetente! Uso de provedor gratuito (@gmail) tentando se passar por instituição financeira.";
+      wardenScore += 40;
+    } else {
+      wardenOutput = "🛡️ **WARDEN:** ✅ Nenhuma falsificação direta de remetente corporativo detectada.";
+    }
+
+    // 3. Executa Análise do Cipher (Engenharia Social)
+    const palavrasChave = ["urgente", "bloqueio", "multa", "pix", "senha", "expira", "cancelamento"];
+    let achadas = palavrasChave.filter(p => texto.toLowerCase().includes(p));
+    let cipherOutput = "";
+    let cipherScore = achadas.length * 20;
+
+    if (achadas.length > 0) {
+      cipherOutput = `🧠 **CIPHER:** ⚠️ Pressão psicológica detectada! Termos de urgência encontrados: [${achadas.join(", ")}].`;
+    } else {
+      cipherOutput = "🧠 **CIPHER:** ✅ O tom da mensagem é neutro e sem gatilhos de intimidação imediata.";
+    }
+
+    // 4. Veredito do Scout
+    const scoreTotal = tracerScore + wardenScore + cipherScore;
+    let scoutOutput = "";
+    if (scoreTotal >= 40) {
+      scoutOutput = `🚨 **SCOUT (VEREDITO): ALTO RISCO DE GOLPE** (Pontuação: ${scoreTotal}/100). Recomendação: Não clique em links e não realize transferências.`;
+    } else {
+      scoutOutput = `🟢 **SCOUT (VEREDITO): BAIXO RISCO** (Pontuação: ${scoreTotal}/100). Nenhum padrão de fraude evidente foi identificado.`;
+    }
+
+    // Exibe o resultado na tela preenchendo o elemento de chat/resultado
+    if (containerResultados) {
+      containerResultados.innerHTML += `
+        <div style="background: #1e293b; padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 4px solid #3b82f6; text-align: left; color: #fff;">
+          <p><strong>Sua Mensagem:</strong> "${texto}"</p>
+          <hr style="border-color: #334155;">
+          <p>${tracerOutput}</p>
+          <p>${wardenOutput}</p>
+          <p>${cipherOutput}</p>
+          <p style="font-weight: bold; margin-top: 10px;">${scoutOutput}</p>
         </div>
+      `;
+    } else {
+      alert(`${tracerOutput}\n\n${wardenOutput}\n\n${cipherOutput}\n\n${scoutOutput}`);
+    }
 
-        <!-- FERRAMENTA 2: CALCULADORA DE VALOR DE HORA FREELANCER -->
-        <div class="card">
-            <h2>💼 Calculadora Freelancer Real</h2>
-            <p>Descubra quanto cobrar por hora considerando seus custos invisíveis (férias, impostos, hardware e saúde).</p>
-            <input type="number" id="free-salario" placeholder="Salário mensal desejado (R$)">
-            <input type="number" id="free-custos" placeholder="Custos fixos: internet, MEI, luz (R$)">
-            <input type="number" id="free-horas" placeholder="Horas produtivas por dia (ex: 5)" max="24">
-            <button onclick="calcularHoraFreela()">Calcular Valor Hora</button>
-            <div id="free-output" class="result-box"></div>
-        </div>
-
-        <!-- FERRAMENTA 3: LINDADOR DE COPYS CLICHÊS -->
-        <div class="card">
-            <h2>✍️ O Limpador de Clichês</h2>
-            <p>Cole seu texto de vendas ou e-mail. Nós destacamos termos saturados que afastam clientes e sugerimos melhorias.</p>
-            <textarea id="copy-input" placeholder="Ex: Baixe nosso método revolucionário e mude seu mindset hoje mesmo!..."></textarea>
-            <button onclick="limparCopy()">Analisar Escrita</button>
-            <div id="copy-output" class="result-box danger-highlight"></div>
-        </div>
-
-        <!-- FERRAMENTA 4: SIMULADOR DE FINANCIAMENTO REVERSO -->
-        <div class="card">
-            <h2>📉 Amortização Inteligente (SAC)</h2>
-            <p>Simule como pagar parcelas de trás para frente reduz agressivamente os juros do seu banco.</p>
-            <input type="number" id="fin-total" placeholder="Valor total financiado (R$)">
-            <input type="number" id="fin-parcelas" placeholder="Total de parcelas originais (ex: 360)">
-            <input type="number" id="fin-juros" placeholder="Taxa de juros anual % (ex: 9.5)" step="0.1">
-            <button onclick="simularAmortizacao()">Ver Impacto do Dinheiro</button>
-            <div id="fin-output" class="result-box"></div>
-        </div>
-
-        <!-- FERRAMENTA 5: RASTREADOR DE ASSINATURAS INVISÍVEIS -->
-        <div class="card">
-            <h2>💸 Rastreador de Custos Fantasmas</h2>
-            <p>Netflix, Spotify, softwares... veja o impacto real acumulado dessas pequenas cobranças anualmente.</p>
-            <textarea id="sub-input" placeholder="Netflix: 55.90&#10;Spotify: 24.90&#10;iCloud: 14.90"></textarea>
-            <button onclick="calcularAssinaturas()">Calcular Impacto Anual</button>
-            <div id="sub-output" class="result-box danger-highlight"></div>
-        </div>
-
-        <!-- FERRAMENTA 6: ENCURTADOR DE LINKS PRIVADO SEM BANCO DE DADOS -->
-        <div class="card">
-            <h2>🔗 Link Criptografado Sem Nuvem</h2>
-            <p>Gere um link encurtado onde o destino está salvo dentro da própria URL usando criptografia Base64.</p>
-            <input type="url" id="link-input" placeholder="https://exemplo-de-link-muito-longo.com">
-            <button onclick="gerarLinkPrivado()">Gerar Link Privado</button>
-            <div id="link-output" class="result-box"></div>
-        </div>
-
-    </div>
-
-    <script>
-        // 1. MOTOR DO SANITIZADOR DE DADOS
-        function sanitizarDados() {
-            let txt = document.getElementById('sanitizer-input').value;
-            const regexCpf = /\d{3}\.\d{3}\.\d{3}-\d{2}|\d{11}/g;
-            const regexEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-            const regexApiKey = /(sk|key|secret|api)[-_a-zA-Z0-9]{20,60}/gi;
-            
-            let limpo = txt.replace(regexCpf, "[CPF BLOQUEADO]")
-                           .replace(regexEmail, "[E-MAIL BLOQUEADO]")
-                           .replace(regexApiKey, "[CHAVE API REMOVIDA]");
-            
-            let out = document.getElementById('sanitizer-output');
-            out.innerText = "Texto Seguro para IA:\n\n" + limpo;
-            out.style.display = 'block';
-        }
-
-        // 2. MOTOR DA CALCULADORA FREELANCER
-        function calcularHoraFreela() {
-            let salario = parseFloat(document.getElementById('free-salario').value) || 0;
-            let custos = parseFloat(document.getElementById('free-custos').value) || 0;
-            let horasDia = parseFloat(document.getElementById('free-horas').value) || 5;
-            
-            // Considera 22 dias úteis no mês + margem de 30% para impostos/férias escondidos
-            let custoTotal = (salario + custos) * 1.3;
-            let horasMes = horasDia * 22;
-            let valorHora = custoTotal / horasMes;
-            
-            let out = document.getElementById('free-output');
-            out.innerText = `Para pagar seus custos e ter esse lucro líquido, o valor MÍNIMO da sua hora deve ser:\n\n💰 R$ ${valorHora.toFixed(2)} / hora.`;
-            out.style.display = 'block';
-        }
-
-        // 3. MOTOR DO LIMPADOR DE COPYS
-        function limparCopy() {
-            let txt = document.getElementById('copy-input').value.toLowerCase();
-            const cliches = ["revolucionário", "mindset", "arrasta para cima", "gatilho", "segredo revelado", "sucesso garantido", "mude de vida"];
-            let encontrados = [];
-            
-            cliches.forEach(termo => {
-                if(txt.includes(termo)) encontrados.push(`• "${termo}"`);
-            });
-            
-            let out = document.getElementById('copy-output');
-            if(encontrados.length > 0) {
-                out.innerText = "⚠️ Termos saturados encontrados que reduzem sua conversão:\n\n" + encontrados.join("\n") + "\n\n💡 Dica: Substitua por dados concretos ou chamadas diretas.";
-            } else {
-                out.innerText = "✅ Excelente! Sua copy não usa jargões clichês de mercado.";
-            }
-            out.style.display = 'block';
-        }
-
-        // 4. MOTOR DA AMORTIZAÇÃO
-        function simularAmortizacao() {
-            let total = parseFloat(document.getElementById('fin-total').value) || 0;
-            let parcelas = parseInt(document.getElementById('fin-parcelas').value) || 1;
-            let jurosAnual = parseFloat(document.getElementById('fin-juros').value) || 0;
-            
-            let jurosMensal = (jurosAnual / 12) / 100;
-            let amortizacaoMes = total / parcelas;
-            let primeiraParcelaJuros = total * jurosMensal;
-            let economiaEstimada = primeiraParcelaJuros * (parcelas * 0.4); // Estimativa de corte de juros reais ao quitar parcelas finais
-            
-            let out = document.getElementById('fin-output');
-            out.innerText = `Resumo do Financiamento:\n• Parcela de Amortização pura: R$ ${amortizacaoMes.toFixed(2)}\n• Se você pagar R$ ${amortizacaoMes.toFixed(2)} extras por mês direto na amortização, estima-se uma economia total de mais de R$ ${economiaEstimada.toFixed(2)} em juros contratuais de longo prazo.`;
-            out.style.display = 'block';
-        }
-
-        // 5. MOTOR DO RASTREADOR DE ASSINATURAS
-
+    input.value = "";
+  }
+</script>
