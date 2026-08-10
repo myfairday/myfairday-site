@@ -124,13 +124,8 @@
 
   /* postmark illustration */
   .postmark-wrap{display:flex;align-items:center;justify-content:center;}
-  .gavel-rig{position:relative;display:flex;align-items:center;justify-content:center;}
-  .gavel-svg{
-    position:absolute;top:-52px;left:-44px;width:150px;height:132px;
-    overflow:visible;z-index:2;pointer-events:none;
-  }
   .mallet-group{
-    transform-origin:140px 10px;
+    transform-origin:152px 108px;
     transform:rotate(-34deg);
   }
   .mallet-group.strike{animation:gavel-strike .9s cubic-bezier(.36,0,.66,-0.02) both;}
@@ -141,7 +136,7 @@
     82%{transform:rotate(1deg);}
     100%{transform:rotate(0deg);}
   }
-  .impact-ring{opacity:0;transform-origin:70px 92px;}
+  .impact-ring{opacity:0;transform-origin:100px 169px;}
   .impact-ring.hit{animation:ring-pulse .55s ease-out both;}
   @keyframes ring-pulse{
     0%{opacity:.85;transform:scale(.35);}
@@ -173,8 +168,11 @@
     border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
     padding:5px 0;margin:8px 14px;
   }
-  .postmark-inner .big{font-family:'Fraunces',serif;font-size:2.1rem;font-weight:700;color:var(--stamp);}
   .postmark-inner .small{font-size:0.68rem;letter-spacing:0.1em;margin-top:4px;}
+  .judge-svg{
+    display:block;width:74%;max-width:190px;height:auto;
+    margin:6px auto 4px;overflow:visible;
+  }
   @keyframes stamp-in{
     0%{opacity:0;transform:rotate(-6deg) scale(1.4);}
     60%{opacity:1;}
@@ -371,7 +369,6 @@
     .step:last-child{border-bottom:none;}
     .receipts{grid-template-columns:1fr;}
     .nav-links{display:none;}
-    .gavel-svg{width:110px;height:96px;top:-38px;left:-30px;}
     .notice-box{padding:30px 24px;}
     .notice-box .stamp-corner{position:static;margin-bottom:16px;transform:rotate(-4deg);}
   }
@@ -420,20 +417,36 @@
         </div>
       </div>
       <div class="postmark-wrap">
-        <div class="gavel-rig">
-          <svg class="gavel-svg" viewBox="0 0 160 140" aria-hidden="true" focusable="false">
-            <g class="mallet-group">
-              <line x1="140" y1="10" x2="78" y2="72" stroke="var(--brass)" stroke-width="7" stroke-linecap="round"/>
-              <rect x="50" y="56" width="56" height="26" rx="7" transform="rotate(-40 78 69)" fill="var(--paper)" stroke="var(--ink)" stroke-width="3.5"/>
-            </g>
-            <circle class="impact-ring" cx="70" cy="92" r="9" fill="none" stroke="var(--stamp)" stroke-width="2.5"/>
-          </svg>
-          <div class="postmark" id="postmark" title="Tap for the gavel">
-            <div class="postmark-inner">
-              <div class="small">NOTICE OF DEMAND</div>
-              <div class="country-strip">Registered &amp; Delivered</div>
-              <div class="big">§</div>
-            </div>
+        <div class="postmark" id="postmark" title="Tap to hear the gavel">
+          <div class="postmark-inner">
+            <div class="small">NOTICE OF DEMAND</div>
+            <svg class="judge-svg" viewBox="0 0 220 210" aria-hidden="true" focusable="false">
+              <!-- bench -->
+              <rect x="20" y="178" width="180" height="26" rx="6" fill="var(--brass)" stroke="var(--ink)" stroke-width="3"/>
+              <!-- sound block -->
+              <rect x="88" y="159" width="42" height="19" rx="4" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+              <!-- resting sleeve -->
+              <path d="M68,184 C58,168 57,150 63,136 L84,136 C80,150 79,166 83,184 Z" fill="var(--ink)" stroke="var(--brass)" stroke-width="1.5"/>
+              <!-- robe -->
+              <path d="M62,185 C62,120 78,86 110,84 C142,86 158,120 158,185 Z" fill="var(--ink)"/>
+              <!-- robe front braid + buttons -->
+              <line x1="110" y1="92" x2="110" y2="182" stroke="var(--brass)" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="110" cy="112" r="2.6" fill="var(--brass)"/>
+              <circle cx="110" cy="137" r="2.6" fill="var(--brass)"/>
+              <circle cx="110" cy="162" r="2.6" fill="var(--brass)"/>
+              <!-- collar / jabot -->
+              <rect x="103" y="76" width="6" height="20" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.2"/>
+              <rect x="112" y="76" width="6" height="20" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.2"/>
+              <!-- head -->
+              <circle cx="110" cy="52" r="27" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+              <!-- gavel arm -->
+              <g class="mallet-group">
+                <line x1="152" y1="108" x2="100" y2="166" stroke="var(--brass)" stroke-width="7" stroke-linecap="round"/>
+                <rect x="77" y="155" width="46" height="22" rx="7" fill="var(--paper)" stroke="var(--ink)" stroke-width="3" transform="rotate(-38 100 166)"/>
+              </g>
+              <circle class="impact-ring" cx="100" cy="169" r="9" fill="none" stroke="var(--stamp)" stroke-width="2.5"/>
+            </svg>
+            <div class="country-strip">Registered &amp; Delivered</div>
           </div>
         </div>
       </div>
@@ -748,47 +761,67 @@
     if(!ctx) return;
     if(ctx.state === 'suspended'){ ctx.resume(); }
     var now = ctx.currentTime;
+    var pitch = 0.94 + Math.random() * 0.12; // tiny natural variation each strike
 
-    // low wooden thud
+    // sharp wood "crack" — short bandpassed noise burst, the crisp attack of wood-on-wood
+    var crackSize = Math.floor(ctx.sampleRate * 0.045);
+    var crackBuf = ctx.createBuffer(1, crackSize, ctx.sampleRate);
+    var cd = crackBuf.getChannelData(0);
+    for(var i=0;i<crackSize;i++){
+      cd[i] = (Math.random()*2-1) * Math.pow(1 - i/crackSize, 2.2);
+    }
+    var crack = ctx.createBufferSource();
+    crack.buffer = crackBuf;
+    var bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 2600 * pitch;
+    bp.Q.value = 1.1;
+    var crackGain = ctx.createGain();
+    crackGain.gain.setValueAtTime(0.55, now);
+    crackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    crack.connect(bp).connect(crackGain).connect(ctx.destination);
+    crack.start(now);
+
+    // low wood body thump — punchy, decays fast so it doesn't ring
     var thud = ctx.createOscillator();
     thud.type = 'triangle';
-    thud.frequency.setValueAtTime(190, now);
-    thud.frequency.exponentialRampToValueAtTime(58, now + 0.12);
+    thud.frequency.setValueAtTime(210 * pitch, now);
+    thud.frequency.exponentialRampToValueAtTime(85 * pitch, now + 0.09);
     var thudGain = ctx.createGain();
     thudGain.gain.setValueAtTime(0.0001, now);
-    thudGain.gain.exponentialRampToValueAtTime(0.85, now + 0.008);
-    thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    thudGain.gain.exponentialRampToValueAtTime(0.8, now + 0.006);
+    thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
     thud.connect(thudGain).connect(ctx.destination);
-    thud.start(now); thud.stop(now + 0.3);
+    thud.start(now); thud.stop(now + 0.18);
 
-    // sharp knock (short filtered noise burst)
-    var bufSize = Math.floor(ctx.sampleRate * 0.08);
-    var buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-    var data = buffer.getChannelData(0);
-    for(var i=0;i<bufSize;i++){
-      data[i] = (Math.random()*2-1) * Math.pow(1 - i/bufSize, 3);
+    // brief hollow-block resonance for a touch of wood tone, gone almost instantly
+    var body = ctx.createOscillator();
+    body.type = 'sine';
+    body.frequency.value = 340 * pitch;
+    var bodyGain = ctx.createGain();
+    bodyGain.gain.setValueAtTime(0.0001, now);
+    bodyGain.gain.exponentialRampToValueAtTime(0.18, now + 0.008);
+    bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    body.connect(bodyGain).connect(ctx.destination);
+    body.start(now); body.stop(now + 0.12);
+
+    // very short low-passed noise tail for natural room decay (no metallic ring)
+    var tailSize = Math.floor(ctx.sampleRate * 0.12);
+    var tailBuf = ctx.createBuffer(1, tailSize, ctx.sampleRate);
+    var td = tailBuf.getChannelData(0);
+    for(var j=0;j<tailSize;j++){
+      td[j] = (Math.random()*2-1) * Math.pow(1 - j/tailSize, 3.5);
     }
-    var noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    var hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 900;
-    var noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.45, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-    noise.connect(hp).connect(noiseGain).connect(ctx.destination);
-    noise.start(now);
-
-    // short room resonance tail
-    var tail = ctx.createOscillator();
-    tail.type = 'sine';
-    tail.frequency.value = 92;
+    var tail = ctx.createBufferSource();
+    tail.buffer = tailBuf;
+    var lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 700;
     var tailGain = ctx.createGain();
-    tailGain.gain.setValueAtTime(0.0001, now);
-    tailGain.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
-    tailGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-    tail.connect(tailGain).connect(ctx.destination);
-    tail.start(now); tail.stop(now + 0.55);
+    tailGain.gain.setValueAtTime(0.12, now);
+    tailGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    tail.connect(lp).connect(tailGain).connect(ctx.destination);
+    tail.start(now);
   }
 
   // ---------- Mute preference ----------
