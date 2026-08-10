@@ -303,28 +303,57 @@
     font-size:0.85rem;color:#6b685f;margin-top:24px;max-width:70ch;
   }
 
-  /* ---------- SCAM WATCH ---------- */
-  .scam-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  /* ---------- SCAM WATCH MODAL ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(16,28,51,0.6);backdrop-filter:blur(3px);
+    display:none;align-items:flex-start;justify-content:center;
+    padding:5vh 20px;overflow-y:auto;
   }
-  .scam-card{
-    background:var(--white);
+  .modal-overlay.open{display:flex;}
+  .modal-card{
+    background:var(--paper);
     border:1px solid var(--line);
-    border-radius:6px;
-    padding:22px 22px 20px;
-    box-shadow:0 1px 2px rgba(27,42,74,0.04);
+    border-radius:10px;
+    max-width:820px;width:100%;
+    box-shadow:0 24px 64px rgba(16,28,51,0.4);
+    animation:modal-in .28s cubic-bezier(.2,.8,.3,1.1) both;
   }
-  .scam-card .num{
+  @keyframes modal-in{
+    0%{opacity:0;transform:scale(.95) translateY(14px);}
+    100%{opacity:1;transform:scale(1) translateY(0);}
+  }
+  .modal-head{
+    padding:28px 30px 20px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:flex-start;gap:18px;
+    position:sticky;top:0;background:var(--paper);border-radius:10px 10px 0 0;
+  }
+  .modal-head .eyebrow{margin-bottom:8px;}
+  .modal-head h2{font-size:clamp(1.4rem,2.6vw,1.8rem);margin-bottom:6px;}
+  .modal-head p{margin:0;color:#54514a;font-size:0.92rem;max-width:60ch;}
+  .modal-close{
+    flex-shrink:0;width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--line);background:var(--white);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--ink);
+    font-size:1.2rem;line-height:1;transition:border-color .15s ease,color .15s ease,transform .15s ease;
+  }
+  .modal-close:hover{border-color:var(--stamp);color:var(--stamp);transform:rotate(90deg);}
+  .modal-body{padding:8px 30px 30px;}
+  .scam-list-item{border-bottom:1px solid var(--line);padding:22px 0;}
+  .scam-list-item:last-child{border-bottom:none;}
+  .scam-list-item .num{
     font-family:'IBM Plex Mono',monospace;color:var(--stamp);font-weight:700;
-    font-size:0.78rem;letter-spacing:0.1em;display:inline-block;
+    font-size:0.76rem;letter-spacing:0.08em;display:inline-flex;align-items:center;justify-content:center;
     border:1px solid var(--stamp);border-radius:50%;width:26px;height:26px;
-    text-align:center;line-height:24px;margin-bottom:12px;
+    margin-bottom:10px;flex-shrink:0;
   }
-  .scam-card h3{font-size:1.05rem;margin-bottom:8px;}
-  .scam-card p{font-size:0.9rem;color:#4c493f;margin:0;}
-  @media (max-width:820px){
-    .scam-grid{grid-template-columns:1fr;}
-    .courts-grid{grid-template-columns:1fr;}
+  .scam-list-item h3{font-size:1.08rem;margin-bottom:8px;}
+  .scam-list-item p{font-size:0.94rem;color:#4c493f;margin:0;line-height:1.6;}
+  @media (max-width:640px){
+    .modal-overlay{padding:0;}
+    .modal-card{max-width:none;min-height:100%;border-radius:0;}
+    .modal-head{border-radius:0;padding:22px 20px 16px;}
+    .modal-body{padding:8px 20px 26px;}
   }
 
   /* ---------- TRUST / DISCLAIMER ---------- */
@@ -368,6 +397,7 @@
     .step{border-right:none;border-bottom:1px solid var(--line);}
     .step:last-child{border-bottom:none;}
     .receipts{grid-template-columns:1fr;}
+    .courts-grid{grid-template-columns:1fr;}
     .nav-links{display:none;}
     .notice-box{padding:30px 24px;}
     .notice-box .stamp-corner{position:static;margin-bottom:16px;transform:rotate(-4deg);}
@@ -386,7 +416,7 @@
         <a href="#how">How it works</a>
         <a href="#templates">Templates</a>
         <a href="#courts">Court links</a>
-        <a href="#scams">Scam watch</a>
+        <a href="#" id="scam-trigger">Scam watch</a>
         <a href="#disclaimer">Important notice</a>
         <a href="#templates" class="btn btn-stamp">Get a template</a>
       </nav>
@@ -408,8 +438,8 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <span class="eyebrow">Self-help legal notice templates</span>
-        <h1>Put it in writing.<br>Send it <em>registered</em>.<br>Get on record.</h1>
+        <span class="eyebrow">For anyone still waiting to get paid back</span>
+        <h1>You did the work.<br>They took the money.<br>Time to fight <em>on paper</em>.</h1>
         <p class="lede">Editable demand letter templates for small claims and money-recovery disputes — built for India, Pakistan, South Africa and the Philippines, matched to the small claims process each country actually uses.</p>
         <div class="hero-ctas">
           <a href="#templates" class="btn">Browse the 4 templates</a>
@@ -647,50 +677,6 @@
     </div>
   </section>
 
-  <!-- SCAM WATCH -->
-  <section class="section" id="scams">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Curiosity corner</span>
-        <h2>6 digital scams that catch people off guard</h2>
-        <p>Not legal advice — just patterns worth recognising, since a chunk of "money owed to me" disputes start with one of these.</p>
-      </div>
-
-      <div class="scam-grid">
-        <div class="scam-card">
-          <span class="num">1</span>
-          <h3>Fake "courier / customs fee" texts</h3>
-          <p>A message claims a parcel is stuck until a small fee is paid through a link. The link harvests card details rather than releasing any package.</p>
-        </div>
-        <div class="scam-card">
-          <span class="num">2</span>
-          <h3>Impersonation of bank or govt. numbers</h3>
-          <p>Caller ID can be spoofed to show a real bank or tax-office number, pressuring the person into "verifying" an OTP that actually authorises a transfer.</p>
-        </div>
-        <div class="scam-card">
-          <span class="num">3</span>
-          <h3>Fake job offer / advance fee</h3>
-          <p>A "recruiter" offers a well-paid remote role but asks for a registration, training or equipment fee upfront before any real work begins.</p>
-        </div>
-        <div class="scam-card">
-          <span class="num">4</span>
-          <h3>Romance / long-distance relationship asks</h3>
-          <p>A relationship built entirely online eventually leads to urgent requests for money — a medical bill, a stuck flight, a customs charge — that never gets repaid.</p>
-        </div>
-        <div class="scam-card">
-          <span class="num">5</span>
-          <h3>Fake online marketplace sellers</h3>
-          <p>A listing at a suspiciously good price asks for direct bank transfer instead of the platform's built-in payment and buyer protection, then the seller disappears.</p>
-        </div>
-        <div class="scam-card">
-          <span class="num">6</span>
-          <h3>"Guaranteed return" investment pitches</h3>
-          <p>A contact promises fixed, high returns from crypto or trading and shows a dashboard with rising numbers — withdrawals get blocked once real money is in.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- DISCLAIMER / TRUST -->
   <section class="section" id="disclaimer">
     <div class="wrap">
@@ -742,8 +728,176 @@
   </div>
 </footer>
 
+<!-- SCAM WATCH MODAL -->
+<div class="modal-overlay" id="scam-modal" role="dialog" aria-modal="true" aria-labelledby="scam-modal-title">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <span class="eyebrow">Curiosity corner — not legal advice</span>
+        <h2 id="scam-modal-title">20 digital scams that catch people off guard</h2>
+        <p>A good number of "money owed to me" disputes start with one of these. Worth a slow read, even the ones that feel obvious.</p>
+      </div>
+      <button type="button" class="modal-close" id="scam-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="scam-list-item">
+        <span class="num">1</span>
+        <h3>Fake courier / customs fee texts</h3>
+        <p>A text or WhatsApp message claims a parcel is "held at customs" or "awaiting a small delivery fee," with a link to pay a token amount — often less than what the item is worth, which is exactly why people don't think twice. The page looks like a real postal or courier service, right down to the logo and tracking number format. Once card details are entered, the fee is the smallest part of the loss: the page is really there to capture the full card number, expiry and CVV for later use, or to enrol the card in a recurring "subscription" the victim never agreed to. The tell is usually the sender: real customs and courier fees are never requested by SMS link, and the parcel reference number in the message often doesn't match anything the person actually ordered.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">2</span>
+        <h3>Bank or government caller-ID spoofing</h3>
+        <p>Caller ID can be technically spoofed so a scam call displays the real phone number of a bank's fraud department, a tax authority, or the police — the same number that would show up if the person looked it up themselves. The caller creates urgency ("suspicious activity on your account," "a warrant has been issued") and walks the victim through "verifying" a one-time password that was actually just sent to authorise a transfer out of their own account. Because the number matches, people who would never fall for an obviously fake call let their guard down. The rule that actually holds: no legitimate bank or government agency will ever ask for a one-time code over the phone, because that code exists specifically to prove the request came from the account holder, not from them.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">3</span>
+        <h3>Advance-fee fake job offers</h3>
+        <p>A recruiter reaches out — often on LinkedIn, WhatsApp, or Telegram — with a well-paid remote role that requires almost no interview. Before "onboarding" can start, the applicant is asked to pay for a background check, training materials, a laptop deposit, or work-visa processing, usually a few hundred dollars sent to a personal account rather than a company one. Some versions go further, sending a fake cheque for equipment "reimbursement" that bounces days after the victim has already wired part of it back. A real employer pays the candidate, never the other way around, and any request for money before a signed contract exists is the signal to stop.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">4</span>
+        <h3>Romance and long-distance relationship scams</h3>
+        <p>A relationship builds slowly over weeks or months on a dating app or social media, often with a very attentive, complimentary partner who has a plausible reason for never video-calling or meeting in person — deployed overseas, working on an oil rig, travelling for a family business. Eventually a crisis appears: a medical emergency, a stuck shipment of gifts, a customs fee to "come visit." Money sent rarely gets acknowledged as a loan and almost never gets repaid; instead, a new crisis tends to follow once the last one is resolved. These scams are run patiently and can involve real emotional investment on the victim's side, which is exactly why they're worth naming without embarrassment — reverse image searches on profile photos and a refusal to send money to anyone not met in person are the two simplest protections.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">5</span>
+        <h3>Fake sellers on online marketplaces</h3>
+        <p>A listing — often for something in high demand, like electronics, concert tickets, or a rental deposit — is priced just low enough to be tempting but not so low it looks obviously fake. The "seller" pushes hard to move the conversation off-platform and asks for direct bank transfer or a mobile wallet payment instead of the marketplace's built-in checkout, because that built-in system is exactly what would protect the buyer. Once payment lands, the seller stops responding, deletes the listing, and often the account itself. Any request to pay outside the platform you found the listing on is reason enough to walk away, no matter how good the deal looks.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">6</span>
+        <h3>"Guaranteed return" investment and crypto schemes</h3>
+        <p>A contact — sometimes a stranger, sometimes someone who "accidentally" messages the wrong number and strikes up a friendly conversation — introduces a trading platform or crypto app that shows steadily climbing returns on a private dashboard. Small early withdrawals are often allowed to go through, which builds trust before larger deposits are requested. Once a significant amount is in, withdrawals get blocked by a "tax," a "verification fee," or a "network congestion charge" that never actually unlocks the funds. No legitimate investment can guarantee fixed high returns — that promise alone is the clearest signal something is wrong, regardless of how professional the app looks.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">7</span>
+        <h3>Phishing emails impersonating a bank</h3>
+        <p>An email arrives that closely copies a real bank's branding, warning that an account will be suspended unless the recipient "confirms" their login within 24 hours. The link leads to a near-perfect replica of the bank's login page, hosted on a domain that looks almost right — a swapped letter, an extra word, a different top-level domain. Credentials entered there go straight to the scammer, who logs into the real account within minutes. Hovering over links before clicking, and typing the bank's address in manually instead of clicking through an email, closes this door almost entirely.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">8</span>
+        <h3>SIM swap fraud</h3>
+        <p>Using personal details gathered from data leaks or social media, a scammer contacts a mobile carrier pretending to be the account holder and requests that the phone number be transferred to a new SIM card, sometimes with a fabricated story about a lost phone. Once the swap goes through, the victim's phone loses signal entirely — and the scammer starts receiving all calls, texts, and one-time passwords meant for that number, which is often enough to reset passwords and drain linked bank or crypto accounts. A sudden, unexplained loss of mobile signal is the first warning sign, and it's worth calling the carrier immediately if it happens without a clear reason like travel or a known outage.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">9</span>
+        <h3>Fake tech support pop-ups</h3>
+        <p>A browser pop-up — often triggered by a sketchy site or a malicious ad — shows a flashing warning that the device is infected, complete with a fake system scan and a support phone number. Calling it connects to someone posing as Microsoft, Apple, or a local ISP, who talks the victim into installing remote-access software "to fix the problem." Once connected, the "technician" can browse files, open banking apps, or install real malware, all while the victim watches their own screen being controlled. Real operating systems don't show pop-ups with phone numbers to call, and the fix for a scary pop-up is almost always just closing the browser, not calling anyone.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">10</span>
+        <h3>Lottery and inheritance notification scams</h3>
+        <p>An email, letter, or message announces an unexpected windfall — a lottery win from a draw the recipient never entered, or an inheritance from a distant relative they've never heard of, often "held" by a lawyer or bank official abroad. To release the funds, the recipient must first pay a "processing fee," "tax," or "clearance charge," which is framed as small compared to the prize. There is no prize; the fee is the entire scheme, and it's often followed by a second and third request once the first is paid, since a person who has already paid once is statistically likely to pay again rather than accept the first loss.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">11</span>
+        <h3>QR code payment scams ("quishing")</h3>
+        <p>A QR code sticker is placed over a legitimate one on a parking meter, restaurant table tent, or charity donation box, or sent directly in a message disguised as a delivery confirmation or event ticket. Scanning it leads to a fake payment page that looks identical to a real one, capturing card or wallet details, or it silently installs a malicious app that reads messages and screens for one-time passwords. Because QR codes hide the actual destination URL until after scanning, it's worth checking that a code isn't a sticker placed over another one, and using a phone's built-in preview of the link before opening it.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">12</span>
+        <h3>Fake charity appeals after a disaster</h3>
+        <p>Within hours of a major flood, earthquake, or humanitarian crisis making headlines, fake charity pages and social media appeals appear using real disaster footage and the names of well-known relief organisations. Donations sent through these pages — often requested via direct bank transfer or an unfamiliar payment link rather than a verified donation platform — never reach anyone in need. Giving through a charity's own official website, typed in directly rather than clicked from a shared post, is the simplest way to make sure a donation actually arrives.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">13</span>
+        <h3>Predatory instant-loan app harassment</h3>
+        <p>An app promising a small, fast loan with minimal paperwork requests broad permissions during signup — full access to contacts, photos, and messages — buried in terms most people don't read closely. The loan itself often comes with hidden fees that balloon the real interest rate far beyond what was advertised. When a payment is even slightly late, the app's operators contact the borrower's entire contact list, sometimes sharing edited photos or false claims to pressure repayment, a form of harassment that has pushed some victims into serious financial and emotional distress. Any loan app asking for contact-list or photo-gallery access as a condition of borrowing is a red flag worth refusing outright, however urgent the need for cash feels.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">14</span>
+        <h3>Fake rental and property listings</h3>
+        <p>A rental listing — frequently for a well-located, well-priced apartment — is posted using photos lifted from a real listing elsewhere, sometimes by someone with no connection to the actual property at all. The "landlord" is conveniently out of the country and can't show the unit in person, but is happy to send keys by courier once a deposit and first month's rent are wired ahead of any viewing. By the time the victim arrives to collect keys that never come, the listing and the contact are both gone. Insisting on an in-person viewing, or at minimum a live video walkthrough with the actual keyholder present, protects against nearly every version of this scam.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">15</span>
+        <h3>Business email compromise (CEO fraud)</h3>
+        <p>After quietly monitoring a company's email traffic — often through a previously compromised account — a scammer sends an urgent message that appears to come from a CEO or senior manager, instructing an employee in finance to make an unusual wire transfer immediately, citing confidentiality or time pressure as the reason not to call and confirm. The email address is usually a near-identical lookalike domain rather than the real one. Because the request mimics normal executive urgency and the target is often a junior employee reluctant to question a boss, these transfers can be large and are rarely reversible once sent. A verbal confirmation through a known phone number, for any unusual wire request, is the standard defence companies now train staff to use.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">16</span>
+        <h3>Fake e-commerce ads on social media</h3>
+        <p>A slick video ad on social media shows a product — often a gadget, clothing item, or "as seen on TV" style tool — at a steep discount, linking to a professional-looking store with countdown timers and fake reviews designed to create urgency. Orders placed either never arrive, arrive as a cheap counterfeit worth a fraction of the price paid, or trigger a card being charged for a second, unauthorised amount days later. These stores are often built and torn down within weeks, so refund requests and chargebacks are typically the only real recourse. Checking a store's age, looking for a real return address, and searching the product name alongside the word "scam" before buying catches most of these.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">17</span>
+        <h3>OTP and verification-code sharing scams</h3>
+        <p>A scammer who already has partial account information — sometimes from a data breach, sometimes from a fake marketplace "buyer" — asks the victim to read out a one-time code that was just texted to them, framing it as necessary to "confirm the sale" or "verify identity." In reality, that code is what completes a password reset or a payment authorisation on the victim's own account, initiated by the scammer moments earlier. The core rule holds across every variation of this scam: a one-time code is proof of identity meant only for the account holder, and no legitimate counterpart in a transaction ever needs to hear it read aloud.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">18</span>
+        <h3>Pyramid schemes disguised as MLM opportunities</h3>
+        <p>A friend or acquaintance introduces a business opportunity built around recruiting other people to join, rather than selling a genuine product or service to outside customers. Early joiners are shown as proof the system works, since their positioning near the top of the pyramid lets them profit from the entry fees of everyone recruited below them — a structure that mathematically guarantees most participants lose money once recruitment slows. The giveaway is usually the incentive structure itself: if the money comes mainly from signing up new members rather than from outside sales, it's a pyramid regardless of what product is used to disguise it.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">19</span>
+        <h3>Paid "task" scams on messaging apps</h3>
+        <p>An unsolicited message on WhatsApp or Telegram offers easy pay for simple online tasks — liking videos, rating products, or "optimising" listings on an app. The first few tasks pay out small real amounts almost immediately, building trust and excitement. Then the platform introduces "combo" tasks that require the worker to deposit their own money first, promising a bigger payout in return — money that vanishes the moment it's sent, often followed by pressure to deposit more to "unlock" the original stuck balance. Any job that requires the worker to pay money in before receiving pay out has already stopped being a job.</p>
+      </div>
+
+      <div class="scam-list-item">
+        <span class="num">20</span>
+        <h3>AI voice-cloning and deepfake emergency calls</h3>
+        <p>A phone call comes in with a voice that sounds exactly like a family member, panicked and asking for urgent money — bail, a hospital bill, a stranded-abroad emergency — often built from a few seconds of that person's voice pulled from a public social media video. A second caller sometimes poses as a lawyer or police officer to add pressure and legitimacy. Because the voice itself feels like undeniable proof, victims frequently skip the one step that would end the scam instantly: hanging up and calling that family member back directly on a known number, or agreeing on a private family "safe word" in advance that a cloned voice could never know.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---------- Scam watch modal ----------
+  var scamModal = document.getElementById('scam-modal');
+  var scamTrigger = document.getElementById('scam-trigger');
+  var scamClose = document.getElementById('scam-modal-close');
+  var lastFocused = null;
+
+  function openScamModal(e){
+    if(e) e.preventDefault();
+    if(!scamModal) return;
+    lastFocused = document.activeElement;
+    scamModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if(scamClose) scamClose.focus();
+  }
+  function closeScamModal(){
+    if(!scamModal) return;
+    scamModal.classList.remove('open');
+    document.body.style.overflow = '';
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+  if(scamTrigger) scamTrigger.addEventListener('click', openScamModal);
+  if(scamClose) scamClose.addEventListener('click', closeScamModal);
+  if(scamModal){
+    scamModal.addEventListener('click', function(e){
+      if(e.target === scamModal) closeScamModal();
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && scamModal && scamModal.classList.contains('open')) closeScamModal();
+  });
 
   // ---------- Synthesized gavel knock (no external audio file needed) ----------
   var mfdCtx = null;
