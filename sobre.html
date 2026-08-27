@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sobre — MyFairDay</title>
+<meta name="description" content="Conheça a missão do MyFairDay: um balcão de serviços gratuito para que todo cidadão brasileiro tenha acesso à informação e possa exercer seus direitos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:       #0B2545;
+    --navy-deep:  #071A30;
+    --blue-accent:#2F6FED;
+    --green:      #1E8F5E;
+    --green-deep: #146B45;
+    --green-soft: #E7F5EE;
+    --gold:       #C9962C;
+    --white:      #FFFFFF;
+    --paper:      #F5F8FC;
+    --ink:        #10233F;
+    --ink-muted:  #5B6C82;
+    --line:       #E1E8F2;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(11,37,69,0.06), 0 10px 28px rgba(11,37,69,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Roboto', Arial, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;max-width:100%;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{
+    font-family:'Roboto', Arial, sans-serif;
+    color:var(--navy);
+    margin:0 0 .5em 0;
+    line-height:1.28;
+  }
+  p{margin:0 0 1em 0;color:var(--ink-muted);}
+  :focus-visible{outline:3px solid var(--blue-accent);outline-offset:2px;}
+
+  /* ---------- TOPO ---------- */
+  .topbar{background:var(--navy);padding:16px 0;}
+  .topbar .wrap{max-width:1080px;display:flex;align-items:center;gap:10px;}
+  .logo-mark{
+    width:34px;height:34px;border-radius:8px;
+    background:var(--white);color:var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:0.78rem;flex-shrink:0;
+  }
+  .logo-text{color:var(--white);font-weight:700;font-size:1.05rem;letter-spacing:0.01em;}
+  .logo-text span{color:#9FB6DE;font-weight:400;}
+
+  /* ---------- NAV DE ABAS ---------- */
+  .tabnav{margin-left:auto;display:flex;align-items:center;gap:6px;}
+  .tabnav a{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:0.84rem;font-weight:700;
+    color:#C7D6EC;
+    text-decoration:none;
+    padding:8px 14px;border-radius:999px;
+    border:1px solid transparent;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .tabnav a:hover{background:rgba(255,255,255,0.08);color:var(--white);}
+  .tabnav a.tab-active{background:rgba(255,255,255,0.14);color:var(--white);}
+  .tabnav a.tab-special{
+    color:var(--navy-deep);
+    background:linear-gradient(180deg, #F1C866 0%, var(--gold) 100%);
+  }
+  .tabnav a.tab-special:hover{background:linear-gradient(180deg, #F6D786 0%, #D6A93A 100%);color:var(--navy-deep);}
+  @media (max-width:680px){
+    .tabnav a span.tab-label-full{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--white);
+    padding:56px 0 88px;
+    text-align:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:0.76rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+    color:#BFEAD4;
+    background:rgba(30,143,94,0.22);
+    border:1px solid rgba(30,143,94,0.4);
+    border-radius:999px;padding:7px 16px;margin-bottom:22px;
+  }
+  .hero h1{
+    color:var(--white);
+    font-size:clamp(1.9rem, 4.8vw, 2.6rem);
+    font-weight:900;
+    max-width:20ch;margin-left:auto;margin-right:auto;
+  }
+  .hero .subtitle{
+    color:#C7D6EC;
+    font-size:1.08rem;
+    max-width:50ch;margin:16px auto 0;
+  }
+
+  /* ---------- CONTEÚDO ---------- */
+  .section{padding:0 0 64px;}
+  .content-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:38px;
+    box-shadow:var(--shadow);
+    max-width:820px;margin:-52px auto 0;
+    position:relative;z-index:2;
+  }
+  @media (max-width:640px){
+    .content-card{padding:26px 22px;margin-left:16px;margin-right:16px;}
+  }
+  .content-card h2{font-size:1.24rem;margin-top:2.1em;}
+  .content-card h2:first-child{margin-top:0;}
+  .content-card p{font-size:0.98rem;color:var(--ink);}
+  .content-card p.muted{color:var(--ink-muted);}
+
+  .name-callout{
+    display:flex;gap:16px;align-items:flex-start;
+    background:var(--green-soft);
+    border:1px solid rgba(30,143,94,0.25);
+    border-radius:12px;
+    padding:22px 24px;
+    margin:18px 0;
+  }
+  .name-callout .nc-icon{
+    flex-shrink:0;width:40px;height:40px;border-radius:10px;
+    background:var(--white);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;box-shadow:var(--shadow);
+  }
+  .name-callout p{margin:0;font-size:0.95rem;color:var(--ink);}
+  .name-callout strong{color:var(--green-deep);}
+
+  .pillar-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:16px;
+    margin-top:18px;
+  }
+  .pillar-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+  }
+  .pillar-card .pc-icon{
+    width:38px;height:38px;border-radius:9px;
+    background:var(--white);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.05rem;margin-bottom:12px;
+  }
+  .pillar-card h3{font-size:0.98rem;margin-bottom:6px;}
+  .pillar-card p{font-size:0.86rem;margin:0;}
+
+  .tool-list{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;}
+  .tool-list li{
+    display:flex;align-items:center;gap:12px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:13px 16px;
+    font-size:0.92rem;color:var(--ink);
+  }
+  .tool-list li a{color:var(--blue-accent);text-decoration:none;font-weight:700;}
+  .tool-list li a:hover{text-decoration:underline;}
+  .tool-list .tl-icon{font-size:1.05rem;flex-shrink:0;}
+
+  .disclaimer-box{
+    font-size:0.84rem;color:var(--ink-muted);
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:14px 16px;
+    margin-top:24px;
+  }
+
+  footer{
+    background:var(--navy-deep);
+    color:#9FB6DE;
+    text-align:center;
+    padding:28px 0;
+    font-size:0.85rem;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="logo-mark">MFD</span>
+    <span class="logo-text">MyFairDay<span> · myfairday.org</span></span>
+    <nav class="tabnav" aria-label="Navegação de seções">
+      <a href="index.html">
+        <span class="tab-label-full">E-books</span>
+      </a>
+      <a href="central-denuncias.html">
+        <span class="tab-label-full">Denúncias</span>
+      </a>
+      <a href="calculadora-rescisao.html">
+        <span class="tab-label-full">Calculadora</span>
+      </a>
+      <a href="sobre.html" class="tab-active">
+        <span class="tab-label-full">Sobre</span>
+      </a>
+      <a href="https://myfairday.gumroad.com/l/kitcontragolpes" class="tab-special" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 16.5 13.5 18.5 21 12 16.5 5.5 21 7.5 13.5 2 9 9 9 12 2"/></svg>
+        <span class="tab-label-full">Especial</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Nossa missão</span>
+    <h1>Um balcão de serviços para o cidadão brasileiro</h1>
+    <p class="subtitle">Informação clara e gratuita para que você entenda e exerça seus direitos — sem depender de ninguém para saber por onde começar.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="content-card">
+
+    <h2>Por que o MyFairDay existe</h2>
+    <p>No Brasil, boa parte dos processos que afetam o dia a dia das pessoas — pedir um benefício, entender um direito trabalhista, denunciar um abuso, tirar um documento — está espalhada em dezenas de sites, leis e órgãos diferentes, escrita numa linguagem que nem sempre é fácil de entender. Quem tem tempo, dinheiro ou contatos consegue navegar por isso. Quem não tem, muitas vezes desiste ou nem sabe que tem aquele direito.</p>
+    <p>O MyFairDay nasceu para reduzir essa distância. A ideia é simples: reunir, num só lugar, guias e ferramentas gratuitas que expliquem como as coisas realmente funcionam — em linguagem simples, sem enrolação — para que qualquer cidadão brasileiro possa se informar e agir por conta própria.</p>
+
+    <div class="name-callout">
+      <span class="nc-icon" aria-hidden="true">✨</span>
+      <p><strong>Por que "MyFairDay"?</strong> O nome carrega a ideia de "ter o seu dia justo" — a chance de ser tratado com igualdade diante de um sistema que, na prática, nem sempre é simples nem justo com quem não tem informação. "Fair day" também remete a "day in court": o direito de ser ouvido e de ter acesso ao que é seu por direito. O MyFairDay quer ser esse ponto de partida — o lugar onde você entende a situação antes de enfrentá-la.</p>
+    </div>
+
+    <h2>O que oferecemos</h2>
+    <p>Tudo no MyFairDay é pensado para ser prático e gratuito. Nenhuma das ferramentas abaixo substitui um advogado ou o canal oficial de um órgão público — mas todas ajudam você a chegar até eles sabendo exatamente o que esperar.</p>
+
+    <ul class="tool-list">
+      <li><span class="tl-icon">📚</span> Biblioteca de e-books gratuitos explicando processos e instituições — <a href="index.html">acessar</a></li>
+      <li><span class="tl-icon">📣</span> Central de Denúncias com todos os canais oficiais organizados por categoria — <a href="central-denuncias.html">acessar</a></li>
+      <li><span class="tl-icon">🧮</span> Calculadora de Direitos Trabalhistas para estimar valores de rescisão — <a href="calculadora-rescisao.html">acessar</a></li>
+      <li><span class="tl-icon">🛡️</span> Kit Contra Golpes, um guia completo de 87 páginas para se proteger de fraudes online — <a href="https://myfairday.gumroad.com/l/kitcontragolpes" target="_blank" rel="noopener">acessar</a></li>
+    </ul>
+
+    <h2>Como pensamos o MyFairDay</h2>
+    <div class="pillar-grid">
+      <div class="pillar-card">
+        <span class="pc-icon" aria-hidden="true">🆓</span>
+        <h3>Acesso gratuito</h3>
+        <p>A informação básica sobre direitos e serviços públicos não deveria ter preço. O conteúdo educativo do MyFairDay é e continuará sendo gratuito.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="pc-icon" aria-hidden="true">🗣️</span>
+        <h3>Linguagem simples</h3>
+        <p>Nada de "juridiquês" ou burocratês. Cada guia é escrito para ser entendido por qualquer pessoa, sem formação técnica.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="pc-icon" aria-hidden="true">🧭</span>
+        <h3>Caminho, não atalho</h3>
+        <p>Não prometemos resolver seu problema por você — mostramos o caminho certo, os canais oficiais e o que esperar em cada etapa.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="pc-icon" aria-hidden="true">🌱</span>
+        <h3>Sempre crescendo</h3>
+        <p>Novas ferramentas e guias são adicionados aos poucos, priorizando o que mais impacta o dia a dia do cidadão comum.</p>
+      </div>
+    </div>
+
+    <div class="disclaimer-box">
+      O MyFairDay é um projeto educativo e informativo. Não prestamos serviços advocatícios nem substituímos aconselhamento jurídico profissional — para casos específicos, consulte um advogado, a Defensoria Pública ou o órgão oficial responsável.
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    © 2026 MyFairDay — Informação gratuita para todo cidadão brasileiro.
+  </div>
+</footer>
+
+</body>
+</html>
