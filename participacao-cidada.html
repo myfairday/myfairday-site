@@ -48,6 +48,11 @@
   .logo-text{color:var(--white);font-weight:700;font-size:1.05rem;letter-spacing:0.01em;}
   .logo-text span{color:#9FB6DE;font-weight:400;}
 
+  .tabnav{margin-left:auto;display:flex;align-items:center;gap:6px;}
+  .tabnav a{display:inline-flex;align-items:center;gap:6px;font-size:0.84rem;font-weight:700;color:#C7D6EC;text-decoration:none;padding:8px 14px;border-radius:999px;border:1px solid transparent;transition:background .15s ease, color .15s ease;white-space:nowrap;}
+  .tabnav a:hover{background:rgba(255,255,255,0.08);color:var(--white);}
+  .tabnav a.tab-active{background:rgba(255,255,255,0.14);color:var(--white);}
+
   /* ---------- HERO ---------- */
   .hero{background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);color:var(--white);padding:56px 0 84px;text-align:center;}
   .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:0.76rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#BFD2F0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:999px;padding:7px 16px;margin-bottom:22px;}
@@ -131,6 +136,12 @@
   <div class="wrap">
     <span class="logo-mark">MFD</span>
     <span class="logo-text">MyFairDay<span> · myfairday.org</span></span>
+    <nav class="tabnav" aria-label="Navegação de seções">
+      <a href="index.html">E-books</a>
+      <a href="central-denuncias.html">Denúncias</a>
+      <a href="calculadora-rescisao.html">Calculadora</a>
+      <a href="sobre.html">Sobre</a>
+    </nav>
   </div>
 </header>
 
