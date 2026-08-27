@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Direitos Trabalhistas — MyFairDay</title>
+<meta name="description" content="Calcule uma estimativa dos valores de rescisão trabalhista: saldo de salário, aviso prévio, 13º proporcional, férias e multa do FGTS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:       #0B2545;
+    --navy-deep:  #071A30;
+    --blue-accent:#2F6FED;
+    --green:      #1E8F5E;
+    --green-deep: #146B45;
+    --green-soft: #E7F5EE;
+    --white:      #FFFFFF;
+    --paper:      #F5F8FC;
+    --ink:        #10233F;
+    --ink-muted:  #5B6C82;
+    --line:       #E1E8F2;
+    --danger:     #B3261E;
+    --danger-soft:#FDECEA;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(11,37,69,0.06), 0 10px 28px rgba(11,37,69,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Roboto', Arial, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;max-width:100%;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{
+    font-family:'Roboto', Arial, sans-serif;
+    color:var(--navy);
+    margin:0 0 .5em 0;
+    line-height:1.25;
+  }
+  p{margin:0 0 1em 0;color:var(--ink-muted);}
+  :focus-visible{outline:3px solid var(--blue-accent);outline-offset:2px;}
+
+  /* ---------- TOPO ---------- */
+  .topbar{background:var(--navy);padding:16px 0;}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;}
+  .logo-mark{
+    width:34px;height:34px;border-radius:8px;
+    background:var(--white);color:var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:0.78rem;flex-shrink:0;
+  }
+  .logo-text{color:var(--white);font-weight:700;font-size:1.05rem;letter-spacing:0.01em;}
+  .logo-text span{color:#9FB6DE;font-weight:400;}
+
+  /* ---------- NAV DE ABAS ---------- */
+  .tabnav{margin-left:auto;display:flex;align-items:center;gap:6px;}
+  .tabnav a{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:0.84rem;font-weight:700;
+    color:#C7D6EC;
+    text-decoration:none;
+    padding:8px 14px;border-radius:999px;
+    border:1px solid transparent;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .tabnav a:hover{background:rgba(255,255,255,0.08);color:var(--white);}
+  .tabnav a.tab-active{background:rgba(255,255,255,0.14);color:var(--white);}
+  .tabnav a.tab-special{
+    color:var(--navy-deep);
+    background:linear-gradient(180deg, #F1C866 0%, #C9962C 100%);
+  }
+  .tabnav a.tab-special:hover{background:linear-gradient(180deg, #F6D786 0%, #D6A93A 100%);color:var(--navy-deep);}
+  @media (max-width:620px){
+    .tabnav a span.tab-label-full{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--white);
+    padding:56px 0 84px;
+    text-align:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:0.76rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+    color:#BFEAD4;
+    background:rgba(30,143,94,0.22);
+    border:1px solid rgba(30,143,94,0.4);
+    border-radius:999px;padding:7px 16px;margin-bottom:22px;
+  }
+  .hero h1{
+    color:var(--white);
+    font-size:clamp(1.7rem, 4.6vw, 2.4rem);
+    font-weight:900;
+    max-width:22ch;margin-left:auto;margin-right:auto;
+  }
+  .hero .subtitle{
+    color:#C7D6EC;
+    font-size:1.05rem;
+    max-width:44ch;margin:14px auto 0;
+  }
+
+  /* ---------- CARD FORMULÁRIO ---------- */
+  .calc-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px;
+    box-shadow:var(--shadow);
+    max-width:820px;margin:-52px auto 0;
+    position:relative;z-index:2;
+  }
+  @media (max-width:640px){
+    .calc-card{padding:24px 20px;margin-left:16px;margin-right:16px;}
+  }
+
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px 18px;
+  }
+  .form-grid .full{grid-column:1 / -1;}
+  @media (max-width:640px){
+    .form-grid{grid-template-columns:1fr;}
+  }
+
+  .field label{
+    display:block;
+    font-size:0.86rem;font-weight:700;color:var(--navy);
+    margin-bottom:6px;
+  }
+  .field .hint{font-size:0.76rem;color:var(--ink-muted);margin-top:4px;margin-bottom:0;}
+  .field input,
+  .field select{
+    width:100%;
+    font-family:inherit;font-size:0.96rem;color:var(--ink);
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    padding:11px 12px;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .field input:focus,
+  .field select:focus{
+    border-color:var(--blue-accent);
+    background:var(--white);
+    outline:none;
+  }
+  .field input.invalid{border-color:var(--danger);}
+
+  .form-actions{
+    display:flex;gap:12px;flex-wrap:wrap;
+    margin-top:28px;
+  }
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-weight:700;font-size:0.96rem;
+    border:none;border-radius:9px;
+    padding:13px 22px;
+    cursor:pointer;
+    transition:background .15s ease, transform .12s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--green);color:var(--white);}
+  .btn-primary:hover{background:var(--green-deep);}
+  .btn-secondary{background:var(--paper);color:var(--navy);border:1.5px solid var(--line);}
+  .btn-secondary:hover{background:var(--line);}
+  .btn svg{width:16px;height:16px;flex-shrink:0;}
+
+  .form-error{
+    display:none;
+    align-items:flex-start;gap:10px;
+    background:var(--danger-soft);
+    color:var(--danger);
+    border:1px solid rgba(179,38,30,0.25);
+    border-radius:9px;
+    padding:12px 14px;
+    font-size:0.86rem;
+    margin-top:18px;
+  }
+  .form-error.show{display:flex;}
+
+  /* ---------- RESULTADOS ---------- */
+  .results{
+    display:none;
+    margin-top:26px;
+    padding-top:26px;
+    border-top:1.5px dashed var(--line);
+  }
+  .results.show{display:block;}
+  .results h2{font-size:1.2rem;margin-bottom:4px;}
+  .results .results-sub{font-size:0.88rem;margin-bottom:18px;}
+
+  .justa-causa-note{
+    background:var(--danger-soft);
+    color:var(--danger);
+    border:1px solid rgba(179,38,30,0.25);
+    border-radius:9px;
+    padding:14px 16px;
+    font-size:0.88rem;
+    margin-bottom:18px;
+  }
+  .justa-causa-note strong{display:block;margin-bottom:2px;color:var(--danger);}
+
+  .result-list{
+    list-style:none;margin:0 0 18px;padding:0;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .result-item{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:13px 15px;
+  }
+  .result-item .ri-label{font-size:0.9rem;font-weight:700;color:var(--navy);}
+  .result-item .ri-desc{font-size:0.78rem;color:var(--ink-muted);margin-top:2px;}
+  .result-item .ri-value{
+    font-size:0.98rem;font-weight:900;color:var(--green-deep);
+    white-space:nowrap;
+  }
+  .result-item.zero .ri-value{color:var(--ink-muted);}
+
+  .result-total{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--white);
+    border-radius:12px;
+    padding:20px 22px;
+    margin-bottom:6px;
+  }
+  .result-total .rt-label{font-size:0.86rem;font-weight:700;color:#BFEAD4;text-transform:uppercase;letter-spacing:0.05em;}
+  .result-total .rt-value{font-size:1.7rem;font-weight:900;}
+
+  .disclaimer{
+    font-size:0.78rem;color:var(--ink-muted);
+    background:var(--green-soft);
+    border:1px solid rgba(30,143,94,0.25);
+    border-radius:9px;
+    padding:12px 14px;
+    margin-top:18px;
+  }
+
+  .section{padding:48px 0 64px;}
+
+  footer{
+    background:var(--navy-deep);
+    color:#9FB6DE;
+    text-align:center;
+    padding:28px 0;
+    font-size:0.85rem;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="logo-mark">MFD</span>
+    <span class="logo-text">MyFairDay<span> · myfairday.org</span></span>
+    <nav class="tabnav" aria-label="Navegação de seções">
+      <a href="index.html">
+        <span class="tab-label-full">E-books</span>
+      </a>
+      <a href="central-denuncias.html">
+        <span class="tab-label-full">Denúncias</span>
+      </a>
+      <a href="calculadora-rescisao.html" class="tab-active">
+        <span class="tab-label-full">Calculadora</span>
+      </a>
+      <a href="https://myfairday.gumroad.com/l/kitcontragolpes" class="tab-special" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 16.5 13.5 18.5 21 12 16.5 5.5 21 7.5 13.5 2 9 9 9 12 2"/></svg>
+        <span class="tab-label-full">Especial</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Ferramenta gratuita</span>
+    <h1>Calculadora de Direitos Trabalhistas</h1>
+    <p class="subtitle">Descubra quanto você tem direito a receber</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="calc-card">
+    <form id="calc-form" novalidate>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="salario">Salário bruto mensal (R$)</label>
+          <input type="number" id="salario" name="salario" min="0" step="0.01" inputmode="decimal" placeholder="Ex: 2500,00" required>
+        </div>
+
+        <div class="field">
+          <label for="admissao">Data de admissão</label>
+          <input type="date" id="admissao" name="admissao" required>
+        </div>
+        <div class="field">
+          <label for="saida">Data de saída</label>
+          <input type="date" id="saida" name="saida" required>
+        </div>
+
+        <div class="field">
+          <label for="tipoSaida">Tipo de saída</label>
+          <select id="tipoSaida" name="tipoSaida">
+            <option value="sem_justa_causa">Sem justa causa</option>
+            <option value="justa_causa">Com justa causa</option>
+            <option value="pedido_demissao">Pedido de demissão</option>
+            <option value="acordo">Acordo entre as partes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="avisoPrevio">Aviso prévio</label>
+          <select id="avisoPrevio" name="avisoPrevio">
+            <option value="trabalhado">Trabalhado</option>
+            <option value="indenizado">Indenizado</option>
+            <option value="nao_aplica">Não se aplica</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="fgts">Saldo de FGTS (R$) <span style="font-weight:400;color:var(--ink-muted);">— opcional</span></label>
+          <input type="number" id="fgts" name="fgts" min="0" step="0.01" inputmode="decimal" placeholder="Ex: 3200,00">
+        </div>
+        <div class="field">
+          <label for="feriasVencidas">Férias vencidas</label>
+          <select id="feriasVencidas" name="feriasVencidas">
+            <option value="0">Nenhuma</option>
+            <option value="1">1 período</option>
+            <option value="2">2 períodos</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="form-error" class="form-error" role="alert">
+        <span aria-hidden="true">⚠️</span>
+        <span id="form-error-text">Confira os dados preenchidos.</span>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="10" y2="17"/><line x1="14" y1="17" x2="16" y2="17"/></svg>
+          Calcular
+        </button>
+        <button type="button" id="btn-limpar" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Limpar
+        </button>
+      </div>
+    </form>
+
+    <div id="results" class="results" aria-live="polite">
+      <h2>Resultado estimado</h2>
+      <p class="results-sub" id="results-sub"></p>
+
+      <div id="justa-causa-note" class="justa-causa-note" style="display:none;">
+        <strong>Atenção</strong>
+        Neste caso, você não tem direito a multa de 40% do FGTS, aviso prévio ou saque do FGTS.
+      </div>
+
+      <ul class="result-list" id="result-list"></ul>
+
+      <div class="result-total">
+        <span class="rt-label">Total estimado</span>
+        <span class="rt-value" id="result-total-value">R$ 0,00</span>
+      </div>
+
+      <div class="disclaimer">
+        Valores aproximados. Consulte um advogado ou o sindicato da sua categoria para cálculo exato.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section"></div>
+
+<footer>
+  <div class="wrap">
+    © 2026 MyFairDay — Ferramenta educativa e gratuita. Não substitui aconselhamento jurídico.
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  const form = document.getElementById("calc-form");
+  const errorBox = document.getElementById("form-error");
+  const errorText = document.getElementById("form-error-text");
+  const resultsBox = document.getElementById("results");
+  const resultList = document.getElementById("result-list");
+  const resultTotalValue = document.getElementById("result-total-value");
+  const resultsSub = document.getElementById("results-sub");
+  const justaCausaNote = document.getElementById("justa-causa-note");
+  const btnLimpar = document.getElementById("btn-limpar");
+
+  const SALARIO_MINIMO = 1518; // referência 2026, usado apenas como fallback informativo, não altera os cálculos abaixo
+
+  function formatBRL(value) {
+    if (!isFinite(value)) value = 0;
+    return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function parseDateInput(value) {
+    // input type="date" retorna "aaaa-mm-dd"
+    if (!value) return null;
+    const [ano, mes, dia] = value.split("-").map(Number);
+    return new Date(ano, mes - 1, dia);
+  }
+
+  function diasNoMes(ano, mesIndex) {
+    return new Date(ano, mesIndex + 1, 0).getDate();
+  }
+
+  // Meses completos de serviço (para contar anos completos = aviso prévio adicional)
+  function anosCompletosServico(admissao, saida) {
+    let anos = saida.getFullYear() - admissao.getFullYear();
+    const aniversarioEsteAno = new Date(saida.getFullYear(), admissao.getMonth(), admissao.getDate());
+    if (saida < aniversarioEsteAno) anos -= 1;
+    return Math.max(0, anos);
+  }
+
+  // Avos de 13º: conta meses trabalhados dentro do ANO CALENDÁRIO da saída,
+  // considerando avo completo quando o funcionário trabalhou 15 dias ou mais naquele mês.
+  function avos13(admissao, saida) {
+    const anoSaida = saida.getFullYear();
+    const mesInicio = (admissao.getFullYear() === anoSaida) ? admissao.getMonth() : 0;
+    const mesFim = saida.getMonth();
+    let avos = mesFim - mesInicio + 1;
+
+    // desconta o mês de saída se trabalhou menos de 15 dias nele
+    if (saida.getDate() < 15) avos -= 1;
+    // desconta o mês de admissão (se for o mesmo ano) se entrou depois do dia 15
+    if (admissao.getFullYear() === anoSaida && admissao.getDate() > 15) avos -= 1;
+
+    return Math.min(12, Math.max(0, avos));
+  }
+
+  // Avos de férias proporcionais: meses dentro do período aquisitivo atual (desde o
+  // último aniversário de admissão até a saída), avo completo com 15+ dias no mês.
+  function avosFeriasProporcionais(admissao, saida) {
+    // encontra o início do período aquisitivo vigente
+    let inicioPeriodo = new Date(saida.getFullYear(), admissao.getMonth(), admissao.getDate());
+    if (inicioPeriodo > saida) {
+      inicioPeriodo = new Date(saida.getFullYear() - 1, admissao.getMonth(), admissao.getDate());
+    }
+    // garante que não é anterior à própria admissão
+    if (inicioPeriodo < admissao) inicioPeriodo = new Date(admissao);
+
+    let meses = (saida.getFullYear() - inicioPeriodo.getFullYear()) * 12 + (saida.getMonth() - inicioPeriodo.getMonth());
+    if (saida.getDate() >= inicioPeriodo.getDate()) meses += 1;
+    // se o dia do "avo" corrente ainda não completou 15 dias, não conta o avo do mês atual
+    // (aproximação simples e conservadora)
+    return Math.min(12, Math.max(0, meses));
+  }
+
+  function addResult(label, desc, value, opts) {
+    opts = opts || {};
+    const li = document.createElement("li");
+    li.className = "result-item" + (value === 0 ? " zero" : "");
+    li.innerHTML =
+      '<div><div class="ri-label">' + label + '</div>' +
+      (desc ? '<div class="ri-desc">' + desc + '</div>' : '') +
+      '</div>' +
+      '<div class="ri-value">' + formatBRL(value) + '</div>';
+    resultList.appendChild(li);
+  }
+
+  function showError(msg) {
+    errorText.textContent = msg;
+    errorBox.classList.add("show");
+    resultsBox.classList.remove("show");
+  }
+
+  function clearError() {
+    errorBox.classList.remove("show");
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    clearError();
+
+    const salario = parseFloat(document.getElementById("salario").value);
+    const admissaoVal = document.getElementById("admissao").value;
+    const saidaVal = document.getElementById("saida").value;
+    const tipoSaida = document.getElementById("tipoSaida").value;
+    const avisoPrevio = document.getElementById("avisoPrevio").value;
+    const fgtsInput = document.getElementById("fgts").value;
+    const fgts = fgtsInput ? parseFloat(fgtsInput) : 0;
+    const feriasVencidasPeriodos = parseInt(document.getElementById("feriasVencidas").value, 10);
+
+    if (!salario || salario <= 0) {
+      showError("Informe um salário bruto mensal válido.");
+      return;
+    }
+    if (!admissaoVal || !saidaVal) {
+      showError("Informe a data de admissão e a data de saída.");
+      return;
+    }
+
+    const admissao = parseDateInput(admissaoVal);
+    const saida = parseDateInput(saidaVal);
+
+    if (saida <= admissao) {
+      showError("A data de saída precisa ser posterior à data de admissão.");
+      return;
+    }
+
+    // ---------- CÁLCULOS ----------
+    const anosCompletos = anosCompletosServico(admissao, saida);
+
+    // Saldo de salário: dias trabalhados no mês da saída (base 30 dias, padrão CLT)
+    const diaSaida = saida.getDate();
+    const saldoSalario = (salario / 30) * diaSaida;
+
+    // 13º proporcional
+    const avosDecimo = avos13(admissao, saida);
+    const decimoProporcional = (salario / 12) * avosDecimo;
+
+    // Férias vencidas (se houver períodos completos não gozados)
+    const valorFeriasVencidas = feriasVencidasPeriodos * (salario + salario / 3);
+
+    // Férias proporcionais + 1/3
+    const avosFerias = avosFeriasProporcionais(admissao, saida);
+    const feriasProporcionais = (salario / 12) * avosFerias * (4 / 3);
+
+    // Aviso prévio (30 dias + 3 dias por ano completo de serviço, máx. 90 dias)
+    const diasAviso = Math.min(90, 30 + anosCompletos * 3);
+    const valorAvisoIntegral = (salario / 30) * diasAviso;
+
+    // Multa FGTS
+    const multaFgtsIntegral = fgts * 0.4;
+    const multaFgtsAcordo = fgts * 0.2;
+
+    // ---------- REGRAS POR TIPO DE SAÍDA ----------
+    resultList.innerHTML = "";
+    justaCausaNote.style.display = "none";
+    let total = 0;
+
+    // Saldo de salário é sempre devido, em qualquer tipo de saída
+    addResult(
+      "Saldo de salário",
+      diaSaida + " dia(s) trabalhado(s) no mês da saída",
+      saldoSalario
+    );
+    total += saldoSalario;
+
+    if (tipoSaida === "justa_causa") {
+      justaCausaNote.style.display = "block";
+
+      if (feriasVencidasPeriodos > 0) {
+        addResult(
+          "Férias vencidas",
+          feriasVencidasPeriodos + " período(s) já vencido(s) + 1/3 constitucional",
+          valorFeriasVencidas
+        );
+        total += valorFeriasVencidas;
+      }
+
+      addResult("13º salário proporcional", "Não é devido em demissão por justa causa", 0);
+      addResult("Férias proporcionais + 1/3", "Não é devida em demissão por justa causa", 0);
+      addResult("Aviso prévio", "Não é devido em demissão por justa causa", 0);
+      addResult("Multa de 40% sobre o FGTS", "Não é devida em demissão por justa causa", 0);
+      addResult("Saque do FGTS", "Não é permitido em demissão por justa causa", 0);
+
+    } else {
+      // 13º proporcional — devido em todos os outros tipos de saída
+      addResult(
+        "13º salário proporcional",
+        avosDecimo + "/12 avos referentes ao ano da saída",
+        decimoProporcional
+      );
+      total += decimoProporcional;
+
+      // Férias vencidas
+      if (feriasVencidasPeriodos > 0) {
+        addResult(
+          "Férias vencidas",
+          feriasVencidasPeriodos + " período(s) já vencido(s) + 1/3 constitucional",
+          valorFeriasVencidas
+        );
+        total += valorFeriasVencidas;
+      }
+
+      // Férias proporcionais
+      addResult(
+        "Férias proporcionais + 1/3",
+        avosFerias + "/12 avos do período aquisitivo atual",
+        feriasProporcionais
+      );
+      total += feriasProporcionais;
+
+      // Aviso prévio
+      if (tipoSaida === "sem_justa_causa") {
+        if (avisoPrevio === "indenizado") {
+          addResult(
+            "Aviso prévio indenizado",
+            diasAviso + " dias (30 + 3 por ano completo de serviço)",
+            valorAvisoIntegral
+          );
+          total += valorAvisoIntegral;
+        } else if (avisoPrevio === "trabalhado") {
+          addResult("Aviso prévio", "Trabalhado — já incluído no saldo de salário do período", 0);
+        } else {
+          addResult("Aviso prévio", "Não se aplica", 0);
+        }
+      } else if (tipoSaida === "acordo") {
+        if (avisoPrevio === "indenizado") {
+          const valorAvisoMetade = valorAvisoIntegral / 2;
+          addResult(
+            "Aviso prévio indenizado (metade)",
+            "Acordo entre as partes: aviso prévio reduzido pela metade",
+            valorAvisoMetade
+          );
+          total += valorAvisoMetade;
+        } else {
+          addResult("Aviso prévio", "Trabalhado ou não aplicável neste acordo", 0);
+        }
+      } else if (tipoSaida === "pedido_demissao") {
+        addResult(
+          "Aviso prévio",
+          "Pedido de demissão: geralmente cumprido ou dispensado pela empresa, sem indenização adicional",
+          0
+        );
+      }
+
+      // Multa e saque do FGTS
+      if (tipoSaida === "sem_justa_causa") {
+        addResult(
+          "Multa de 40% sobre o FGTS",
+          fgts > 0 ? "Sobre o saldo informado de " + formatBRL(fgts) : "Informe o saldo de FGTS para calcular",
+          multaFgtsIntegral
+        );
+        total += multaFgtsIntegral;
+        addResult("Saque do FGTS", "Liberado integralmente em demissão sem justa causa (valor não somado ao total, pois já é seu)", 0);
+      } else if (tipoSaida === "acordo") {
+        addResult(
+          "Multa de 20% sobre o FGTS",
+          fgts > 0 ? "Acordo entre as partes: metade da multa de 40%, sobre " + formatBRL(fgts) : "Informe o saldo de FGTS para calcular",
+          multaFgtsAcordo
+        );
+        total += multaFgtsAcordo;
+        addResult("Saque do FGTS", "Liberado em até 80% do saldo em caso de acordo (valor não somado ao total, pois já é seu)", 0);
+      } else if (tipoSaida === "pedido_demissao") {
+        addResult("Multa sobre o FGTS", "Não é devida em pedido de demissão", 0);
+        addResult("Saque do FGTS", "Não é permitido em pedido de demissão (saldo permanece na conta)", 0);
+      }
+    }
+
+    resultTotalValue.textContent = formatBRL(total);
+    resultsSub.textContent = "Com base nos dados informados, esta é uma estimativa dos valores de rescisão.";
+    resultsBox.classList.add("show");
+    resultsBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  btnLimpar.addEventListener("click", function () {
+    form.reset();
+    clearError();
+    resultsBox.classList.remove("show");
+    resultList.innerHTML = "";
+  });
+})();
+</script>
+
+</body>
+</html>
