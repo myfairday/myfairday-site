@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Participação Cidadã — MyFairDay</title>
+<meta name="description" content="Cinco ferramentas gratuitas para participar da vida pública no Brasil: consultas públicas, propostas de lei, comentários em projetos de lei, cursos gratuitos de cidadania e um quiz sobre seus direitos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:       #0B2545;
+    --navy-deep:  #071A30;
+    --navy-soft:  #1E3E68;
+    --blue-accent:#2F6FED;
+    --gold:       #C9962C;
+    --white:      #FFFFFF;
+    --paper:      #F5F8FC;
+    --ink:        #10233F;
+    --ink-muted:  #5B6C82;
+    --line:       #E1E8F2;
+    --good:       #1E824C;
+    --bad:        #B3261E;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(11,37,69,0.06), 0 10px 28px rgba(11,37,69,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Roboto', Arial, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;max-width:100%;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{font-family:'Roboto', Arial, sans-serif;color:var(--navy);margin:0 0 .5em 0;line-height:1.25;}
+  p{margin:0 0 1em 0;color:var(--ink-muted);}
+  a{color:var(--blue-accent);}
+  :focus-visible{outline:3px solid var(--blue-accent);outline-offset:2px;}
+
+  /* ---------- TOPO ---------- */
+  .topbar{background:var(--navy);padding:16px 0;}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;}
+  .logo-mark{width:34px;height:34px;border-radius:8px;background:var(--white);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.78rem;flex-shrink:0;}
+  .logo-text{color:var(--white);font-weight:700;font-size:1.05rem;letter-spacing:0.01em;}
+  .logo-text span{color:#9FB6DE;font-weight:400;}
+
+  /* ---------- HERO ---------- */
+  .hero{background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);color:var(--white);padding:56px 0 84px;text-align:center;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:0.76rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#BFD2F0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:999px;padding:7px 16px;margin-bottom:22px;}
+  .hero h1{color:var(--white);font-size:clamp(1.9rem, 5vw, 2.7rem);font-weight:900;max-width:22ch;margin-left:auto;margin-right:auto;}
+  .hero .subtitle{color:#C7D6EC;font-size:1.08rem;max-width:52ch;margin:16px auto 0;}
+
+  /* ---------- TRILHA (elemento assinatura) ---------- */
+  .trail{max-width:900px;margin:-46px auto 0;position:relative;z-index:2;padding:0 24px;}
+  .trail-track{display:grid;grid-template-columns:repeat(5,1fr);gap:0;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px;}
+  .trail-step{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 10px;border-radius:9px;cursor:pointer;background:none;border:none;font-family:inherit;color:var(--ink-muted);}
+  .trail-step:hover{background:var(--paper);}
+  .trail-step.active{background:var(--navy);color:var(--white);}
+  .trail-step .dot{width:28px;height:28px;border-radius:50%;background:var(--paper);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;color:var(--navy);margin-bottom:8px;flex-shrink:0;}
+  .trail-step.active .dot{background:var(--gold);border-color:var(--gold);color:var(--navy-deep);}
+  .trail-step .label{font-size:0.78rem;font-weight:700;}
+  @media (max-width:720px){
+    .trail-track{grid-template-columns:repeat(5,1fr);}
+    .trail-step .label{display:none;}
+    .trail-step .dot{margin-bottom:0;}
+  }
+
+  /* ---------- PAINÉIS ---------- */
+  .panels{padding:44px 0 72px;}
+  .panel{display:none;}
+  .panel.active{display:block;animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .panel-head{max-width:680px;margin:0 auto 28px;text-align:center;}
+  .panel-head .tag{display:inline-block;font-size:0.74rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue-accent);margin-bottom:8px;}
+  .panel-head h2{font-size:clamp(1.4rem,3.2vw,1.8rem);}
+  .panel-head p{margin-top:8px;}
+
+  .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 28px;max-width:880px;margin:0 auto 20px;}
+  .card h3{font-size:1.05rem;margin-bottom:10px;}
+  .card p{font-size:0.95rem;margin-bottom:14px;}
+  .card p:last-child{margin-bottom:0;}
+
+  .steps{list-style:none;margin:0 0 18px;padding:0;counter-reset:step;}
+  .steps li{position:relative;padding:4px 0 4px 40px;margin-bottom:10px;font-size:0.94rem;color:var(--ink);}
+  .steps li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:2px;width:26px;height:26px;border-radius:50%;background:var(--navy);color:var(--white);font-weight:700;font-size:0.78rem;display:flex;align-items:center;justify-content:center;}
+
+  .link-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+  .btn-link{display:inline-flex;align-items:center;gap:8px;background:var(--blue-accent);color:var(--white);font-weight:700;font-size:0.9rem;text-decoration:none;padding:11px 18px;border-radius:8px;transition:background .15s ease;}
+  .btn-link:hover{background:var(--navy);}
+  .btn-link svg{width:14px;height:14px;flex-shrink:0;}
+  .btn-link.secondary{background:var(--paper);color:var(--navy);border:1px solid var(--line);}
+  .btn-link.secondary:hover{background:var(--white);border-color:var(--navy-soft);}
+
+  .note{font-size:0.84rem;color:var(--ink-muted);background:var(--paper);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 8px 8px 0;max-width:880px;margin:8px auto 0;}
+
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;max-width:880px;margin:0 auto 18px;}
+  .cat-chip{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:14px 16px;font-size:0.88rem;font-weight:500;color:var(--ink);}
+  .cat-chip strong{display:block;color:var(--navy);font-size:0.92rem;margin-bottom:2px;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card{max-width:640px;margin:0 auto;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 28px;}
+  .quiz-progress{font-size:0.78rem;font-weight:700;color:var(--blue-accent);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+  .quiz-question{font-size:1.12rem;color:var(--navy);font-weight:700;margin-bottom:18px;}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+  .quiz-opt{text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:13px 16px;font-family:inherit;font-size:0.94rem;color:var(--ink);cursor:pointer;transition:border-color .12s ease, background .12s ease;}
+  .quiz-opt:hover{border-color:var(--blue-accent);}
+  .quiz-opt.correct{background:#EAF6EF;border-color:var(--good);color:var(--good);font-weight:700;}
+  .quiz-opt.wrong{background:#FBEAE9;border-color:var(--bad);color:var(--bad);font-weight:700;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-feedback{font-size:0.9rem;color:var(--ink-muted);background:var(--paper);border-radius:8px;padding:12px 14px;margin-bottom:16px;display:none;}
+  .quiz-feedback.show{display:block;}
+  .quiz-next{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--white);font-weight:700;font-size:0.9rem;border:none;padding:11px 20px;border-radius:8px;cursor:pointer;display:none;}
+  .quiz-next.show{display:inline-flex;}
+  .quiz-result{text-align:center;}
+  .quiz-result .score{font-size:2.6rem;font-weight:900;color:var(--navy);margin-bottom:6px;}
+  .quiz-result .score span{font-size:1.2rem;color:var(--ink-muted);font-weight:700;}
+  .quiz-restart{margin-top:16px;background:var(--paper);border:1px solid var(--line);color:var(--navy);font-weight:700;font-size:0.9rem;padding:11px 20px;border-radius:8px;cursor:pointer;font-family:inherit;}
+
+  /* ---------- RODAPÉ ---------- */
+  footer{background:var(--navy-deep);color:#9FB6DE;text-align:center;padding:28px 0;font-size:0.85rem;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="logo-mark">MFD</span>
+    <span class="logo-text">MyFairDay<span> · myfairday.org</span></span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">100% gratuito</span>
+    <h1>Participação Cidadã</h1>
+    <p class="subtitle">Cinco ferramentas oficiais e gratuitas para opinar, propor e aprender sobre como o Brasil é governado — direto pelo celular ou computador.</p>
+  </div>
+</section>
+
+<nav class="trail" aria-label="Escolha uma ferramenta">
+  <div class="trail-track" id="trail-track">
+    <button class="trail-step active" data-panel="radar" type="button">
+      <span class="dot">1</span><span class="label">Radar</span>
+    </button>
+    <button class="trail-step" data-panel="fabrica" type="button">
+      <span class="dot">2</span><span class="label">Fábrica de Ideias</span>
+    </button>
+    <button class="trail-step" data-panel="wikilegis" type="button">
+      <span class="dot">3</span><span class="label">Wikilegis</span>
+    </button>
+    <button class="trail-step" data-panel="enaju" type="button">
+      <span class="dot">4</span><span class="label">Cursos</span>
+    </button>
+    <button class="trail-step" data-panel="quiz" type="button">
+      <span class="dot">5</span><span class="label">Quiz</span>
+    </button>
+  </div>
+</nav>
+
+<main class="panels wrap">
+
+  <!-- 1. RADAR DA PARTICIPAÇÃO -->
+  <section class="panel active" id="panel-radar">
+    <div class="panel-head">
+      <span class="tag">Radar da Participação</span>
+      <h2>Veja o que está em consulta pública agora</h2>
+      <p>Antes de uma lei ou política mudar, o governo costuma abrir um período em que qualquer pessoa pode opinar. O problema é que poucas pessoas sabem onde procurar. Estes três canais reúnem a maior parte das consultas abertas no Brasil hoje.</p>
+    </div>
+
+    <div class="card">
+      <h3>Brasil Participativo (Governo Federal)</h3>
+      <p>Plataforma oficial da Secretaria-Geral da Presidência da República para consultas públicas, conferências nacionais e propostas de políticas do governo federal. Basta entrar com sua conta gov.br, escolher um tema e enviar sua contribuição.</p>
+      <div class="link-row">
+        <a class="btn-link" href="https://brasilparticipativo.presidencia.gov.br/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+          Ver consultas abertas
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Portal e-Cidadania (Senado Federal)</h3>
+      <p>Ferramenta do Senado para acompanhar projetos, opinar em enquetes sobre matérias em tramitação e enviar sugestões legislativas diretamente aos senadores.</p>
+      <div class="link-row">
+        <a class="btn-link" href="https://www.senado.leg.br/ecidadania" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+          Acessar o e-Cidadania
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Sua Câmara Municipal</h3>
+      <p>A maioria das Câmaras de Vereadores também transmite sessões e abre audiências públicas sobre projetos locais — geralmente é onde a participação tem efeito mais rápido e visível na sua rua, no seu bairro. Procure "Câmara Municipal de [sua cidade]" para encontrar o site oficial e o calendário de audiências.</p>
+      <div class="note">Dica: a maior parte dos sites de câmaras municipais no Brasil usa o formato camara[cidade].[uf].gov.br — por exemplo, camarajoinville.sc.gov.br.</div>
+    </div>
+  </section>
+
+  <!-- 2. FÁBRICA DE IDEIAS -->
+  <section class="panel" id="panel-fabrica">
+    <div class="panel-head">
+      <span class="tag">Fábrica de Ideias</span>
+      <h2>Como enviar uma ideia de lei ao Senado</h2>
+      <p>Você não precisa ser senador para propor uma lei. O Portal e-Cidadania tem um canal em que qualquer cidadão pode registrar uma "Ideia Legislativa" — e, se ela reunir apoio suficiente, uma comissão do Senado é obrigada a examiná-la formalmente.</p>
+    </div>
+
+    <div class="card">
+      <h3>Passo a passo</h3>
+      <ol class="steps">
+        <li>Acesse o Portal e-Cidadania e entre com sua conta gov.br (ou crie uma gratuitamente).</li>
+        <li>Vá até a área de "Ideias Legislativas" e escreva sua proposta: o problema que ela resolve e o texto da mudança que você sugere.</li>
+        <li>Publique a ideia — ela fica visível para qualquer visitante do portal apoiar.</li>
+        <li>Compartilhe o link com outras pessoas. Ideias que reúnem apoio suficiente dentro do prazo são encaminhadas para análise formal por uma comissão do Senado.</li>
+        <li>Acompanhe o andamento pelo próprio portal, incluindo pareceres e decisões da comissão.</li>
+      </ol>
+      <div class="link-row">
+        <a class="btn-link" href="https://www.senado.leg.br/ecidadania" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+          Enviar uma ideia no e-Cidadania
+        </a>
+      </div>
+    </div>
+    <div class="note">Ideias bem escritas e específicas — com um problema claro e uma solução objetiva — têm muito mais chance de reunir apoio do que propostas genéricas.</div>
+  </section>
+
+  <!-- 3. WIKILEGIS -->
+  <section class="panel" id="panel-wikilegis">
+    <div class="panel-head">
+      <span class="tag">Wikilegis</span>
+      <h2>Opine artigo por artigo em um projeto de lei</h2>
+      <p>O e-Democracia, da Câmara dos Deputados, tem uma ferramenta chamada Wikilegis que abre o texto de um projeto de lei artigo por artigo, para que qualquer pessoa comente, sugira uma redação alternativa ou apoie o que outros já escreveram — como uma versão cidadã de "controle de alterações".</p>
+    </div>
+
+    <div class="card">
+      <h3>Como usar</h3>
+      <ol class="steps">
+        <li>Acesse o portal e-Democracia da Câmara dos Deputados.</li>
+        <li>Escolha um projeto de lei que esteja aberto para comentários no Wikilegis.</li>
+        <li>Leia o texto artigo por artigo — cada um aparece separado, com um espaço de comentário ao lado.</li>
+        <li>Deixe seu comentário no artigo específico que quer discutir, ou apoie um comentário que já reflete sua opinião.</li>
+        <li>Os deputados relatores do projeto usam essas contribuições ao redigir o parecer final.</li>
+      </ol>
+      <div class="link-row">
+        <a class="btn-link" href="https://edemocracia.camara.leg.br" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+          Abrir o e-Democracia
+        </a>
+      </div>
+    </div>
+    <div class="note">Nem todo projeto de lei está aberto no Wikilegis a todo momento — a ferramenta é usada em rodadas específicas de discussão, geralmente para temas de grande interesse público.</div>
+  </section>
+
+  <!-- 4. ENAJU -->
+  <section class="panel" id="panel-enaju">
+    <div class="panel-head">
+      <span class="tag">Cursos Gratuitos</span>
+      <h2>Enaju — Escola Nacional de Acesso à Justiça</h2>
+      <p>Plataforma gratuita criada pelo Ministério da Justiça e Segurança Pública com o Conselho Nacional de Justiça (CNJ) para ensinar, em linguagem acessível, como funcionam a Justiça e os direitos do cidadão comum.</p>
+    </div>
+
+    <div class="card">
+      <h3>O que você encontra por lá</h3>
+      <div class="cat-grid">
+        <div class="cat-chip"><strong>Acesso à Justiça</strong>como entrar com uma ação, direitos básicos, defensoria pública</div>
+        <div class="cat-chip"><strong>Direitos Fundamentais</strong>cidadania, garantias constitucionais</div>
+        <div class="cat-chip"><strong>Justiça Restaurativa</strong>formas de resolver conflitos fora do tribunal</div>
+        <div class="cat-chip"><strong>Direitos Digitais</strong>proteção de dados e direitos na internet</div>
+        <div class="cat-chip"><strong>Funcionamento do Judiciário</strong>como tribunais e varas funcionam na prática</div>
+      </div>
+      <p>Os cursos são divididos em módulos curtos, com aulas expositivas, cartilhas de apoio e indicações de leitura. Ao concluir, você recebe um certificado digital verificável.</p>
+      <div class="link-row">
+        <a class="btn-link" href="https://enaju.cnj.jus.br/ead/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+          Ver cursos na Enaju
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. QUIZ -->
+  <section class="panel" id="panel-quiz">
+    <div class="panel-head">
+      <span class="tag">Quiz do Saber</span>
+      <h2>Teste o que você sabe sobre cidadania e governo</h2>
+      <p>Cinco perguntas rápidas sobre direitos e funcionamento do poder público no Brasil.</p>
+    </div>
+
+    <div class="quiz-card" id="quiz-card">
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    © 2026 MyFairDay — Todos os direitos reservados
+  </div>
+</footer>
+
+<script>
+  /* ---------------- NAVEGAÇÃO POR ABAS ---------------- */
+  const steps = document.querySelectorAll('.trail-step');
+  const panels = document.querySelectorAll('.panel');
+
+  steps.forEach(step => {
+    step.addEventListener('click', () => {
+      const target = step.getAttribute('data-panel');
+      steps.forEach(s => s.classList.toggle('active', s === step));
+      panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + target));
+      window.scrollTo({ top: document.querySelector('.trail').offsetTop - 16, behavior: 'smooth' });
+    });
+  });
+
+  /* ---------------- QUIZ ---------------- */
+  const QUIZ = [
+    {
+      pergunta: "Qual é a idade mínima para o voto ser obrigatório no Brasil?",
+      opcoes: ["16 anos", "18 anos", "21 anos", "25 anos"],
+      correta: 1,
+      explicacao: "O voto é facultativo aos 16 e 17 anos, obrigatório dos 18 aos 70, e volta a ser facultativo a partir dos 70."
+    },
+    {
+      pergunta: "O que é um habeas corpus?",
+      opcoes: [
+        "Um pedido para reduzir uma multa de trânsito",
+        "Uma ação para proteger a liberdade de ir e vir de alguém",
+        "Um recurso para pedir a devolução de um imóvel",
+        "Um tipo de recurso trabalhista"
+      ],
+      correta: 1,
+      explicacao: "O habeas corpus é uma garantia constitucional usada quando alguém sofre ou está ameaçado de sofrer prisão ou restrição ilegal de liberdade."
+    },
+    {
+      pergunta: "Quantos poderes compõem a República brasileira, segundo a Constituição?",
+      opcoes: ["Dois", "Três", "Quatro", "Cinco"],
+      correta: 1,
+      explicacao: "São três poderes independentes e harmônicos entre si: Executivo, Legislativo e Judiciário."
+    },
+    {
+      pergunta: "Para que serve a Lei de Acesso à Informação (LAI)?",
+      opcoes: [
+        "Garantir acesso gratuito à internet em todo o país",
+        "Permitir que qualquer cidadão solicite informações de órgãos públicos",
+        "Regular o uso de dados por empresas privadas",
+        "Definir as regras de imprensa e censura"
+      ],
+      correta: 1,
+      explicacao: "A LAI (Lei nº 12.527/2011) garante que qualquer pessoa pode pedir informações a órgãos públicos, que devem responder dentro de prazos definidos por lei."
+    },
+    {
+      pergunta: "O que é uma ação popular?",
+      opcoes: [
+        "Uma pesquisa de opinião feita pelo governo",
+        "Uma ação que qualquer cidadão pode propor para anular um ato lesivo ao patrimônio público",
+        "Um plebiscito sobre uma nova lei",
+        "Um projeto de lei apresentado por um partido político"
+      ],
+      correta: 1,
+      explicacao: "Prevista na Constituição, a ação popular permite que qualquer cidadão questione na Justiça atos que prejudiquem o patrimônio público, a moralidade administrativa, o meio ambiente ou o patrimônio histórico e cultural."
+    }
+  ];
+
+  let quizIndex = 0;
+  let quizScore = 0;
+  let quizAnswered = false;
+
+  function renderQuiz() {
+    const body = document.getElementById('quiz-body');
+
+    if (quizIndex >= QUIZ.length) {
+      body.innerHTML = `
+        <div class="quiz-result">
+          <div class="score">${quizScore}<span> / ${QUIZ.length}</span></div>
+          <p>${resultMessage(quizScore)}</p>
+          <button class="quiz-restart" id="quiz-restart">Refazer o quiz</button>
+        </div>
+      `;
+      document.getElementById('quiz-restart').addEventListener('click', () => {
+        quizIndex = 0;
+        quizScore = 0;
+        quizAnswered = false;
+        renderQuiz();
+      });
+      return;
+    }
+
+    const q = QUIZ[quizIndex];
+    quizAnswered = false;
+
+    body.innerHTML = `
+      <div class="quiz-progress">Pergunta ${quizIndex + 1} de ${QUIZ.length}</div>
+      <div class="quiz-question">${q.pergunta}</div>
+      <div class="quiz-options" id="quiz-options">
+        ${q.opcoes.map((op, i) => `<button class="quiz-opt" data-i="${i}">${op}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <button class="quiz-next" id="quiz-next">${quizIndex === QUIZ.length - 1 ? 'Ver resultado' : 'Próxima pergunta'}</button>
+    `;
+
+    document.querySelectorAll('.quiz-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (quizAnswered) return;
+        quizAnswered = true;
+        const chosen = Number(btn.getAttribute('data-i'));
+        const opts = document.querySelectorAll('.quiz-opt');
+        opts.forEach(o => o.disabled = true);
+        opts[q.correta].classList.add('correct');
+        if (chosen !== q.correta) {
+          btn.classList.add('wrong');
+        } else {
+          quizScore++;
+        }
+        const fb = document.getElementById('quiz-feedback');
+        fb.textContent = q.explicacao;
+        fb.classList.add('show');
+        document.getElementById('quiz-next').classList.add('show');
+      });
+    });
+
+    document.getElementById('quiz-next').addEventListener('click', () => {
+      quizIndex++;
+      renderQuiz();
+    });
+  }
+
+  function resultMessage(score) {
+    if (score === QUIZ.length) return "Você acertou tudo! Cidadania em dia.";
+    if (score >= QUIZ.length - 2) return "Muito bom! Você conhece bem seus direitos.";
+    if (score >= 2) return "Bom começo — vale a pena explorar as outras abas para ir mais fundo.";
+    return "Todo mundo começa de algum lugar — as ferramentas nas outras abas são um ótimo próximo passo.";
+  }
+
+  renderQuiz();
+</script>
+
+</body>
+</html>
