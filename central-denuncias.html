@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Denúncias — MyFairDay</title>
+<meta name="description" content="Saiba como e onde denunciar violações de direitos, corrupção, abusos e crimes no Brasil. Canais oficiais organizados por categoria.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:       #0B2545;
+    --navy-deep:  #071A30;
+    --blue-accent:#2F6FED;
+    --green:      #1E8F5E;
+    --green-deep: #146B45;
+    --green-soft: #E7F5EE;
+    --white:      #FFFFFF;
+    --paper:      #F5F8FC;
+    --ink:        #10233F;
+    --ink-muted:  #5B6C82;
+    --line:       #E1E8F2;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(11,37,69,0.06), 0 10px 28px rgba(11,37,69,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Roboto', Arial, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;max-width:100%;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{
+    font-family:'Roboto', Arial, sans-serif;
+    color:var(--navy);
+    margin:0 0 .5em 0;
+    line-height:1.25;
+  }
+  p{margin:0 0 1em 0;color:var(--ink-muted);}
+  :focus-visible{outline:3px solid var(--blue-accent);outline-offset:2px;}
+  button{font-family:inherit;}
+
+  /* ---------- TOPO ---------- */
+  .topbar{background:var(--navy);padding:16px 0;}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;}
+  .logo-mark{
+    width:34px;height:34px;border-radius:8px;
+    background:var(--white);color:var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:0.78rem;flex-shrink:0;
+  }
+  .logo-text{color:var(--white);font-weight:700;font-size:1.05rem;letter-spacing:0.01em;}
+  .logo-text span{color:#9FB6DE;font-weight:400;}
+
+  /* ---------- NAV DE ABAS ---------- */
+  .tabnav{margin-left:auto;display:flex;align-items:center;gap:6px;}
+  .tabnav a{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:0.84rem;font-weight:700;
+    color:#C7D6EC;
+    text-decoration:none;
+    padding:8px 14px;border-radius:999px;
+    border:1px solid transparent;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .tabnav a:hover{background:rgba(255,255,255,0.08);color:var(--white);}
+  .tabnav a.tab-active{background:rgba(255,255,255,0.14);color:var(--white);}
+  .tabnav a.tab-special{
+    color:var(--navy-deep);
+    background:linear-gradient(180deg, #F1C866 0%, #C9962C 100%);
+  }
+  .tabnav a.tab-special:hover{background:linear-gradient(180deg, #F6D786 0%, #D6A93A 100%);color:var(--navy-deep);}
+  @media (max-width:620px){
+    .tabnav a span.tab-label-full{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--white);
+    padding:56px 0 96px;
+    text-align:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:0.76rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+    color:#BFEAD4;
+    background:rgba(30,143,94,0.22);
+    border:1px solid rgba(30,143,94,0.4);
+    border-radius:999px;padding:7px 16px;margin-bottom:22px;
+  }
+  .hero h1{
+    color:var(--white);
+    font-size:clamp(1.8rem, 4.8vw, 2.5rem);
+    font-weight:900;
+    max-width:22ch;margin-left:auto;margin-right:auto;
+  }
+  .hero .subtitle{
+    color:#C7D6EC;
+    font-size:1.06rem;
+    max-width:52ch;margin:14px auto 0;
+  }
+
+  /* ---------- BUSCA ---------- */
+  .search-card{
+    max-width:640px;margin:-38px auto 0;
+    position:relative;z-index:3;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:8px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .search-card svg{
+    width:20px;height:20px;flex-shrink:0;margin-left:10px;
+    color:var(--ink-muted);
+  }
+  .search-card input{
+    flex-grow:1;
+    border:none;background:transparent;
+    font-family:inherit;font-size:0.98rem;color:var(--ink);
+    padding:12px 4px;
+  }
+  .search-card input:focus{outline:none;}
+  .search-card .clear-btn{
+    display:none;
+    background:var(--paper);border:none;border-radius:8px;
+    width:32px;height:32px;flex-shrink:0;
+    align-items:center;justify-content:center;
+    color:var(--ink-muted);cursor:pointer;
+  }
+  .search-card .clear-btn.show{display:flex;}
+  .search-card .clear-btn:hover{background:var(--line);color:var(--navy);}
+  .no-results{
+    display:none;
+    text-align:center;
+    color:var(--ink-muted);
+    padding:40px 20px;
+    font-size:0.96rem;
+  }
+  .no-results.show{display:block;}
+
+  /* ---------- CATEGORIAS ---------- */
+  .section{padding:56px 0;}
+  .cat-block{margin-bottom:44px;}
+  .cat-block:last-child{margin-bottom:0;}
+  .cat-head{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:18px;
+  }
+  .cat-icon{
+    flex-shrink:0;width:44px;height:44px;border-radius:10px;
+    background:var(--white);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;box-shadow:var(--shadow);
+  }
+  .cat-head h2{font-size:1.12rem;margin:0;}
+
+  .channel-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:16px;
+  }
+  .channel-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px 20px 18px;
+    box-shadow:var(--shadow);
+    display:flex;flex-direction:column;
+    height:100%;
+  }
+  .channel-card h3{font-size:1rem;margin-bottom:6px;}
+  .channel-card p{font-size:0.86rem;margin-bottom:12px;}
+  .channel-meta{
+    display:flex;flex-direction:column;gap:5px;
+    font-size:0.84rem;color:var(--ink);
+    margin-bottom:14px;
+  }
+  .channel-meta a{color:var(--blue-accent);text-decoration:none;word-break:break-word;}
+  .channel-meta a:hover{text-decoration:underline;}
+  .channel-meta .cm-row{display:flex;align-items:center;gap:7px;}
+  .channel-meta svg{width:14px;height:14px;flex-shrink:0;color:var(--ink-muted);}
+  .channel-card .spacer{flex-grow:1;}
+  .btn-como{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    background:var(--green-soft);
+    color:var(--green-deep);
+    font-weight:700;font-size:0.86rem;
+    border:1px solid rgba(30,143,94,0.3);
+    border-radius:8px;
+    padding:9px 14px;
+    cursor:pointer;
+    transition:background .15s ease;
+    align-self:flex-start;
+  }
+  .btn-como:hover{background:#D6EEE1;}
+  .btn-como svg{width:14px;height:14px;flex-shrink:0;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(7,26,48,0.55);
+    z-index:1000;
+    align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:var(--white);
+    border-radius:16px;
+    max-width:480px;width:100%;
+    max-height:85vh;overflow-y:auto;
+    padding:28px;
+    position:relative;
+    box-shadow:0 20px 60px rgba(7,26,48,0.35);
+  }
+  .modal-close{
+    position:absolute;top:16px;right:16px;
+    background:var(--paper);border:none;border-radius:8px;
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-muted);cursor:pointer;font-size:1.1rem;line-height:1;
+  }
+  .modal-close:hover{background:var(--line);color:var(--navy);}
+  .modal-box h3{font-size:1.15rem;margin-bottom:4px;padding-right:36px;}
+  .modal-box .modal-sub{font-size:0.86rem;margin-bottom:18px;}
+  .modal-steps{
+    list-style:none;margin:0;padding:0;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .modal-steps li{
+    display:flex;gap:12px;align-items:flex-start;
+    font-size:0.9rem;color:var(--ink);
+  }
+  .step-num{
+    flex-shrink:0;width:26px;height:26px;border-radius:7px;
+    background:var(--navy);color:var(--white);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:0.8rem;
+  }
+  .modal-links{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;font-size:0.86rem;}
+  .modal-links a{color:var(--blue-accent);text-decoration:none;}
+  .modal-links a:hover{text-decoration:underline;}
+
+  footer{
+    background:var(--navy-deep);
+    color:#9FB6DE;
+    text-align:center;
+    padding:28px 0;
+    font-size:0.85rem;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="logo-mark">MFD</span>
+    <span class="logo-text">MyFairDay<span> · myfairday.org</span></span>
+    <nav class="tabnav" aria-label="Navegação de seções">
+      <a href="index.html">
+        <span class="tab-label-full">E-books</span>
+      </a>
+      <a href="central-denuncias.html" class="tab-active">
+        <span class="tab-label-full">Denúncias</span>
+      </a>
+      <a href="calculadora-rescisao.html">
+        <span class="tab-label-full">Calculadora</span>
+      </a>
+      <a href="https://myfairday.gumroad.com/l/kitcontragolpes" class="tab-special" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 16.5 13.5 18.5 21 12 16.5 5.5 21 7.5 13.5 2 9 9 9 12 2"/></svg>
+        <span class="tab-label-full">Especial</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Canais oficiais</span>
+    <h1>Central de Denúncias</h1>
+    <p class="subtitle">Saiba como e onde denunciar violações de direitos, corrupção, abusos e crimes</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="search-card">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" id="search-input" placeholder="Buscar por palavra-chave (ex: mulher, corrupção, internet...)" aria-label="Buscar canal de denúncia">
+    <button type="button" class="clear-btn" id="clear-search" aria-label="Limpar busca">✕</button>
+  </div>
+</div>
+
+<main class="section">
+  <div class="wrap">
+    <p class="no-results" id="no-results">Nenhum canal encontrado para essa busca. Tente outra palavra-chave.</p>
+    <div id="categories-container"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    © 2026 MyFairDay — Conteúdo informativo e gratuito. Em caso de emergência, ligue 190 ou 192.
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" id="modal-close" aria-label="Fechar">✕</button>
+    <h3 id="modal-title"></h3>
+    <p class="modal-sub" id="modal-sub"></p>
+    <ol class="modal-steps" id="modal-steps"></ol>
+    <div class="modal-links" id="modal-links"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================================================
+     DADOS: categorias e canais de denúncia
+     ===================================================================== */
+  const CATEGORIAS = [
+    {
+      nome: "Violência Doméstica e Familiar",
+      icone: "🏠",
+      canais: [
+        {
+          nome: "Ligue 190 (Polícia Militar)",
+          telefone: "190",
+          descricao: "Acionamento imediato da polícia em caso de violência em andamento ou risco iminente.",
+          passos: ["Ligue 190 de qualquer telefone, gratuitamente.", "Informe o endereço e descreva a situação com calma.", "Se possível, mantenha distância segura até a viatura chegar.", "Guarde o número do boletim de ocorrência gerado, se houver."]
+        },
+        {
+          nome: "Ligue 180 (Central de Atendimento à Mulher)",
+          telefone: "180",
+          descricao: "Canal nacional de orientação e denúncia de violência contra a mulher, funciona 24h.",
+          passos: ["Ligue 180, o atendimento é gratuito e sigiloso.", "Relate o caso; não é preciso se identificar.", "Você pode pedir apenas orientação, sem abrir denúncia formal.", "Peça encaminhamento para a Delegacia da Mulher, se quiser prosseguir."]
+        },
+        {
+          nome: "Disque 100 (Direitos Humanos)",
+          telefone: "100",
+          descricao: "Canal nacional de denúncias de violações de direitos humanos, incluindo violência doméstica.",
+          passos: ["Ligue 100 ou acesse o site www.gov.br/mdh.", "Descreva o caso; o sigilo da identidade é garantido.", "A denúncia é encaminhada ao órgão responsável na sua região.", "Você pode acompanhar o encaminhamento pelo protocolo gerado."]
+        },
+        {
+          nome: "Delegacia da Mulher mais próxima",
+          site: "https://www.gov.br/mdh/pt-br",
+          descricao: "Unidade policial especializada em crimes contra a mulher, para registrar boletim de ocorrência.",
+          passos: ["Localize a delegacia mais próxima na Secretaria de Segurança do seu estado.", "Compareça pessoalmente, se possível acompanhada de alguém de confiança.", "Leve documentos pessoais e provas, se tiver (mensagens, laudos, fotos).", "Solicite medida protetiva de urgência, se necessário."]
+        },
+        {
+          nome: 'App "Direitos Humanos Brasil"',
+          site: "https://www.gov.br/mdh/pt-br",
+          descricao: "Aplicativo oficial para registrar denúncias de violações de direitos humanos pelo celular.",
+          passos: ["Baixe o app oficial nas lojas de aplicativos.", "Crie o registro escolhendo a categoria da denúncia.", "Descreva os fatos e anexe provas, se houver.", "Acompanhe o andamento diretamente no aplicativo."]
+        }
+      ]
+    },
+    {
+      nome: "Abuso Infantil e Violência contra Crianças",
+      icone: "🧸",
+      canais: [
+        {
+          nome: "Disque 100",
+          telefone: "100",
+          descricao: "Canal nacional de denúncias de abuso e violência contra crianças e adolescentes.",
+          passos: ["Ligue 100, o atendimento é gratuito e sigiloso.", "Informe o máximo de detalhes possível sobre a criança e a situação.", "A denúncia é encaminhada ao Conselho Tutelar ou à polícia local.", "Não é necessário se identificar para denunciar."]
+        },
+        {
+          nome: "Conselho Tutelar",
+          site: "https://www.gov.br/mdh/pt-br",
+          descricao: "Órgão municipal responsável por zelar pelos direitos de crianças e adolescentes.",
+          passos: ["Encontre o Conselho Tutelar do seu município (geralmente no site da prefeitura).", "Compareça pessoalmente ou ligue para relatar o caso.", "Forneça o endereço da criança, se souber.", "O conselho pode agir de forma sigilosa quanto à identidade do denunciante."]
+        },
+        {
+          nome: "Delegacia de Proteção à Criança e ao Adolescente",
+          site: "https://www.gov.br/mdh/pt-br",
+          descricao: "Delegacia especializada para registrar boletins de ocorrência envolvendo crianças e adolescentes.",
+          passos: ["Localize a delegacia especializada na Secretaria de Segurança do seu estado.", "Compareça para registrar o boletim de ocorrência.", "Leve qualquer prova ou informação disponível.", "Solicite acompanhamento do caso pela equipe especializada."]
+        },
+        {
+          nome: "Escola (comunicação obrigatória)",
+          descricao: "Professores e equipe escolar são obrigados por lei a comunicar suspeitas de abuso ao Conselho Tutelar.",
+          passos: ["Procure a direção ou coordenação pedagógica da escola.", "Relate a suspeita com o máximo de detalhes possível.", "A escola tem obrigação legal de acionar o Conselho Tutelar.", "Acompanhe o retorno da direção sobre as providências tomadas."]
+        }
+      ]
+    },
+    {
+      nome: "Corrupção e Improbidade Administrativa",
+      icone: "⚖️",
+      canais: [
+        {
+          nome: "Portal da Transparência",
+          site: "https://www.portaltransparencia.gov.br/",
+          descricao: "Consulta pública de gastos e contratos do governo federal, útil para identificar irregularidades.",
+          passos: ["Acesse o Portal da Transparência.", "Pesquise pelo órgão, contrato ou beneficiário envolvido.", "Reúna prints ou documentos que embasem a suspeita.", "Utilize essas informações ao registrar a denúncia na CGU ou no MP."]
+        },
+        {
+          nome: "Controladoria-Geral da União (CGU)",
+          site: "https://www.gov.br/cgu/pt-br",
+          descricao: "Órgão federal responsável por apurar desvios e improbidade na administração pública federal.",
+          passos: ["Acesse www.gov.br/cgu/pt-br e procure o canal de denúncias (Fala.BR).", "Crie uma conta gov.br ou denuncie de forma anônima.", "Descreva os fatos com o máximo de detalhes e anexe provas.", "Acompanhe o andamento pelo número de protocolo gerado."]
+        },
+        {
+          nome: "Ministério Público Federal (MPF)",
+          site: "https://www.mpf.mp.br",
+          descricao: "Atua na apuração de crimes contra a administração pública federal.",
+          passos: ["Acesse www.mpf.mp.br e localize o canal de denúncias.", "Preencha o formulário com os fatos e, se possível, provas.", "Você pode optar por manter sua identidade em sigilo.", "Guarde o protocolo para acompanhar a apuração."]
+        },
+        {
+          nome: "Ouvidoria do órgão público envolvido",
+          descricao: "Cada órgão público tem uma ouvidoria própria para receber reclamações e denúncias internas.",
+          passos: ["Identifique o órgão público envolvido na irregularidade.", "Procure a página da ouvidoria desse órgão (geralmente em gov.br).", "Registre a denúncia com o máximo de detalhes possível.", "Acompanhe a resposta pelo protocolo fornecido."]
+        }
+      ]
+    },
+    {
+      nome: "Crimes contra o Consumidor",
+      icone: "🛒",
+      canais: [
+        {
+          nome: "Procon",
+          site: "https://www.procon.sp.gov.br",
+          descricao: "Órgão estadual/municipal de defesa do consumidor (exemplo: Procon-SP; procure o do seu estado).",
+          passos: ["Acesse o site do Procon do seu estado.", "Reúna nota fiscal, contrato e prints da conversa com a empresa.", "Registre a reclamação pelo site ou presencialmente.", "Acompanhe o prazo de resposta da empresa denunciada."]
+        },
+        {
+          nome: "consumidor.gov.br",
+          site: "https://consumidor.gov.br/",
+          descricao: "Plataforma oficial e gratuita para resolver conflitos diretamente com as empresas, com mediação do governo.",
+          passos: ["Crie uma conta gratuita em consumidor.gov.br.", "Abra uma reclamação descrevendo o problema.", "A empresa tem prazo de até 10 dias para responder.", "Avalie a resposta e, se não resolver, busque o Procon."]
+        },
+        {
+          nome: "Banco Central (para instituições financeiras)",
+          site: "https://www.bcb.gov.br/acessoinformacao/ouvidoria",
+          descricao: "Canal para reclamações contra bancos, financeiras e demais instituições reguladas pelo Banco Central.",
+          passos: ["Acesse o canal de ouvidoria do Banco Central.", "Selecione a instituição financeira envolvida.", "Descreva o problema com detalhes e datas.", "Acompanhe a resposta pelo protocolo gerado."]
+        }
+      ]
+    },
+    {
+      nome: "Violação de Direitos Humanos",
+      icone: "🤝",
+      canais: [
+        {
+          nome: "Disque 100",
+          telefone: "100",
+          descricao: "Canal nacional para denúncias de qualquer violação de direitos humanos.",
+          passos: ["Ligue 100, o atendimento é gratuito e sigiloso.", "Relate a violação com o máximo de detalhes.", "A denúncia é encaminhada ao órgão competente.", "Não é obrigatório se identificar."]
+        },
+        {
+          nome: "Defensoria Pública",
+          site: "https://www.gov.br/pt-br",
+          descricao: "Assistência jurídica gratuita para quem não pode pagar um advogado.",
+          passos: ["Localize a Defensoria Pública do seu estado.", "Agende atendimento presencial ou pelo site/telefone.", "Leve documentos pessoais e informações sobre o caso.", "Um defensor público avaliará as medidas cabíveis."]
+        },
+        {
+          nome: "Ministério Público Estadual",
+          site: "https://www.gov.br/pt-br",
+          descricao: "Atua na apuração de violações de direitos no âmbito estadual.",
+          passos: ["Localize o site do MP do seu estado.", "Procure o canal de denúncias ou ouvidoria.", "Descreva os fatos com o máximo de detalhes possível.", "Acompanhe a apuração pelo protocolo fornecido."]
+        }
+      ]
+    },
+    {
+      nome: "Crimes Ambientais",
+      icone: "🌳",
+      canais: [
+        {
+          nome: "IBAMA — Linha Verde",
+          telefone: "0800 061 8080",
+          descricao: "Canal nacional gratuito para denúncias de crimes ambientais, como desmatamento e caça ilegal.",
+          passos: ["Ligue 0800 061 8080, é gratuito.", "Informe a localização exata do ocorrido, se possível.", "Descreva o que está sendo feito (desmatamento, queimada, poluição etc.).", "A denúncia pode ser feita de forma anônima."]
+        },
+        {
+          nome: "Polícia Ambiental",
+          descricao: "Unidade policial estadual especializada em crimes contra o meio ambiente.",
+          passos: ["Localize a Polícia Ambiental do seu estado.", "Ligue ou compareça à unidade mais próxima.", "Informe local, data e descrição do que foi observado.", "Se possível, registre fotos ou vídeos como prova."]
+        },
+        {
+          nome: "Ministério Público Estadual",
+          site: "https://www.gov.br/pt-br",
+          descricao: "Pode instaurar inquérito civil para apurar e responsabilizar crimes ambientais.",
+          passos: ["Acesse o site do MP do seu estado.", "Procure o canal de denúncias ambientais.", "Descreva o fato com localização e evidências, se houver.", "Acompanhe pelo protocolo gerado."]
+        }
+      ]
+    },
+    {
+      nome: "Trabalho Análogo à Escravidão",
+      icone: "⛓️",
+      canais: [
+        {
+          nome: "Ministério do Trabalho e Emprego",
+          site: "https://www.gov.br/trabalho-e-emprego/pt-br",
+          descricao: "Fiscaliza condições de trabalho e pode agir em casos de trabalho escravo ou análogo.",
+          passos: ["Acesse www.gov.br/trabalho-e-emprego/pt-br.", "Procure o canal de denúncia de trabalho escravo.", "Informe local, empresa e condições observadas.", "A fiscalização pode ser encaminhada para inspeção no local."]
+        },
+        {
+          nome: "Disque 100",
+          telefone: "100",
+          descricao: "Também recebe denúncias de trabalho escravo como violação de direitos humanos.",
+          passos: ["Ligue 100, o atendimento é gratuito e sigiloso.", "Descreva a situação de trabalho e o local.", "A denúncia é encaminhada aos órgãos de fiscalização.", "Não é necessário se identificar."]
+        },
+        {
+          nome: "Ministério Público do Trabalho (MPT)",
+          site: "https://www.mpt.mp.br",
+          descricao: "Atua na apuração e no combate ao trabalho escravo e análogo em todo o país.",
+          passos: ["Acesse www.mpt.mp.br e procure o canal de denúncias.", "Descreva a situação com o máximo de detalhes.", "Anexe provas, se tiver (fotos, testemunhos, documentos).", "Acompanhe a apuração pelo protocolo gerado."]
+        }
+      ]
+    },
+    {
+      nome: "Ameaças ou Crimes na Internet",
+      icone: "💻",
+      canais: [
+        {
+          nome: "Delegacia de Crimes Cibernéticos",
+          descricao: "Unidade policial especializada em crimes praticados pela internet.",
+          passos: ["Localize a Delegacia de Crimes Cibernéticos do seu estado.", "Reúna prints, links e conversas como prova antes de denunciar.", "Compareça pessoalmente ou registre boletim de ocorrência online, se disponível.", "Guarde o número do boletim para acompanhamento."]
+        },
+        {
+          nome: "Safernet",
+          site: "https://www.safernet.org.br",
+          descricao: "Organização que recebe denúncias de crimes e violações de direitos humanos na internet.",
+          passos: ["Acesse www.safernet.org.br e localize o canal de denúncias.", "Selecione a categoria do problema (ameaça, ódio, exposição íntima etc.).", "Informe o link ou print do conteúdo denunciado.", "A denúncia pode ser encaminhada às autoridades competentes."]
+        },
+        {
+          nome: "Polícia Federal",
+          site: "https://www.gov.br/pf/pt-br",
+          descricao: "Atua em crimes cibernéticos de repercussão nacional ou internacional.",
+          passos: ["Acesse www.gov.br/pf/pt-br e procure o canal de denúncias.", "Descreva o crime com o máximo de detalhes e provas.", "Anexe prints, links e outras evidências.", "Acompanhe pelo protocolo gerado, se houver."]
+        }
+      ]
+    },
+    {
+      nome: "Violência em Escolas",
+      icone: "🏫",
+      canais: [
+        {
+          nome: "Disque 100",
+          telefone: "100",
+          descricao: "Recebe denúncias de violência, bullying e abuso ocorridos no ambiente escolar.",
+          passos: ["Ligue 100, o atendimento é gratuito e sigiloso.", "Descreva o que está acontecendo e onde.", "A denúncia é encaminhada ao órgão responsável.", "Não é necessário se identificar."]
+        },
+        {
+          nome: "Conselho Tutelar",
+          descricao: "Pode intervir em casos de violência envolvendo crianças e adolescentes na escola.",
+          passos: ["Localize o Conselho Tutelar do seu município.", "Relate o caso com detalhes sobre a escola e os envolvidos.", "O conselho pode acionar a escola e demais órgãos.", "Acompanhe o retorno das providências tomadas."]
+        },
+        {
+          nome: "Ouvidoria da Secretaria de Educação",
+          descricao: "Canal oficial para reclamações e denúncias envolvendo escolas da rede pública.",
+          passos: ["Localize a Secretaria de Educação do seu estado ou município.", "Procure o canal de ouvidoria no site oficial.", "Registre a denúncia com nome da escola e detalhes do ocorrido.", "Acompanhe a resposta pelo protocolo gerado."]
+        }
+      ]
+    },
+    {
+      nome: "Maus-Tratos a Animais",
+      icone: "🐾",
+      canais: [
+        {
+          nome: "Delegacia de Meio Ambiente",
+          descricao: "Unidade policial especializada que também recebe denúncias de maus-tratos a animais.",
+          passos: ["Localize a Delegacia de Meio Ambiente do seu estado.", "Reúna fotos, vídeos ou testemunhas, se possível.", "Compareça para registrar o boletim de ocorrência.", "Informe o endereço exato onde o animal está."]
+        },
+        {
+          nome: "Polícia Militar",
+          telefone: "190",
+          descricao: "Pode ser acionada em casos de maus-tratos em andamento ou risco imediato ao animal.",
+          passos: ["Ligue 190 em caso de urgência.", "Informe o endereço e descreva a situação do animal.", "Se possível, tenha fotos ou vídeos como prova.", "Solicite o número do boletim de ocorrência."]
+        },
+        {
+          nome: "Disque 100",
+          telefone: "100",
+          descricao: "Também recebe denúncias de maus-tratos e crueldade contra animais.",
+          passos: ["Ligue 100, o atendimento é gratuito e sigiloso.", "Descreva a situação e o local com detalhes.", "A denúncia é encaminhada ao órgão responsável na região.", "Não é necessário se identificar."]
+        }
+      ]
+    }
+  ];
+
+  const container = document.getElementById("categories-container");
+  const noResults = document.getElementById("no-results");
+  const searchInput = document.getElementById("search-input");
+  const clearBtn = document.getElementById("clear-search");
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  function channelMetaHtml(canal) {
+    let html = "";
+    if (canal.telefone) {
+      html += '<div class="cm-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg> <strong>' + escapeHtml(canal.telefone) + "</strong></div>";
+    }
+    if (canal.site) {
+      html += '<div class="cm-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> <a href="' + escapeHtml(canal.site) + '" target="_blank" rel="noopener">' + escapeHtml(canal.site.replace(/^https?:\/\//, "")) + "</a></div>";
+    }
+    return html;
+  }
+
+  function channelCardHtml(canal, catIndex, canalIndex) {
+    return `
+      <article class="channel-card" data-search="${escapeHtml((canal.nome + " " + canal.descricao).toLowerCase())}">
+        <h3>${escapeHtml(canal.nome)}</h3>
+        <p>${escapeHtml(canal.descricao)}</p>
+        <div class="channel-meta">${channelMetaHtml(canal)}</div>
+        <div class="spacer"></div>
+        <button type="button" class="btn-como" data-cat="${catIndex}" data-canal="${canalIndex}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Como denunciar
+        </button>
+      </article>
+    `;
+  }
+
+  function renderCategories() {
+    container.innerHTML = CATEGORIAS.map((cat, catIndex) => `
+      <div class="cat-block" data-cat-block="${catIndex}">
+        <div class="cat-head">
+          <span class="cat-icon" aria-hidden="true">${cat.icone}</span>
+          <h2>${escapeHtml(cat.nome)}</h2>
+        </div>
+        <div class="channel-grid">
+          ${cat.canais.map((canal, canalIndex) => channelCardHtml(canal, catIndex, canalIndex)).join("")}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  renderCategories();
+
+  /* ---------- BUSCA ---------- */
+  function applySearch() {
+    const termo = searchInput.value.trim().toLowerCase();
+    clearBtn.classList.toggle("show", termo.length > 0);
+
+    let algumaCategoriaVisivel = false;
+
+    document.querySelectorAll(".cat-block").forEach((block) => {
+      const catNome = CATEGORIAS[Number(block.dataset.catBlock)].nome.toLowerCase();
+      let algumCardVisivel = false;
+
+      block.querySelectorAll(".channel-card").forEach((card) => {
+        const matches = !termo || card.dataset.search.includes(termo) || catNome.includes(termo);
+        card.style.display = matches ? "" : "none";
+        if (matches) algumCardVisivel = true;
+      });
+
+      block.style.display = algumCardVisivel ? "" : "none";
+      if (algumCardVisivel) algumaCategoriaVisivel = true;
+    });
+
+    noResults.classList.toggle("show", !algumaCategoriaVisivel);
+  }
+
+  searchInput.addEventListener("input", applySearch);
+  clearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    applySearch();
+    searchInput.focus();
+  });
+
+  /* ---------- MODAL "COMO DENUNCIAR" ---------- */
+  const modalOverlay = document.getElementById("modal-overlay");
+  const modalTitle = document.getElementById("modal-title");
+  const modalSub = document.getElementById("modal-sub");
+  const modalSteps = document.getElementById("modal-steps");
+  const modalLinks = document.getElementById("modal-links");
+  const modalClose = document.getElementById("modal-close");
+  let lastFocusedEl = null;
+
+  function openModal(catIndex, canalIndex) {
+    const canal = CATEGORIAS[catIndex].canais[canalIndex];
+    modalTitle.textContent = canal.nome;
+    modalSub.textContent = canal.descricao;
+
+    modalSteps.innerHTML = canal.passos.map((passo, i) => `
+      <li><span class="step-num">${i + 1}</span><span>${escapeHtml(passo)}</span></li>
+    `).join("");
+
+    let linksHtml = "";
+    if (canal.telefone) linksHtml += `<div>📞 Telefone: <strong>${escapeHtml(canal.telefone)}</strong></div>`;
+    if (canal.site) linksHtml += `<div>🔗 <a href="${escapeHtml(canal.site)}" target="_blank" rel="noopener">${escapeHtml(canal.site)}</a></div>`;
+    modalLinks.innerHTML = linksHtml;
+
+    lastFocusedEl = document.activeElement;
+    modalOverlay.classList.add("show");
+    modalClose.focus();
+    document.addEventListener("keydown", onKeydown);
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove("show");
+    document.removeEventListener("keydown", onKeydown);
+    if (lastFocusedEl) lastFocusedEl.focus();
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") closeModal();
+  }
+
+  container.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn-como");
+    if (!btn) return;
+    openModal(Number(btn.dataset.cat), Number(btn.dataset.canal));
+  });
+
+  modalClose.addEventListener("click", closeModal);
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+})();
+</script>
+
+</body>
+</html>
