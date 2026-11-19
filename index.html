@@ -2,9 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Missão Natal: contagem para emagrecer — MyFairDay</title>
-<meta name="description" content="Cumpra missões diárias, ganhe pontos, suba de nível e acenda a árvore de Natal até o dia 25.">
+<meta name="description" content="Cumpra missões diárias, ganhe pontos, suba de nível e acenda a árvore de Natal até o dia 25. Inclui o jogo Pegue os Presentes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -51,12 +51,11 @@
   .mini strong{display:block;font-size:1.4rem;color:var(--navy);font-weight:900;}
   .mini span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
   .tree{width:100%;max-width:230px;margin:0 auto;display:block;}
-  .orn{fill:#D5DEEB;transition:fill .4s;}
+  .orn{fill:#D5DEEB;transition:fill .4s;transform-box:fill-box;transform-origin:center;}
   .orn.on{animation:glow 2.4s ease-in-out infinite;}
   .orn.new{animation:pop .5s ease, glow 2.4s ease-in-out .5s infinite;}
   @keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.5)}100%{transform:scale(1)}}
   @keyframes glow{0%,100%{opacity:1}50%{opacity:.65}}
-  .orn{transform-box:fill-box;transform-origin:center;}
   .star{fill:#D5DEEB;transition:fill .4s;}
   .star.on{fill:#F1C866;}
   .cap{text-align:center;font-size:.85rem;color:var(--muted);margin:6px 0 0;}
@@ -79,15 +78,24 @@
   @media(max-width:600px){.row{grid-template-columns:1fr;}}
   .btn{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;font:inherit;font-weight:700;font-size:.94rem;padding:11px 18px;border:none;border-radius:8px;cursor:pointer;text-decoration:none;}
   .btn:hover{background:var(--navy);}
+  .btn.gold{background:linear-gradient(180deg,#F1C866,var(--gold));color:var(--navy-deep);}
   .msg{min-height:1.2em;font-size:.85rem;margin:8px 0 0;color:#B3261E;}
   .pace{margin:12px 0 0;font-size:.92rem;color:var(--ink);}
   .alert{display:none;margin-top:10px;background:var(--gold-soft);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 14px;font-size:.86rem;color:#6B500F;}
   .small{font-size:.8rem;color:var(--muted);margin:12px 0 0;}
+  /* jogo Pegue os Presentes */
+  .hud{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-weight:700;color:var(--navy);margin:12px 0 8px;font-size:1rem;}
+  .stage{position:relative;max-width:400px;margin:0 auto;}
+  #gcv{display:block;width:100%;border-radius:12px;background:#0B2545;touch-action:none;}
+  .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(7,26,48,.78);border-radius:12px;color:#fff;text-align:center;padding:20px;}
+  .ov b{font-size:1.4rem;}
+  .ov span{color:#C7D6EC;font-size:.92rem;}
   #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);background:var(--navy);color:#fff;font-weight:700;border-radius:12px;padding:12px 20px;box-shadow:0 12px 32px rgba(7,26,48,.35);z-index:50;transition:transform .3s cubic-bezier(.2,.9,.3,1.2);}
   #toast.show{transform:translate(-50%,0);}
-  #fx{position:fixed;inset:0;pointer-events:none;z-index:40;}
+  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40;}
   footer{background:var(--navy-deep);color:#9FB6DE;text-align:center;padding:28px 0;font-size:.85rem;margin-top:40px;}
   footer a{color:#F1C866;text-decoration:none;font-weight:700;}
+  [hidden]{display:none!important;}
   @media(prefers-reduced-motion:reduce){.orn.on,.orn.new{animation:none;}#toast,.track i{transition:none;}}
 </style>
 </head>
@@ -138,6 +146,16 @@
   </div>
 
   <div class="card">
+    <h2>🎮 Pegue os Presentes</h2>
+    <p style="margin:0">Arraste o dedo (ou use as setas) para o Papai Noel pegar 🎁. Estrela ⭐ vale 3. Cuidado com o carvão ⚫: 3 e acabou!</p>
+    <div class="hud"><span id="h-vidas">❤️❤️❤️</span><span>Presentes: <b id="h-pts">0</b></span><span>Recorde: <b id="h-rec">0</b></span></div>
+    <div class="stage">
+      <canvas id="gcv" width="360" height="520" aria-label="Jogo Pegue os Presentes"></canvas>
+      <div class="ov" id="g-ov"><b>🎅 Pegue os Presentes</b><span id="g-ov-t">Quanto mais pega, mais rápido fica.</span><button class="btn gold" id="g-jogar">Jogar</button></div>
+    </div>
+  </div>
+
+  <div class="card">
     <h2>🎥 Desafio: conte a sua jornada</h2>
     <p>Esse painel é só seu, mas a motivação cresce quando a gente divide. Passe nos vídeos do <strong>@thiagofaith</strong> e conte nos comentários qual é a sua meta e como você está indo até o Natal.</p>
     <a class="btn" href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">▶ Ir aos vídeos do @thiagofaith</a>
@@ -162,7 +180,7 @@
 
 </div></section>
 
-<footer><div class="wrap">© 2026 MyFairDay — Desafio por <a href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">@thiagofaith</a></div></footer>
+<footer><div class="wrap">© 2026 MyFairDay — Criado por <a href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">Thiago Faith</a><div style="margin-top:8px">👁 <strong id="visit-count">—</strong> visitantes únicos</div></div></footer>
 <div id="toast" role="status" aria-live="polite"></div>
 <canvas id="fx"></canvas>
 
@@ -337,6 +355,94 @@ $("kg").value = D.peso.kg ? String(D.peso.kg).replace(".", ",") : "";
 render();
 /* se a página ficar aberta na virada do dia, atualiza as missões */
 setInterval(() => { if (diaAtual() !== diaRender) render(); }, 30000);
+
+/* ================= JOGO: PEGUE OS PRESENTES ================= */
+(function jogo() {
+  const W = 360, H = 520, cv = $("gcv"), g = cv.getContext("2d");
+  let px = W / 2, itens = [], pts = 0, vidas = 3, rodando = false, ult = 0, spawn = 0, dir = 0, flocos = [];
+  let rec = 0; try { rec = Number(localStorage.getItem("mfd_game_rec") || 0); } catch (e) {}
+  $("h-rec").textContent = rec;
+  for (let i = 0; i < 40; i++) flocos.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 30, r: 1 + Math.random() * 2 });
+
+  function hud() { $("h-pts").textContent = pts; $("h-vidas").textContent = "❤️".repeat(Math.max(0, vidas)) || "💔"; }
+  function iniciar() {
+    itens = []; pts = 0; vidas = 3; spawn = 0; rodando = true; ult = performance.now();
+    $("g-ov").hidden = true; hud(); requestAnimationFrame(laco);
+  }
+  function parar() { rodando = false; }
+  function fim() {
+    rodando = false;
+    if (pts > rec) { rec = pts; try { localStorage.setItem("mfd_game_rec", rec); } catch (e) {} $("h-rec").textContent = rec; }
+    $("g-ov").innerHTML = "<b>Fim de jogo!</b><span>Você pegou " + pts + " presentes" + (pts && pts >= rec ? " (novo recorde! 🏆)" : "") + ".</span><button class='btn gold' id='g-jogar'>Jogar de novo</button>";
+    $("g-ov").hidden = false; $("g-jogar").onclick = iniciar;
+  }
+  function laco(t) {
+    if (!rodando) return;
+    const dt = Math.min(.05, (t - ult) / 1000); ult = t;
+    const nivel = 1 + Math.floor(pts / 10);
+    px = Math.max(24, Math.min(W - 24, px + dir * 320 * dt));
+    spawn -= dt;
+    if (spawn <= 0) {
+      spawn = Math.max(.32, .9 - nivel * .06);
+      const r = Math.random();
+      itens.push({ x: 20 + Math.random() * (W - 40), y: -20, v: 120 + nivel * 18 + Math.random() * 60, k: r < .22 ? "c" : r < .3 ? "s" : "g" });
+    }
+    itens.forEach(i => i.y += i.v * dt);
+    itens = itens.filter(i => {
+      if (i.y > H - 56 && i.y < H - 8 && Math.abs(i.x - px) < 34) {
+        if (i.k === "c") vidas--; else pts += i.k === "s" ? 3 : 1;
+        hud(); return false;
+      }
+      return i.y < H + 30;
+    });
+    flocos.forEach(f => { f.y += f.v * dt; if (f.y > H) { f.y = -4; f.x = Math.random() * W; } });
+    desenhar();
+    if (vidas <= 0) fim(); else requestAnimationFrame(laco);
+  }
+  function desenhar() {
+    const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#0B2545"); bg.addColorStop(1, "#1E3E68");
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.fillStyle = "rgba(255,255,255,.7)"; flocos.forEach(f => { g.beginPath(); g.arc(f.x, f.y, f.r, 0, 7); g.fill(); });
+    g.fillStyle = "#EAF2FF"; g.fillRect(0, H - 14, W, 14);
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = "28px serif";
+    itens.forEach(i => g.fillText(i.k === "c" ? "⚫" : i.k === "s" ? "⭐" : "🎁", i.x, i.y));
+    g.font = "40px serif"; g.fillText("🎅", px, H - 36);
+  }
+  function mover(e) { const r = cv.getBoundingClientRect(); px = Math.max(24, Math.min(W - 24, (e.clientX - r.left) * W / r.width)); }
+  cv.addEventListener("pointerdown", mover); cv.addEventListener("pointermove", mover);
+  addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") { dir = -1; e.preventDefault(); } if (e.key === "ArrowRight") { dir = 1; e.preventDefault(); } });
+  addEventListener("keyup", (e) => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") dir = 0; });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && rodando) {
+      parar();
+      $("g-ov").innerHTML = "<b>Pausado</b><button class='btn gold' id='g-jogar'>Continuar</button>";
+      $("g-ov").hidden = false;
+      $("g-jogar").onclick = () => { $("g-ov").hidden = true; rodando = true; ult = performance.now(); requestAnimationFrame(laco); };
+    }
+  });
+  $("g-jogar").onclick = iniciar;
+  desenhar();
+})();
+
+  /* =====================================================================
+     CONTADOR DE VISITANTES ÚNICOS
+     Conta 1 vez por navegador: o F5 e as visitas seguintes só LEEM o total.
+     Troque a CHAVE se quiser separar a contagem desta página das outras.
+     Para ver o total sem abrir o site, acesse no navegador:
+     https://countapi.mileshilliard.com/api/v1/get/myfairday-org-emagrecer-natal
+     ===================================================================== */
+  (function visitas() {
+    const CHAVE = "myfairday-org-emagrecer-natal", FLAG = "mfd_visitou_" + CHAVE;
+    const el = document.getElementById("visit-count");
+    let jaContou = false;
+    try { jaContou = localStorage.getItem(FLAG) === "1"; } catch (e) {}
+    if (!jaContou) { try { localStorage.setItem(FLAG, "1"); } catch (e) {} }   /* marca já, para o F5 rápido não contar de novo */
+    fetch("https://countapi.mileshilliard.com/api/v1/" + (jaContou ? "get" : "hit") + "/" + CHAVE)
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { el.textContent = Number(d.value).toLocaleString("pt-BR"); })
+      .catch(() => { if (!jaContou) { try { localStorage.removeItem(FLAG); } catch (e) {} } });   /* falhou: tenta contar na próxima */
+  })();
 </script>
 </body>
 </html>
