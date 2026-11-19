@@ -3,249 +3,340 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contagem para o Natal: Ore pelo seu inimigo — MyFairDay</title>
-<meta name="description" content="Desafio até o Natal: todos os dias, ore por aquela pessoa que fala mal de você.">
+<title>Missão Natal: contagem para emagrecer — MyFairDay</title>
+<meta name="description" content="Cumpra missões diárias, ganhe pontos, suba de nível e acenda a árvore de Natal até o dia 25.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  :root{--navy:#0B2545;--navy-deep:#071A30;--blue-accent:#2F6FED;--gold:#C9962C;--gold-soft:#FDF6E8;--paper:#F5F8FC;--ink:#10233F;--ink-muted:#5B6C82;--line:#E1E8F2;--radius:12px;--shadow:0 1px 2px rgba(11,37,69,.06),0 10px 28px rgba(11,37,69,.08);}
+  :root{--navy:#0B2545;--navy-deep:#071A30;--blue:#2F6FED;--gold:#C9962C;--gold-soft:#FDF6E8;--green:#1B7F4B;--paper:#F5F8FC;--ink:#10233F;--muted:#5B6C82;--line:#E1E8F2;--shadow:0 1px 2px rgba(11,37,69,.06),0 10px 28px rgba(11,37,69,.08);}
   *{box-sizing:border-box;}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:'Roboto',Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
   .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
-  p{margin:0 0 1em;color:var(--ink-muted);}
-  :focus-visible{outline:3px solid var(--blue-accent);outline-offset:2px;}
+  p{margin:0 0 1em;color:var(--muted);}
+  :focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
   .topbar{background:var(--navy);padding:16px 0;}
-  .topbar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;}
   .logo-mark{width:34px;height:34px;border-radius:8px;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.78rem;}
   .logo-text{color:#fff;font-weight:700;font-size:1.05rem;}
   .logo-text span{color:#9FB6DE;font-weight:400;}
-  .tabnav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
-  .tabnav a{font-size:.84rem;font-weight:700;color:#C7D6EC;text-decoration:none;padding:8px 14px;border-radius:999px;white-space:nowrap;}
-  .tabnav a:hover{background:rgba(255,255,255,.08);color:#fff;}
-  .tabnav a.tab-active{background:rgba(255,255,255,.14);color:#fff;}
-  .hero{background:linear-gradient(180deg,var(--navy),var(--navy-deep));color:#fff;text-align:center;padding:56px 0 64px;}
-  .eyebrow{display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#BFD2F0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 16px;margin-bottom:20px;}
-  .hero h1{color:#fff;font-size:clamp(1.6rem,4.5vw,2.4rem);font-weight:900;margin:0 0 6px;}
-  .hero .sub{color:#C7D6EC;font-size:1.05rem;margin:0 0 34px;}
+  .hero{background:linear-gradient(180deg,var(--navy),var(--navy-deep));color:#fff;text-align:center;padding:52px 0 56px;}
+  .eyebrow{display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#BFD2F0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 16px;margin-bottom:18px;}
+  .hero h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:900;margin:0 0 6px;line-height:1.15;}
+  .hero h1 em{font-style:normal;color:#F1C866;}
+  .hero .sub{color:#C7D6EC;font-size:1.05rem;margin:0 0 30px;}
   .clock{display:flex;justify-content:center;gap:clamp(8px,3vw,28px);flex-wrap:wrap;}
-  .unit{min-width:0;}
-  .unit strong{display:block;font-size:clamp(3.2rem,15vw,9.5rem);font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:#fff;}
+  .unit strong{display:block;font-size:clamp(3.2rem,15vw,9.5rem);font-weight:900;line-height:1;font-variant-numeric:tabular-nums;}
   .unit.days strong{color:#F1C866;}
   .unit span{display:block;margin-top:6px;font-size:clamp(.7rem,1.8vw,.95rem);color:#9FB6DE;text-transform:uppercase;letter-spacing:.12em;}
   .sep{font-size:clamp(3rem,13vw,8rem);font-weight:900;line-height:1;color:rgba(255,255,255,.25);}
   @media(max-width:520px){.sep{display:none;}}
   .xmas{display:none;font-size:clamp(2rem,8vw,4.5rem);font-weight:900;color:#F1C866;}
-  .section{padding:48px 0 8px;}
-  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);max-width:760px;margin:0 auto 22px;}
-  .card h2{color:var(--navy);font-size:1.3rem;margin:0 0 10px;line-height:1.25;}
-  .quote{border-left:4px solid var(--gold);background:var(--gold-soft);padding:14px 18px;border-radius:0 10px 10px 0;color:#6B500F;font-size:.95rem;margin:16px 0 0;}
-  .today .day{font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
-  .today .prompt{font-size:1.15rem;color:var(--ink);font-weight:500;margin-bottom:18px;}
-  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--blue-accent);color:#fff;font:inherit;font-weight:700;font-size:.96rem;padding:13px 22px;border:none;border-radius:8px;cursor:pointer;transition:background .15s;}
+  .autor{margin-top:24px;font-size:.92rem;color:#C7D6EC;}
+  .autor a{color:#F1C866;font-weight:700;text-decoration:none;border:1px solid rgba(241,200,102,.45);border-radius:999px;padding:6px 14px;margin-left:6px;}
+  .section{padding:36px 0 8px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:26px;box-shadow:var(--shadow);max-width:760px;margin:0 auto 22px;}
+  .card h2{color:var(--navy);font-size:1.25rem;margin:0 0 6px;line-height:1.25;}
+  .top{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:760px;margin:0 auto 22px;}
+  .top .card{margin:0;}
+  @media(max-width:640px){.top{grid-template-columns:1fr;}}
+  .lvl{display:flex;align-items:center;gap:12px;margin:10px 0 14px;}
+  .lvl .ic{font-size:2.2rem;}
+  .lvl b{display:block;font-size:1.15rem;color:var(--navy);}
+  .lvl span{font-size:.85rem;color:var(--muted);}
+  .track{height:14px;background:var(--line);border-radius:999px;overflow:hidden;}
+  .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#F1C866,var(--gold));transition:width .6s ease;}
+  .mini{display:flex;gap:10px;margin-top:16px;}
+  .mini div{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;}
+  .mini strong{display:block;font-size:1.4rem;color:var(--navy);font-weight:900;}
+  .mini span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .tree{width:100%;max-width:230px;margin:0 auto;display:block;}
+  .orn{fill:#D5DEEB;transition:fill .4s;}
+  .orn.on{animation:glow 2.4s ease-in-out infinite;}
+  .orn.new{animation:pop .5s ease, glow 2.4s ease-in-out .5s infinite;}
+  @keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.5)}100%{transform:scale(1)}}
+  @keyframes glow{0%,100%{opacity:1}50%{opacity:.65}}
+  .orn{transform-box:fill-box;transform-origin:center;}
+  .star{fill:#D5DEEB;transition:fill .4s;}
+  .star.on{fill:#F1C866;}
+  .cap{text-align:center;font-size:.85rem;color:var(--muted);margin:6px 0 0;}
+  .missions{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px;}
+  .mis{display:flex;align-items:center;gap:12px;text-align:left;font:inherit;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;color:var(--ink);transition:transform .12s,border-color .2s,background .2s;}
+  .mis:hover{border-color:#BFD0EA;}
+  .mis:active{transform:scale(.96);}
+  .mis .e{font-size:1.7rem;}
+  .mis .t{flex:1;font-weight:700;font-size:.92rem;line-height:1.3;}
+  .mis .k{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;}
+  .mis.done{background:var(--gold-soft);border-color:var(--gold);}
+  .mis.done .k{background:var(--green);border-color:var(--green);}
+  .mis.flash{border-style:dashed;}
+  .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .bd{font-size:.82rem;font-weight:700;border-radius:999px;padding:6px 12px;background:var(--paper);border:1px solid var(--line);color:#9AA8BC;}
+  .bd.on{background:var(--gold-soft);border-color:#EBD7A4;color:#8F6A16;}
+  label{display:block;font-size:.8rem;font-weight:700;color:var(--navy);margin:0 0 5px;}
+  input{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-top:12px;}
+  @media(max-width:600px){.row{grid-template-columns:1fr;}}
+  .btn{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;font:inherit;font-weight:700;font-size:.94rem;padding:11px 18px;border:none;border-radius:8px;cursor:pointer;text-decoration:none;}
   .btn:hover{background:var(--navy);}
-  .btn.done{background:var(--gold-soft);color:#8F6A16;border:1px solid #EBD7A4;cursor:default;}
-  .bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:14px;}
-  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#F1C866,var(--gold));}
-  .btn:disabled:not(.done){opacity:.7;cursor:wait;}
-  .streak{margin-top:14px;font-size:.88rem;color:var(--ink-muted);}
-  .steps{margin:0;padding-left:20px;color:var(--ink-muted);}
-  .steps li{margin-bottom:8px;}
-  .autor{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:26px;font-size:.92rem;color:#C7D6EC;}
-  .autor a{display:inline-flex;align-items:center;gap:6px;color:#F1C866;font-weight:700;text-decoration:none;border:1px solid rgba(241,200,102,.45);border-radius:999px;padding:6px 14px;}
-  .autor a:hover{background:rgba(241,200,102,.12);}
+  .msg{min-height:1.2em;font-size:.85rem;margin:8px 0 0;color:#B3261E;}
+  .pace{margin:12px 0 0;font-size:.92rem;color:var(--ink);}
+  .alert{display:none;margin-top:10px;background:var(--gold-soft);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 14px;font-size:.86rem;color:#6B500F;}
+  .small{font-size:.8rem;color:var(--muted);margin:12px 0 0;}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);background:var(--navy);color:#fff;font-weight:700;border-radius:12px;padding:12px 20px;box-shadow:0 12px 32px rgba(7,26,48,.35);z-index:50;transition:transform .3s cubic-bezier(.2,.9,.3,1.2);}
+  #toast.show{transform:translate(-50%,0);}
+  #fx{position:fixed;inset:0;pointer-events:none;z-index:40;}
+  footer{background:var(--navy-deep);color:#9FB6DE;text-align:center;padding:28px 0;font-size:.85rem;margin-top:40px;}
   footer a{color:#F1C866;text-decoration:none;font-weight:700;}
-  footer a:hover{text-decoration:underline;}
-  footer{background:var(--navy-deep);color:#9FB6DE;text-align:center;padding:28px 0;font-size:.85rem;margin-top:48px;}
+  @media(prefers-reduced-motion:reduce){.orn.on,.orn.new{animation:none;}#toast,.track i{transition:none;}}
 </style>
 </head>
 <body>
-
-<header class="topbar">
-  <div class="wrap">
-    <span class="logo-mark">MFD</span>
-    <span class="logo-text">MyFairDay<span> · myfairday.org</span></span>
-  </div>
-</header>
+<header class="topbar"><div class="wrap"><span class="logo-mark">MFD</span><span class="logo-text">MyFairDay<span> · myfairday.org</span></span></div></header>
 
 <section class="hero">
   <div class="wrap">
-    <span class="eyebrow">Desafio até o Natal</span>
-    <h1>Ore pelo seu inimigo</h1>
-    <p class="sub">Ore por aquela pessoa que fala mal de você.</p>
-
+    <span class="eyebrow">Missão Natal</span>
+    <h1>Acenda a sua <em>árvore</em> até o dia 25</h1>
+    <p class="sub">Cumpra as missões de cada dia, ganhe pontos e suba de nível.</p>
     <div class="clock" id="clock" role="timer" aria-label="Tempo restante até o Natal">
-      <div class="unit days"><strong id="d">--</strong><span>dias</span></div>
-      <div class="sep">:</div>
-      <div class="unit"><strong id="h">--</strong><span>horas</span></div>
-      <div class="sep">:</div>
-      <div class="unit"><strong id="m">--</strong><span>minutos</span></div>
-      <div class="sep">:</div>
+      <div class="unit days"><strong id="d">--</strong><span>dias</span></div><div class="sep">:</div>
+      <div class="unit"><strong id="h">--</strong><span>horas</span></div><div class="sep">:</div>
+      <div class="unit"><strong id="m">--</strong><span>minutos</span></div><div class="sep">:</div>
       <div class="unit"><strong id="s">--</strong><span>segundos</span></div>
     </div>
     <div class="xmas" id="xmas">🎄 Feliz Natal! 🎄</div>
-
-    <div class="autor">
-      <span>Desafio criado por</span>
-      <a href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">▶ @thiagofaith no YouTube</a>
-    </div>
+    <div class="autor">Desafio do canal<a href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">▶ @thiagofaith no YouTube</a></div>
   </div>
 </section>
 
-<section class="section">
-  <div class="wrap">
+<section class="section"><div class="wrap">
 
-    <div class="card today" id="today">
-      <div class="day" id="day-label">Hoje</div>
-      <div class="prompt" id="prompt"></div>
-      <button class="btn" id="btn">🙏 Começar 1 minuto de oração</button>
-      <div class="bar" id="bar" hidden><i id="bar-i"></i></div>
-      <div class="streak" id="streak"></div>
-    </div>
-
+  <div class="top">
     <div class="card">
-      <h2>O desafio</h2>
-      <p>Até o Natal, escolha uma pessoa que te magoou, fala mal de você ou de quem você tem dificuldade de gostar. Todos os dias, ore por ela.</p>
-      <ol class="steps">
-        <li>Pense em uma pessoa específica. Não precisa dizer o nome a ninguém.</li>
-        <li>Ore por ela por 1 minuto: pela saúde, pela família, pela paz dela.</li>
-        <li>Volte aqui, toque em “Orei hoje” e acompanhe sua sequência de dias.</li>
-      </ol>
-      <div class="quote">Jesus ensinou a amar os inimigos e a orar por quem nos persegue. (Mateus 5:44)</div>
+      <h2>Seu nível</h2>
+      <div class="lvl"><span class="ic" id="l-ic">🌱</span><div><b id="l-nome">Iniciante</b><span id="l-xp">0 pontos</span></div></div>
+      <div class="track"><i id="l-bar"></i></div>
+      <p class="small" id="l-prox"></p>
+      <div class="mini">
+        <div><strong id="st-seq">0</strong><span>🔥 Dias seguidos</span></div>
+        <div><strong id="st-perf">0</strong><span>⭐ Dias perfeitos</span></div>
+      </div>
     </div>
-
+    <div class="card">
+      <h2>Sua árvore</h2>
+      <svg class="tree" viewBox="0 0 200 225" aria-label="Árvore de Natal que acende conforme você cumpre missões" id="tree"></svg>
+      <p class="cap" id="tree-cap"></p>
+    </div>
   </div>
-</section>
+
+  <div class="card">
+    <h2>Missões de hoje</h2>
+    <p style="margin:0">Toque para marcar. Cada missão vale 10 pontos, e completar todas rende bônus. Com 3 ou mais missões no dia, você acende um enfeite na árvore 🎄.</p>
+    <div class="missions" id="missions"></div>
+    <div class="badges" id="badges"></div>
+  </div>
+
+  <div class="card">
+    <h2>🎥 Desafio: conte a sua jornada</h2>
+    <p>Esse painel é só seu, mas a motivação cresce quando a gente divide. Passe nos vídeos do <strong>@thiagofaith</strong> e conte nos comentários qual é a sua meta e como você está indo até o Natal.</p>
+    <a class="btn" href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">▶ Ir aos vídeos do @thiagofaith</a>
+  </div>
+
+  <div class="card">
+    <h2>Meu peso (opcional)</h2>
+    <div class="row">
+      <div><label for="ini">Peso inicial (kg)</label><input id="ini" inputmode="decimal" placeholder="120" autocomplete="off"></div>
+      <div><label for="meta">Meta (kg)</label><input id="meta" inputmode="decimal" placeholder="110" autocomplete="off"></div>
+      <div><label for="kg">Peso de hoje (kg)</label><input id="kg" inputmode="decimal" placeholder="118,5" autocomplete="off"></div>
+      <button class="btn" id="salvar">Salvar</button>
+    </div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div id="peso-box" hidden>
+      <div class="track"><i id="p-bar"></i></div>
+      <p class="pace" id="pace"></p>
+      <div class="alert" id="alert"></div>
+    </div>
+    <p class="small">Tudo fica salvo só neste navegador. Ninguém mais vê o seu progresso.</p>
+  </div>
+
+</div></section>
 
 <footer><div class="wrap">© 2026 MyFairDay — Desafio por <a href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">@thiagofaith</a></div></footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<canvas id="fx"></canvas>
 
 <script>
-  const $ = (id) => document.getElementById(id);
-  const pad = (n) => String(n).padStart(2, "0");
+const $ = (id) => document.getElementById(id);
+const pad = (n) => String(n).padStart(2, "0");
+const NATAL = new Date(2026, 11, 25, 0, 0, 0);
 
-  /* Data final: 25 de dezembro de 2026, 00:00, no fuso do visitante */
-  const NATAL = new Date(2026, 11, 25, 0, 0, 0);
+/* ---------- cronômetro ---------- */
+function tick() {
+  const diff = NATAL - new Date();
+  if (diff <= 0) { $("clock").style.display = "none"; $("xmas").style.display = "block"; return; }
+  const s = Math.floor(diff / 1000);
+  $("d").textContent = Math.floor(s / 86400);
+  $("h").textContent = pad(Math.floor(s % 86400 / 3600));
+  $("m").textContent = pad(Math.floor(s % 3600 / 60));
+  $("s").textContent = pad(s % 60);
+}
+tick(); setInterval(tick, 1000);
 
-  function tick() {
-    const diff = NATAL - new Date();
-    if (diff <= 0) {
-      $("clock").style.display = "none";
-      $("xmas").style.display = "block";
-      return;
-    }
-    const s = Math.floor(diff / 1000);
-    $("d").textContent = Math.floor(s / 86400);
-    $("h").textContent = pad(Math.floor(s % 86400 / 3600));
-    $("m").textContent = pad(Math.floor(s % 3600 / 60));
-    $("s").textContent = pad(s % 60);
+/* ---------- dados (só neste navegador) ---------- */
+const KEY = "mfd_missao_natal";
+let D = { dias: {}, peso: { ini: null, meta: null, kg: null } };
+try { const x = JSON.parse(localStorage.getItem(KEY) || "null"); if (x && x.dias) D = x; } catch (e) {}
+const salvar = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} };
+const chave = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const diaAtual = () => chave(new Date());
+let diaRender = diaAtual();
+
+const MISSOES = [
+  { id: "agua", e: "💧", t: "Bebeu 2 litros de água hoje?" },
+  { id: "andar", e: "🚶", t: "Caminhar ou se mexer por 20 minutos" },
+  { id: "leve", e: "🥗", t: "Comi mais de 3 tipos de verduras" },
+  { id: "doce", e: "🙅", t: "Passar o dia sem refrigerante e doce" },
+  { id: "sono", e: "😴", t: "Dormiu antes das 23h00?" }
+];
+const RELAMPAGO = [
+  "Suba escadas em vez do elevador", "Faça 10 minutos de alongamento", "Troque um doce por uma fruta",
+  "Dê uma volta ao ar livre", "Prepare a refeição de amanhã", "Mande uma mensagem de incentivo a alguém",
+  "Beba um copo de água antes de cada refeição"
+];
+const relampago = () => { const d = new Date(); const n = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); return { id: "flash", e: "⚡", t: "Relâmpago: " + RELAMPAGO[n % RELAMPAGO.length], flash: true }; };
+const NIVEIS = [
+  { n: "Iniciante", i: "🌱", min: 0 }, { n: "Persistente", i: "💪", min: 100 },
+  { n: "Determinado", i: "🔥", min: 250 }, { n: "Imparável", i: "🚀", min: 450 },
+  { n: "Campeão do Natal", i: "🏆", min: 700 }
+];
+
+function pontosDia(ids) {
+  const base = MISSOES.filter(m => ids.includes(m.id)).length;
+  const perfeito = base === MISSOES.length;
+  return base * 10 + (perfeito ? 20 : 0) + (ids.includes("flash") ? 15 : 0);
+}
+function stats() {
+  let xp = 0, perf = 0, total = 0, ativos = 0;
+  for (const k in D.dias) {
+    const ids = D.dias[k];
+    xp += pontosDia(ids);
+    total += ids.length;
+    if (ids.length >= 3) ativos++;
+    if (MISSOES.every(m => ids.includes(m.id))) perf++;
   }
-  tick();
-  setInterval(tick, 1000);
+  /* sequência: dias seguidos com pelo menos 1 missão */
+  let seq = 0; const d = new Date();
+  if (!(D.dias[chave(d)] || []).length) d.setDate(d.getDate() - 1);
+  while ((D.dias[chave(d)] || []).length) { seq++; d.setDate(d.getDate() - 1); }
+  return { xp, perf, total, ativos, seq };
+}
+const nivelDe = (xp) => { let i = 0; NIVEIS.forEach((n, k) => { if (xp >= n.min) i = k; }); return i; };
 
-  /* Sugestão do dia (gira entre 7 temas) */
-  const PROMPTS = [
-    "Peça paz para o coração dessa pessoa.",
-    "Peça saúde e proteção para a família dela.",
-    "Agradeça por algo bom que existe nela, mesmo que pequeno.",
-    "Peça que ela tenha um dia leve e alegre.",
-    "Peça perdão para você, se houver algo seu nessa história.",
-    "Peça que Deus abençoe o trabalho e a vida dela.",
-    "Entregue a mágoa nas mãos de Deus e peça paz para você também."
-  ];
-  const hoje = new Date();
-  const chaveHoje = hoje.getFullYear() + "-" + pad(hoje.getMonth() + 1) + "-" + pad(hoje.getDate());
-  const diasRestantes = Math.max(0, Math.ceil((NATAL - hoje) / 86400000));
-  $("day-label").textContent = diasRestantes > 0 ? "Hoje · faltam " + diasRestantes + " dias para o Natal" : "Natal";
-  $("prompt").textContent = PROMPTS[Math.floor(hoje / 86400000) % PROMPTS.length];
+/* ---------- efeitos ---------- */
+let toastT;
+function toast(t) { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove("show"), 2200); }
+function confete() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = $("fx"), x = c.getContext("2d");
+  c.width = innerWidth; c.height = innerHeight;
+  const cores = ["#F1C866", "#2F6FED", "#1B7F4B", "#E4572E", "#fff"];
+  const ps = Array.from({ length: 110 }, () => ({ x: c.width / 2, y: c.height * .45, vx: (Math.random() - .5) * 14, vy: Math.random() * -13 - 3, r: Math.random() * 6 + 3, c: cores[Math.floor(Math.random() * cores.length)] }));
+  let f = 0;
+  (function go() {
+    x.clearRect(0, 0, c.width, c.height);
+    ps.forEach(p => { p.vy += .35; p.x += p.vx; p.y += p.vy; x.fillStyle = p.c; x.fillRect(p.x, p.y, p.r, p.r * 1.6); });
+    if (++f < 110) requestAnimationFrame(go); else x.clearRect(0, 0, c.width, c.height);
+  })();
+}
 
-  /* Sequência de dias (fica salva só neste navegador) */
-  let dias = [];
-  try { dias = JSON.parse(localStorage.getItem("mfd_natal_dias") || "[]"); } catch (e) {}
+/* ---------- árvore ---------- */
+const LINHAS = [{ y: 72, n: 3, w: 30 }, { y: 102, n: 5, w: 55 }, { y: 132, n: 7, w: 80 }, { y: 162, n: 9, w: 105 }, { y: 192, n: 11, w: 130 }];
+const SLOTS = [];
+LINHAS.forEach(l => { for (let i = 0; i < l.n; i++) SLOTS.push({ x: 100 - l.w + 2 * l.w * i / (l.n - 1), y: l.y }); });
+const COR = ["#E4572E", "#2F6FED", "#F1C866", "#E84393", "#1FB57A"];
+let prevAtivos = null;
+function arvore(total, perf) {
+  let h = '<polygon points="100,22 160,95 40,95" fill="#1B7F4B"/><polygon points="100,52 178,135 22,135" fill="#176B40"/><polygon points="100,85 194,185 6,185" fill="#125733"/><rect x="90" y="198" width="20" height="22" fill="#7A4B26" rx="2"/>';
+  h += '<polygon class="star' + (perf > 0 ? ' on' : '') + '" points="100,6 104,17 116,17 106,24 110,35 100,28 90,35 94,24 84,17 96,17"/>';
+  SLOTS.forEach((s, i) => { const on = i < total; h += '<circle class="orn' + (on ? ' on' : '') + (on && i === total - 1 && prevAtivos !== null && total > prevAtivos ? ' new' : '') + '" cx="' + s.x + '" cy="' + s.y + '" r="7"' + (on ? ' style="fill:' + COR[i % COR.length] + '"' : '') + '/>'; });
+  prevAtivos = total;
+  $("tree").innerHTML = h;
+  $("tree-cap").textContent = Math.min(total, SLOTS.length) + " de " + SLOTS.length + " dias com enfeite aceso" + (perf > 0 ? " · estrela acesa ⭐" : "");
+}
 
-  function sequencia() {
-    let n = 0;
-    const d = new Date();
-    if (!dias.includes(chaveHoje)) d.setDate(d.getDate() - 1);
-    while (true) {
-      const k = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
-      if (!dias.includes(k)) break;
-      n++; d.setDate(d.getDate() - 1);
-    }
-    return n;
-  }
-  const DURACAO = 60;          /* segundos de oração */
-  let estado = "inicio";       /* inicio -> orando -> pronto -> feito */
-  let timer = null;
+/* ---------- tela ---------- */
+function render() {
+  diaRender = diaAtual();
+  const hoje = D.dias[diaAtual()] || [];
+  $("missions").innerHTML = [...MISSOES, relampago()].map(m =>
+    '<button class="mis' + (m.flash ? ' flash' : '') + (hoje.includes(m.id) ? ' done' : '') + '" data-id="' + m.id + '" aria-pressed="' + hoje.includes(m.id) + '">' +
+    '<span class="e">' + m.e + '</span><span class="t">' + m.t + '</span><span class="k">' + (hoje.includes(m.id) ? '✓' : '') + '</span></button>').join("");
 
-  function feitoHoje() { return estado === "feito" || dias.includes(chaveHoje); }
+  const st = stats(), ni = nivelDe(st.xp), nv = NIVEIS[ni], prox = NIVEIS[ni + 1];
+  $("l-ic").textContent = nv.i; $("l-nome").textContent = nv.n; $("l-xp").textContent = st.xp + " pontos";
+  $("l-bar").style.width = (prox ? (st.xp - nv.min) / (prox.min - nv.min) * 100 : 100) + "%";
+  $("l-prox").textContent = prox ? "Faltam " + (prox.min - st.xp) + " pontos para " + prox.n + " " + prox.i : "Você chegou ao nível máximo! 🎉";
+  $("st-seq").textContent = st.seq; $("st-perf").textContent = st.perf;
+  arvore(st.ativos, st.perf);
 
-  function atualizar() {
-    const btn = $("btn");
-    if (feitoHoje()) {
-      estado = "feito";
-      clearInterval(timer);
-      $("bar").hidden = true;
-      btn.textContent = "✓ Você orou hoje";
-      btn.classList.add("done");
-      btn.disabled = true;
-    } else if (estado === "pronto") {
-      btn.textContent = "✓ Concluir: orei hoje";
-      btn.classList.remove("done");
-      btn.disabled = false;
-    } else if (estado === "inicio") {
-      btn.textContent = "🙏 Começar 1 minuto de oração";
-      btn.classList.remove("done");
-      btn.disabled = false;
-    }
-    const seq = sequencia();
-    $("streak").textContent = dias.length
-      ? "Dias de oração: " + dias.length + " · Sequência atual: " + seq + (seq === 1 ? " dia" : " dias")
-      : "Comece hoje a sua sequência.";
-  }
+  const B = [[3, "🔥 3 dias seguidos"], [7, "🔥 7 dias seguidos"], [14, "🔥 14 dias seguidos"], [30, "🔥 30 dias seguidos"]];
+  $("badges").innerHTML = B.map(b => '<span class="bd' + (st.seq >= b[0] ? ' on' : '') + '">' + b[1] + '</span>').join("") +
+    '<span class="bd' + (st.perf >= 1 ? ' on' : '') + '">⭐ Primeiro dia perfeito</span>';
+  renderPeso();
+}
 
-  function iniciar() {
-    estado = "orando";
-    const btn = $("btn");
-    btn.disabled = true;                 /* trava na hora: sem clique duplo */
-    $("bar").hidden = false;
-    const fim = Date.now() + DURACAO * 1000;
-    timer = setInterval(() => {
-      const resta = Math.max(0, fim - Date.now());
-      $("bar-i").style.width = (100 - resta / (DURACAO * 10)) + "%";
-      btn.textContent = "🙏 Orando… " + Math.ceil(resta / 1000) + "s";
-      if (resta <= 0) {
-        clearInterval(timer);
-        estado = "pronto";
-        $("bar-i").style.width = "100%";
-        atualizar();
-      }
-    }, 250);
-  }
+$("missions").addEventListener("click", (e) => {
+  const b = e.target.closest(".mis"); if (!b) return;
+  const id = b.dataset.id, antes = stats(), ids = D.dias[diaAtual()] || [];
+  const marcou = !ids.includes(id);
+  D.dias[diaAtual()] = marcou ? [...ids, id] : ids.filter(x => x !== id);
+  if (!D.dias[diaAtual()].length) delete D.dias[diaAtual()];
+  salvar();
+  const depois = stats();
+  render();
+  if (!marcou) return;
+  const perfeito = MISSOES.every(m => (D.dias[diaAtual()] || []).includes(m.id));
+  if (nivelDe(depois.xp) > nivelDe(antes.xp)) { toast("🎉 Novo nível: " + NIVEIS[nivelDe(depois.xp)].n + "!"); confete(); }
+  else if (perfeito && depois.perf > antes.perf) { toast("⭐ Dia perfeito! +20 de bônus"); confete(); }
+  else if (depois.ativos > antes.ativos) toast("🎄 Enfeite do dia aceso!");
+  else toast("+" + (depois.xp - antes.xp) + " pontos 👏");
+});
 
-  function concluir() {
-    $("btn").disabled = true;            /* trava na hora */
-    estado = "feito";                    /* vale mesmo se o navegador não salvar */
-    if (!dias.includes(chaveHoje)) {
-      dias.push(chaveHoje);
-      try { localStorage.setItem("mfd_natal_dias", JSON.stringify(dias)); } catch (e) {}
-    }
-    atualizar();
-  }
+/* ---------- peso (opcional) ---------- */
+const num = (v) => parseFloat(String(v).replace(",", "."));
+const fmt = (n) => n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const ok = (v) => v >= 30 && v <= 400;
+function renderPeso() {
+  const p = D.peso;
+  const box = $("peso-box");
+  if (!(p.ini && p.meta && p.kg && p.ini > p.meta)) { box.hidden = true; return; }
+  box.hidden = false;
+  const pct = Math.min(100, Math.max(0, (p.ini - p.kg) / (p.ini - p.meta) * 100));
+  $("p-bar").style.width = pct + "%";
+  const dias = Math.ceil((NATAL - new Date()) / 86400000), falta = p.kg - p.meta, al = $("alert");
+  al.style.display = "none";
+  if (falta <= 0) { $("pace").textContent = "🎉 Meta atingida! Parabéns!"; return; }
+  if (dias <= 0) { $("pace").textContent = "O prazo acabou. Faltaram " + fmt(falta) + " kg. Defina uma nova meta e continue!"; return; }
+  const ritmo = falta / (dias / 7);
+  $("pace").innerHTML = Math.round(pct) + "% da meta · faltam <strong>" + fmt(falta) + " kg</strong> em <strong>" + dias + " dias</strong> (cerca de <strong>" + fmt(ritmo) + " kg por semana</strong>).";
+  if (ritmo > 1) { al.textContent = "Esse ritmo é mais rápido do que o comum (cerca de 0,5 a 1 kg por semana)." + (ritmo > 2 ? " Perder mais de 2 kg por semana pode fazer mal à saúde." : ""); al.style.display = "block"; }
+}
+$("salvar").addEventListener("click", () => {
+  const i = $("ini").value.trim() ? num($("ini").value) : D.peso.ini;
+  const m = $("meta").value.trim() ? num($("meta").value) : D.peso.meta;
+  const k = $("kg").value.trim() ? num($("kg").value) : D.peso.kg;
+  if ([i, m, k].some(v => v != null && !ok(v)) || (i && m && i <= m)) { $("msg").textContent = "Confira os valores: entre 30 e 400 kg, e o peso inicial deve ser maior que a meta."; return; }
+  $("msg").textContent = "";
+  D.peso = { ini: i, meta: m, kg: k }; salvar(); renderPeso(); toast("Peso salvo ✅");
+});
 
-  $("btn").addEventListener("click", () => {
-    if (feitoHoje()) return;
-    if (estado === "inicio") iniciar();
-    else if (estado === "pronto") concluir();
-  });
-
-  /* se a pessoa marcar em outra aba, esta aba também trava */
-  window.addEventListener("storage", (e) => {
-    if (e.key !== "mfd_natal_dias") return;
-    try { dias = JSON.parse(e.newValue || "[]"); } catch (err) {}
-    atualizar();
-  });
-
-  atualizar();
+$("ini").value = D.peso.ini ? String(D.peso.ini).replace(".", ",") : "";
+$("meta").value = D.peso.meta ? String(D.peso.meta).replace(".", ",") : "";
+$("kg").value = D.peso.kg ? String(D.peso.kg).replace(".", ",") : "";
+render();
+/* se a página ficar aberta na virada do dia, atualiza as missões */
+setInterval(() => { if (diaAtual() !== diaRender) render(); }, 30000);
 </script>
 </body>
 </html>
