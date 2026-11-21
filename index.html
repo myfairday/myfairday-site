@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   =====================================================================
-  PAINEL DE ANOMALIAS GLOBAIS — index.html (19 Sensores Interativos)
+  PAINEL DE ANOMALIAS GLOBAIS — index.html (19 Sensores + UX + Satélite)
   Criado por Thiago Mistery (https://www.youtube.com/@thiagomistery)
   =====================================================================
 -->
@@ -19,7 +19,7 @@
   <!-- Motor 3D estilo Google Earth (Globe.gl + Three.js) -->
   <script src="https://unpkg.com/globe.gl@2.32.1/dist/globe.gl.min.js"></script>
 
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 
@@ -38,6 +38,9 @@
 
       <span class="topo-direita">
         <span class="visitantes" id="visitantes" title="Total de visitantes únicos">visitantes: —</span>
+
+        <!-- BOTÃO MODO TV / TELA CHEIA (ITEM 9) -->
+        <button type="button" class="btn-tv" id="btn-tela-cheia" title="Alternar Modo TV / Tela Cheia">⛶ Tela Cheia</button>
 
         <!-- SELETOR DE CORES DO PAINEL -->
         <span class="tema-switch" role="group" aria-label="Cores do painel">
@@ -65,6 +68,32 @@
     </div>
 
     <p class="lema" id="lema-principal">O mundo está sempre acontecendo. Você só não estava olhando.</p>
+
+    <!-- BANNER DE DESTAQUE DO MOMENTO (ITEM 4) -->
+    <a class="banner-destaque" id="banner-destaque" href="#/" hidden>
+      <span class="destaque-tag" id="destaque-tag">ALERTA GLOBAL</span>
+      <span class="destaque-texto" id="destaque-texto">Analisando telemetria planetária…</span>
+      <span class="destaque-seta">→</span>
+    </a>
+
+    <!-- BARRA DE FILTROS RÁPIDOS + BUSCA GLOBAL (ITENS 1 E 2) -->
+    <div class="barra-ux" id="barra-ux">
+      <div class="filtros-grupo" role="group" aria-label="Filtrar sensores">
+        <button type="button" class="btn-filtro ativo" data-filtro="todos" id="filtro-todos">Todos (19)</button>
+        <button type="button" class="btn-filtro" data-filtro="alertas" id="filtro-alertas">⚠️ Alertas Ativos</button>
+        <button type="button" class="btn-filtro" data-filtro="terra" id="filtro-terra">🌍 Clima &amp; Terra</button>
+        <button type="button" class="btn-filtro" data-filtro="interativos" id="filtro-interativos">🎛️ Interativos</button>
+      </div>
+
+      <div class="busca-global-wrap">
+        <input
+          type="search"
+          id="input-busca-global"
+          placeholder="Filtrar sensor, país ou dado…"
+          aria-label="Filtrar sensores do painel"
+        >
+      </div>
+    </div>
   </header>
 
   <main>
@@ -77,15 +106,22 @@
     <section id="vista-home" aria-label="Sensores">
       <div class="grid" id="grid">
 
-        <!-- 01 · GOOGLE EARTH 3D · PLANETA TERRA REALISTA -->
-        <article class="card card-globo" data-sensor="globo" data-nivel="ok">
+        <!-- 01 · GOOGLE EARTH 3D + GOOGLE MAPS SATÉLITE -->
+        <article class="card card-globo" data-sensor="globo" data-nivel="ok" data-cat="terra interativos">
           <header class="card-topo">
             <span class="card-id">01</span>
-            <h2>GOOGLE EARTH · TERRA 3D</h2>
-            <span class="card-freq" title="Globo Interativo 3D">3D</span>
+            <h2>GOOGLE EARTH · TERRA &amp; SATÉLITE</h2>
+            <span class="card-freq" title="Globo 3D + Satélite">3D / MAP</span>
           </header>
+
+          <!-- Alternador Globo 3D Ocorrências vs Satélite Google Maps -->
+          <div class="earth-tabs" role="group" aria-label="Modo de visualização da Terra">
+            <button type="button" class="btn-earth-tab ativo" data-earth-mode="globo" id="tab-earth-globo">🌍 Globo 3D</button>
+            <button type="button" class="btn-earth-tab" data-earth-mode="maps" id="tab-earth-maps">🗺️ Satélite Maps</button>
+          </div>
+
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">arraste e dê zoom para explorar todo o planeta…</p>
+          <p class="contexto" data-campo="contexto">explore o globo 3D ou alterne para o mapa de satélite…</p>
           <div class="viz viz-globo" data-campo="viz"></div>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -94,7 +130,7 @@
         </article>
 
         <!-- 02 · BOLSA DE VALORES · B3 -->
-        <article class="card" data-sensor="bolsa" data-nivel="ok">
+        <article class="card" data-sensor="bolsa" data-nivel="ok" data-cat="economia">
           <header class="card-topo">
             <span class="card-id">02</span>
             <h2>BOLSA DE VALORES (B3)</h2>
@@ -110,7 +146,7 @@
         </article>
 
         <!-- 03 · MICROTREMORES -->
-        <article class="card" data-sensor="microtremores" data-nivel="ok">
+        <article class="card" data-sensor="microtremores" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">03</span>
             <h2>MICROTREMORES</h2>
@@ -128,7 +164,7 @@
         </article>
 
         <!-- 04 · FOCOS DE INCÊNDIO -->
-        <article class="card" data-sensor="incendios" data-nivel="ok">
+        <article class="card" data-sensor="incendios" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">04</span>
             <h2>FOCOS DE INCÊNDIO</h2>
@@ -144,7 +180,7 @@
         </article>
 
         <!-- 05 · TEMPERATURAS EXTREMAS -->
-        <article class="card" data-sensor="temperaturas" data-nivel="ok">
+        <article class="card" data-sensor="temperaturas" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">05</span>
             <h2>TEMPERATURAS EXTREMAS</h2>
@@ -160,7 +196,7 @@
         </article>
 
         <!-- 06 · ANOMALIAS CLIMÁTICAS -->
-        <article class="card" data-sensor="anomalias" data-nivel="ok">
+        <article class="card" data-sensor="anomalias" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">06</span>
             <h2>ANOMALIAS CLIMÁTICAS</h2>
@@ -176,7 +212,7 @@
         </article>
 
         <!-- 07 · NOTÍCIAS · GOOGLE NEWS -->
-        <article class="card card-noticias" data-sensor="manchetes" data-nivel="ok">
+        <article class="card card-noticias" data-sensor="manchetes" data-nivel="ok" data-cat="interativos">
           <header class="card-topo">
             <span class="card-id">07</span>
             <h2>NOTÍCIAS · GOOGLE</h2>
@@ -203,7 +239,7 @@
         </article>
 
         <!-- 08 · QUALIDADE DO AR -->
-        <article class="card" data-sensor="ar" data-nivel="ok">
+        <article class="card" data-sensor="ar" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">08</span>
             <h2>QUALIDADE DO AR</h2>
@@ -219,7 +255,7 @@
         </article>
 
         <!-- 09 · DESASTRES NATURAIS (ONU / GDACS) -->
-        <article class="card" data-sensor="desastres" data-nivel="ok">
+        <article class="card" data-sensor="desastres" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">09</span>
             <h2>DESASTRES NATURAIS (ONU)</h2>
@@ -235,7 +271,7 @@
         </article>
 
         <!-- 10 · ASTEROIDES PRÓXIMOS (NASA) -->
-        <article class="card" data-sensor="asteroides" data-nivel="ok">
+        <article class="card" data-sensor="asteroides" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">10</span>
             <h2>ASTEROIDES PRÓXIMOS (NASA)</h2>
@@ -251,10 +287,10 @@
         </article>
 
         <!-- 11 · NÍVEL DO MAR & RESSACAS COSTEIRAS (NOAA) -->
-        <article class="card" data-sensor="mare" data-nivel="ok">
+        <article class="card" data-sensor="mare" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">11</span>
-            <h2>NÍVEL DO MAR & RESSACAS</h2>
+            <h2>NÍVEL DO MAR &amp; RESSACAS</h2>
             <span class="card-freq" title="Frequência de atualização">30min</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
@@ -267,7 +303,7 @@
         </article>
 
         <!-- 12 · RADIAÇÃO UV EXTREMA (OPEN-METEO) -->
-        <article class="card" data-sensor="uv" data-nivel="ok">
+        <article class="card" data-sensor="uv" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">12</span>
             <h2>RADIAÇÃO UV EXTREMA</h2>
@@ -283,7 +319,7 @@
         </article>
 
         <!-- 13 · CLIMA POR CIDADE -->
-        <article class="card card-cidade" data-sensor="cidade" data-nivel="ok">
+        <article class="card card-cidade" data-sensor="cidade" data-nivel="ok" data-cat="terra interativos">
           <header class="card-topo">
             <span class="card-id">13</span>
             <h2>CLIMA POR CIDADE</h2>
@@ -310,7 +346,7 @@
         </article>
 
         <!-- 14 · OBSERVATÓRIO DE RAIOS GLOBAIS -->
-        <article class="card" data-sensor="raios" data-nivel="ok">
+        <article class="card" data-sensor="raios" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">14</span>
             <h2>OBSERVATÓRIO DE RAIOS</h2>
@@ -326,7 +362,7 @@
         </article>
 
         <!-- 15 · POPULAÇÃO MUNDIAL AO VIVO -->
-        <article class="card" data-sensor="populacao" data-nivel="ok">
+        <article class="card" data-sensor="populacao" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">15</span>
             <h2>POPULAÇÃO MUNDIAL AO VIVO</h2>
@@ -342,10 +378,10 @@
         </article>
 
         <!-- 16 · ONDAS, SWELL & MARÉ -->
-        <article class="card" data-sensor="ondas" data-nivel="ok">
+        <article class="card" data-sensor="ondas" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">16</span>
-            <h2>ONDAS, SWELL & MARÉ</h2>
+            <h2>ONDAS, SWELL &amp; MARÉ</h2>
             <span class="card-freq" title="Frequência de atualização">1h</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
@@ -358,14 +394,13 @@
         </article>
 
         <!-- 17 · RÁDIO · SINTONIZADOR LIVRE & ESTAÇÕES AO VIVO -->
-        <article class="card card-audio" data-sensor="radiomusica" data-nivel="ok">
+        <article class="card card-audio" data-sensor="radiomusica" data-nivel="ok" data-cat="interativos">
           <header class="card-topo">
             <span class="card-id">17</span>
             <h2>RÁDIO · SINTONIZADOR AO VIVO</h2>
             <span class="card-freq" title="Rádio Livre">FM / WEB</span>
           </header>
 
-          <!-- Dial / Linha de Sintonia + Input para o visitante ouvir qualquer stream -->
           <div class="radio-dial" aria-hidden="true">
             <div class="radio-dial-escala">
               <span>88</span><span>92</span><span>96</span><span>100</span><span>104</span><span>108 MHz</span>
@@ -395,7 +430,7 @@
         </article>
 
         <!-- 18 · QUEDAS DE INTERNET (IODA) -->
-        <article class="card" data-sensor="internet" data-nivel="ok">
+        <article class="card" data-sensor="internet" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">18</span>
             <h2>QUEDAS DE INTERNET (IODA)</h2>
@@ -411,10 +446,10 @@
         </article>
 
         <!-- 19 · NÍVEL & VAZÃO DOS RIOS -->
-        <article class="card" data-sensor="rios" data-nivel="ok">
+        <article class="card" data-sensor="rios" data-nivel="ok" data-cat="terra">
           <header class="card-topo">
             <span class="card-id">19</span>
-            <h2>NÍVEL & VAZÃO DOS RIOS</h2>
+            <h2>NÍVEL &amp; VAZÃO DOS RIOS</h2>
             <span class="card-freq" title="Frequência de atualização">1h</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
@@ -427,6 +462,8 @@
         </article>
 
       </div>
+
+      <p class="vazio-filtro" id="msg-vazio-filtro" hidden>Nenhum sensor encontrado para este filtro.</p>
     </section>
 
     <!-- ================= VISTA DETALHE (aberta por âncora #/sensor/<id>) ================= -->
@@ -448,7 +485,7 @@
         <div class="det-valor" id="det-valor">—</div>
         <p class="contexto" id="det-contexto">—</p>
 
-        <!-- Globo 3D expandido quando o visitante abrir detalhes do Google Earth -->
+        <!-- Globo 3D + Google Maps Satélite expandidos nos detalhes do item 01 -->
         <div id="det-globo-box" hidden></div>
 
         <h3 id="lbl-historico">HISTÓRICO DO DADO PRINCIPAL</h3>
@@ -478,6 +515,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>
