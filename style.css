@@ -1,5 +1,5 @@
 /* =====================================================================
-   STYLE.CSS — TELA PRETA + 4 JOGOS + CONTADOR 2030 + ENQUETE
+   STYLE.CSS — TELA PRETA + 4 JOGOS (10 CÁLCULOS) + CONTADOR 2030 + ENQUETE
    ===================================================================== */
 
 :root,
@@ -275,6 +275,7 @@ main[hidden] { display: none; }
 }
 
 .badge-chave,
+.badge-erros,
 .lab-timer,
 .prova-social-badge,
 .badge-rank {
@@ -291,6 +292,11 @@ main[hidden] { display: none; }
   border-color: var(--warn);
   color: var(--warn);
   box-shadow: 0 0 10px color-mix(in srgb, var(--warn) 30%, transparent);
+}
+
+.badge-erros.perigo {
+  border-color: var(--crit);
+  color: var(--crit);
 }
 
 .etapa-desc {
@@ -515,35 +521,70 @@ main[hidden] { display: none; }
   min-height: 24px;
 }
 
-/* ================= JOGO 4: NÚCLEO GIRATÓRIO ================= */
-.nucleo-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
+/* ================= JOGO 4: 10 CÁLCULOS MATEMÁTICOS ================= */
+.math-visor {
+  text-align: center;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 26px 16px;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  border-radius: 4px;
+  color: var(--ok);
+  margin-bottom: 16px;
+  font-variant-numeric: tabular-nums;
 }
 
-#canvas-nucleo {
-  background: #020305;
+.math-form {
+  display: flex;
+  gap: 10px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.math-form input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
   border: 1px solid var(--borda-hi);
-  border-radius: 50%;
+  border-radius: 4px;
+  padding: 12px 14px;
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+.math-form input:focus {
+  border-color: var(--ok);
 }
 
 .btn-travar-nucleo {
-  padding: 13px 28px;
+  padding: 12px 22px;
   background: var(--bg);
   border: 1px solid var(--ok);
   border-radius: 4px;
   color: var(--ok);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   cursor: pointer;
 }
 .btn-travar-nucleo:hover {
   background: var(--ok);
   color: var(--bg);
+}
+
+.math-feedback {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 18px;
+  color: var(--crit);
 }
 
 /* ================= INTERRUPTOR 2030 ================= */
