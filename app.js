@@ -1,23 +1,26 @@
 /* =====================================================================
-   APP.JS — ENQUETE -> LABIRINTO -> 12 FIOS (AG 30 CORRIGIDO) -> MEMÓRIA -> 10 CÁLCULOS -> 2030 -> FINAL
+   APP.JS — ENQUETE 1 -> LABIRINTO -> INTRUSO + COFRE (SUBLIMINAR + SOM GLITCH 1s) -> MEMÓRIA -> ENQUETE 2 -> 10 CÁLCULOS -> 2030 -> FINAL
    ===================================================================== */
 'use strict';
 
 const CONFIG = {
-  chaveTema: 'proto2030_tema_v6',
+  chaveTema: 'proto2030_tema_v9',
   chaveVisTotal: 'myfairday_vis_num_v2',
   chaveTriagem: 'proto2030_triagem_stats_v2',
   chaveEnquete1: 'proto2030_enquete1_v1',
+  chaveEnquete2: 'proto2030_enquete2_v1',
   chaveEnquete: 'proto2030_enquete_v2'
 };
 
 /* ---------------------------------------------------------------------
-   1. MOTOR DE ÁUDIO DE SUSPENSE
+   1. MOTOR DE ÁUDIO DE SUSPENSE + SOM DE FALHA / GLITCH (1 SEGUNDO)
    --------------------------------------------------------------------- */
 const AudioSuspense = {
   ctx: null,
   ativo: false,
+  mudo: false,
   streamEl: null,
+  masterGain: null,
 
   iniciar() {
     if (this.ativo) return;
@@ -64,18 +67,88 @@ const AudioSuspense = {
     const btn = document.getElementById('btn-som');
     if (!this.ativo) {
       this.iniciar();
+      this.mudo = false;
       if (btn) btn.textContent = '🔊';
       return;
     }
 
+    this.mudo = !this.mudo;
+
     if (this.streamEl) {
-      this.streamEl.muted = !this.streamEl.muted;
+      this.streamEl.muted = this.mudo;
     }
     if (this.masterGain && this.ctx) {
-      const mudo = this.masterGain.gain.value === 0;
-      this.masterGain.gain.setValueAtTime(mudo ? 0.08 : 0, this.ctx.currentTime);
-      if (btn) btn.textContent = mudo ? '🔊' : '🔇';
+      this.masterGain.gain.setValueAtTime(this.mudo ? 0 : 0.08, this.ctx.currentTime);
     }
+    if (btn) btn.textContent = this.mudo ? '🔇' : '🔊';
+  },
+
+  tocarFalhaGlitch(duracaoSeg = 1.0) {
+    if (this.mudo) return;
+
+    try {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+      }
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+
+      const agora = this.ctx.currentTime;
+
+      // 1. Camada de estática / chiado elétrico cortado (ruído branco filtrado)
+      const tamanhoBuffer = Math.floor(this.ctx.sampleRate * duracaoSeg);
+      const buffer = this.ctx.createBuffer(1, tamanhoBuffer, this.ctx.sampleRate);
+      const dados = buffer.getChannelData(0);
+
+      for (let i = 0; i < tamanhoBuffer; i++) {
+        // Rajadas intermitentes para soar como mau contato elétrico
+        const rajada = Math.sin(i * 0.008) > -0.25 ? 1 : 0.15;
+        dados[i] = (Math.random() * 2 - 1) * rajada;
+      }
+
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filtroGlitch = this.ctx.createBiquadFilter();
+      filtroGlitch.type = 'bandpass';
+      filtroGlitch.frequency.setValueAtTime(1100, agora);
+      filtroGlitch.frequency.linearRampToValueAtTime(2400, agora + 0.25);
+      filtroGlitch.frequency.linearRampToValueAtTime(650, agora + 0.65);
+      filtroGlitch.frequency.linearRampToValueAtTime(1900, agora + duracaoSeg);
+      filtroGlitch.Q.value = 3.2;
+
+      const gainNoise = this.ctx.createGain();
+      gainNoise.gain.setValueAtTime(0.01, agora);
+      gainNoise.gain.linearRampToValueAtTime(0.32, agora + 0.03);
+      gainNoise.gain.setValueAtTime(0.28, agora + duracaoSeg - 0.12);
+      gainNoise.gain.exponentialRampToValueAtTime(0.001, agora + duracaoSeg);
+
+      noise.connect(filtroGlitch);
+      filtroGlitch.connect(gainNoise);
+      gainNoise.connect(this.ctx.destination);
+
+      // 2. Camada de impacto grave distorcido (pulso de susto)
+      const oscImpacto = this.ctx.createOscillator();
+      oscImpacto.type = 'sawtooth';
+      oscImpacto.frequency.setValueAtTime(165, agora);
+      oscImpacto.frequency.exponentialRampToValueAtTime(38, agora + 0.35);
+      oscImpacto.frequency.setValueAtTime(110, agora + 0.52);
+      oscImpacto.frequency.exponentialRampToValueAtTime(32, agora + duracaoSeg);
+
+      const gainImpacto = this.ctx.createGain();
+      gainImpacto.gain.setValueAtTime(0.26, agora);
+      gainImpacto.gain.exponentialRampToValueAtTime(0.001, agora + duracaoSeg);
+
+      oscImpacto.connect(gainImpacto);
+      gainImpacto.connect(this.ctx.destination);
+
+      noise.start(agora);
+      noise.stop(agora + duracaoSeg);
+      oscImpacto.start(agora);
+      oscImpacto.stop(agora + duracaoSeg);
+    } catch (_) { /* ignora caso bloqueado */ }
   }
 };
 
@@ -185,6 +258,7 @@ const Estado = {
   inicioGeralTs: 0,
   ehInscrito: false,
   voto1Registrado: null,
+  voto2Registrado: null,
   votoRegistrado: null,
   simbolosChave: ['☢', '👁']
 };
@@ -348,10 +422,10 @@ const Jogo1Labirinto = {
     if (!this.temFragmento && this.player.c === this.pontoFragmento.c && this.player.r === this.pontoFragmento.r) {
       this.temFragmento = true;
       const badge = document.getElementById('status-chave');
-      badge.textContent = `🔑 CÓDIGO: ${Estado.simbolosChave.join(' ')}`;
+      badge.textContent = `🔑 SELOS: ${Estado.simbolosChave.join(' ')}`;
       badge.classList.add('obtida');
       document.getElementById('lab-instrucao').textContent =
-        `✓ Fragmento [${Estado.simbolosChave.join(' ')}] extraído! Siga até a porta no canto inferior direito.`;
+        `✓ Selos [${Estado.simbolosChave.join(' ')}] extraídos! Siga até a porta no canto inferior direito.`;
       Sismografo.pico(2.2);
       return;
     }
@@ -372,7 +446,7 @@ const Jogo1Labirinto = {
     if (this.animId) cancelAnimationFrame(this.animId);
     document.getElementById('jogo-1').hidden = true;
     document.getElementById('fase-indicador').textContent = '02 / 04';
-    Jogo2Fios.iniciar();
+    Jogo2SeloCofre.iniciar();
   },
 
   eventosLigados: false,
@@ -493,35 +567,24 @@ const Jogo1Labirinto = {
 };
 
 /* ---------------------------------------------------------------------
-   5. JOGO 02: DESARME DE 12 FIOS (10s -> 5s -> QUESTIONAMENTO AG 30)
+   5. JOGO 02: QUEBRA-SELO (INTRUSO) + COFRE 4 DÍGITOS + SUBLIMINAR & SOM GLITCH (1s)
    --------------------------------------------------------------------- */
-const Jogo2Fios = {
-  cores: [
-    { id: 'vermelho', nome: 'VERMELHO', hex: '#ff4d5e' },
-    { id: 'azul',     nome: 'AZUL',     hex: '#3898ff' },
-    { id: 'verde',    nome: 'VERDE',    hex: '#2ee59d' },
-    { id: 'amarelo',  nome: 'AMARELO',  hex: '#f5b942' },
-    { id: 'roxo',     nome: 'ROXO',     hex: '#b56bff' },
-    { id: 'laranja',  nome: 'LARANJA',  hex: '#ff8a3d' },
-    { id: 'ciano',    nome: 'CIANO',    hex: '#38f2ff' },
-    { id: 'branco',   nome: 'BRANCO',   hex: '#e6e8ec' },
-    { id: 'magenta',  nome: 'MAGENTA',  hex: '#ff47c2' },
-    { id: 'lima',     nome: 'LIMA',     hex: '#a6ff2e' },
-    { id: 'dourado',  nome: 'DOURADO',  hex: '#d4af37' },
-    { id: 'turquesa', nome: 'TURQUESA', hex: '#1abc9c' }
-  ],
+const Jogo2SeloCofre = {
+  simbolosPool: ['Ω', 'Δ', 'Ψ', 'Φ', 'Σ', 'Ж', '☢', '👁'],
   tentativa: 1,
   tempoRestante: 10.0,
-  fioCorretoId: '',
   timerId: null,
   ativo: false,
-  processandoClique: false,
+  etapaAtual: 'intruso',
+  codigoAlvo: '',
+  codigoDigitado: '',
+  subliminarExibida: false,
 
   iniciar() {
     document.getElementById('jogo-2').hidden = false;
     document.getElementById('simbolos-herdados').textContent = Estado.simbolosChave.join(' ');
     this.tentativa = 1;
-    this.bindModal();
+    this.bindTecladoCofre();
     this.prepararRodada(10.0);
   },
 
@@ -530,58 +593,130 @@ const Jogo2Fios = {
       clearInterval(this.timerId);
       this.timerId = null;
     }
+
     this.tempoRestante = segundos;
     this.ativo = true;
-    this.processandoClique = false;
+    this.etapaAtual = 'intruso';
+    this.codigoDigitado = '';
+    this.subliminarExibida = false;
 
-    const elTent = document.getElementById('fios-tentativa');
+    const elTent = document.getElementById('selo-tentativa');
     elTent.textContent = `CHANCE: ${this.tentativa} / 2`;
     elTent.classList.toggle('perigo', this.tentativa === 2);
 
-    // Embaralha todos os 12 fios
-    const embaralhados = [...this.cores].sort(() => Math.random() - 0.5);
+    document.getElementById('selo-subtitulo').textContent = 'PASSO 1: TOQUE NO SÍMBOLO INTRUSO';
+    document.getElementById('bloco-intruso').hidden = false;
+    document.getElementById('bloco-cofre').hidden = true;
+    document.getElementById('flash-subliminar').hidden = true;
 
-    // Escolhe um fio âncora entre 01 e 11 e define o fio imediatamente seguinte (N + 1) como alvo
-    const idxAncora = Math.floor(Math.random() * (embaralhados.length - 1));
-    const ancora = embaralhados[idxAncora];
-    const alvo = embaralhados[idxAncora + 1];
-    this.fioCorretoId = alvo.id;
-
-    const numAncora = String(idxAncora + 1).padStart(2, '0');
-    const numAlvo = String(idxAncora + 2).padStart(2, '0');
-
-    document.getElementById('fios-instrucao').innerHTML =
-      `DIRETRIZ (${Estado.simbolosChave[0]}): Corte o fio seguinte ao <span style="color:${ancora.hex}">${ancora.nome} (${numAncora})</span> — posição <strong>${numAlvo}</strong>!`;
-
-    const container = document.getElementById('lista-fios');
-    container.innerHTML = '';
-
-    embaralhados.forEach((fio, i) => {
-      const numeroStr = String(i + 1).padStart(2, '0');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn-fio';
-      btn.innerHTML = `
-        <span>${numeroStr} · ${fio.nome}</span>
-        <span class="fio-cabo" style="background:${fio.hex}; color:${fio.hex};"></span>
-      `;
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.cortarFio(fio.id);
-      });
-      container.appendChild(btn);
-    });
-
+    this.montarGradeIntruso();
     this.iniciarCronometro();
   },
 
+  montarGradeIntruso() {
+    const grade = document.getElementById('grade-intruso');
+    grade.innerHTML = '';
+
+    const simboloBase = Estado.simbolosChave[0];
+    const candidatosIntruso = this.simbolosPool.filter((s) => !Estado.simbolosChave.includes(s));
+    const simboloIntruso = candidatosIntruso[Math.floor(Math.random() * candidatosIntruso.length)];
+    const posIntruso = Math.floor(Math.random() * 9);
+
+    for (let i = 0; i < 9; i++) {
+      const ehIntruso = i === posIntruso;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-carta-selo';
+      btn.textContent = ehIntruso ? simboloIntruso : simboloBase;
+      btn.addEventListener('click', () => {
+        if (!this.ativo || this.etapaAtual !== 'intruso') return;
+        if (ehIntruso) {
+          Sismografo.pico(1.8);
+          this.abrirCofre();
+        } else {
+          this.falharRodada();
+        }
+      });
+      grade.appendChild(btn);
+    }
+  },
+
+  abrirCofre() {
+    this.etapaAtual = 'cofre';
+    this.codigoAlvo = String(Math.floor(1000 + Math.random() * 9000));
+    this.codigoDigitado = '';
+
+    document.getElementById('selo-subtitulo').textContent = 'PASSO 2: DIGITE O CÓDIGO DO COFRE';
+    document.getElementById('bloco-intruso').hidden = true;
+    document.getElementById('bloco-cofre').hidden = false;
+    document.getElementById('cofre-codigo-alvo').textContent = this.codigoAlvo;
+    document.getElementById('cofre-digitado').textContent = '_ _ _ _';
+  },
+
+  dispararSubliminar1Seg() {
+    if (this.subliminarExibida) return;
+    this.subliminarExibida = true;
+
+    const [s1, s2] = Estado.simbolosChave;
+    const flash = document.getElementById('flash-subliminar');
+    document.getElementById('texto-subliminar').textContent = `Você tem medo da ${s1}g ${s2}0 ?`;
+    flash.hidden = false;
+
+    // Dispara o som de falha elétrica / glitch de 1 segundo junto com o flash visual
+    AudioSuspense.tocarFalhaGlitch(1.0);
+    Sismografo.pico(2.8);
+
+    setTimeout(() => {
+      flash.hidden = true;
+    }, 1000);
+  },
+
+  bindTecladoCofre() {
+    if (this.ligado) return;
+    this.ligado = true;
+
+    document.querySelectorAll('.btn-num-cofre').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (!this.ativo || this.etapaAtual !== 'cofre') return;
+
+        const digito = btn.dataset.num;
+        const pos = this.codigoDigitado.length;
+
+        if (digito === this.codigoAlvo[pos]) {
+          this.codigoDigitado += digito;
+
+          const exibicao = this.codigoDigitado
+            .padEnd(4, '_')
+            .split('')
+            .join(' ');
+          document.getElementById('cofre-digitado').textContent = exibicao;
+
+          if (this.codigoDigitado.length === 2) {
+            this.dispararSubliminar1Seg();
+          }
+
+          if (this.codigoDigitado.length === 4) {
+            this.ativo = false;
+            clearInterval(this.timerId);
+            document.getElementById('flash-subliminar').hidden = true;
+            Sismografo.pico(2.1);
+            document.getElementById('jogo-2').hidden = true;
+            document.getElementById('fase-indicador').textContent = '03 / 04';
+            Jogo3Memoria.iniciar();
+          }
+        } else {
+          this.falharRodada();
+        }
+      });
+    });
+  },
+
   iniciarCronometro() {
-    const elTimer = document.getElementById('fios-timer');
+    const elTimer = document.getElementById('selo-timer');
     elTimer.textContent = `${this.tempoRestante.toFixed(1)}s`;
 
     this.timerId = setInterval(() => {
-      if (!this.ativo || this.processandoClique) return;
+      if (!this.ativo) return;
       this.tempoRestante = Math.max(0, +(this.tempoRestante - 0.1).toFixed(1));
       elTimer.textContent = `${this.tempoRestante.toFixed(1)}s`;
 
@@ -591,58 +726,27 @@ const Jogo2Fios = {
     }, 100);
   },
 
-  cortarFio(id) {
-    if (!this.ativo || this.processandoClique) return;
-    this.processandoClique = true;
-    this.ativo = false;
-
-    if (this.timerId) {
-      clearInterval(this.timerId);
-      this.timerId = null;
-    }
-
-    if (id === this.fioCorretoId) {
-      Sismografo.pico(2.0);
-      document.getElementById('jogo-2').hidden = true;
-      document.getElementById('fase-indicador').textContent = '03 / 04';
-      Jogo3Memoria.iniciar();
-    } else {
-      this.falharRodada();
-    }
-  },
-
   falharRodada() {
     this.ativo = false;
-    this.processandoClique = true;
     if (this.timerId) {
       clearInterval(this.timerId);
       this.timerId = null;
     }
+    document.getElementById('flash-subliminar').hidden = true;
     Sismografo.pico(2.8);
 
     if (this.tentativa === 1) {
       this.tentativa = 2;
       this.prepararRodada(5.0);
     } else {
-      const [s1, s2] = Estado.simbolosChave;
-      document.getElementById('texto-ag30').textContent = `Você tem medo da ${s1}g ${s2}0 ?`;
-      document.getElementById('modal-ag30').hidden = false;
-    }
-  },
-
-  bindModal() {
-    if (this.ligado) return;
-    this.ligado = true;
-    document.getElementById('btn-reiniciar-fios').addEventListener('click', () => {
-      document.getElementById('modal-ag30').hidden = true;
       this.tentativa = 1;
       this.prepararRodada(10.0);
-    });
+    }
   }
 };
 
 /* ---------------------------------------------------------------------
-   6. JOGO 03: MEMÓRIA CRIPTOGRAFADA REVERSA (CONECTADA AOS SÍMBOLOS AG 30)
+   6. JOGO 03: MEMÓRIA CRIPTOGRAFADA REVERSA
    --------------------------------------------------------------------- */
 const Jogo3Memoria = {
   simbolos: ['Ω', 'Δ', 'Ψ', 'Φ', 'Σ', 'Ж', '☢', '👁'],
@@ -714,8 +818,8 @@ const Jogo3Memoria = {
             this.bloqueado = true;
             Sismografo.pico(2.2);
             document.getElementById('jogo-3').hidden = true;
-            document.getElementById('fase-indicador').textContent = '04 / 04';
-            Jogo4Matematica.iniciar();
+            document.getElementById('fase-indicador').textContent = 'CONSULTA 02';
+            EnqueteIntermediaria2.iniciar();
           }
         } else {
           Sismografo.pico(2.5);
@@ -725,6 +829,61 @@ const Jogo3Memoria = {
         }
       });
     });
+  }
+};
+
+/* ---------------------------------------------------------------------
+   6B. MINI ENQUETE APÓS O JOGO 03 (PEDRO ALONSO LÓPEZ)
+   --------------------------------------------------------------------- */
+const EnqueteIntermediaria2 = {
+  votos: { filtrada: 142, contaminada: 618, rivotril: 894 },
+
+  iniciar() {
+    const sec = document.getElementById('enquete-intermediaria-2');
+    sec.hidden = false;
+
+    try {
+      const salvos = JSON.parse(localStorage.getItem(CONFIG.chaveEnquete2) || 'null');
+      if (salvos && typeof salvos.filtrada === 'number') this.votos = salvos;
+    } catch (_) { /* ignora */ }
+
+    const totalInicial = this.votos.filtrada + this.votos.contaminada + this.votos.rivotril;
+    document.getElementById('enquete2-total').textContent = `VOTOS: ${totalInicial.toLocaleString('pt-BR')}`;
+
+    document.querySelectorAll('.opcao-voto-2').forEach((btn) => {
+      btn.addEventListener('click', () => this.votar(btn.dataset.opcao2));
+    });
+
+    document.getElementById('btn-entrar-jogo4').addEventListener('click', () => {
+      sec.hidden = true;
+      document.getElementById('fase-indicador').textContent = '04 / 04';
+      Jogo4Matematica.iniciar();
+    });
+  },
+
+  votar(opcao) {
+    if (Estado.voto2Registrado) return;
+    Estado.voto2Registrado = opcao;
+    this.votos[opcao] = (this.votos[opcao] || 0) + 1;
+
+    try { localStorage.setItem(CONFIG.chaveEnquete2, JSON.stringify(this.votos)); } catch (_) {}
+
+    const chaves = ['filtrada', 'contaminada', 'rivotril'];
+    const total = chaves.reduce((acc, k) => acc + this.votos[k], 0);
+
+    chaves.forEach((k) => {
+      const pct = Math.round((this.votos[k] / total) * 100);
+      document.getElementById(`pct2-${k}`).textContent = `${pct}%`;
+      document.getElementById(`bar2-${k}`).style.width = `${pct}%`;
+    });
+
+    document.querySelectorAll('.opcao-voto-2').forEach((b) => {
+      b.classList.toggle('votado', b.dataset.opcao2 === opcao);
+    });
+
+    document.getElementById('enquete2-total').textContent = `VOTOS: ${total.toLocaleString('pt-BR')}`;
+    document.getElementById('enquete2-acoes').hidden = false;
+    Sismografo.pico(1.8);
   }
 };
 
