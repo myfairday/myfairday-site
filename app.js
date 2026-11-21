@@ -1,17 +1,18 @@
 /* =====================================================================
-   APP.JS — TELA PRETA + ÁUDIO SUSPENSE + 4 JOGOS (10 CÁLCULOS) + 2030 + ENQUETE
+   APP.JS — TELA PRETA + ÁUDIO + JOGO 1 + ENQUETE 1 + JOGOS 2,3,4 + 2030 + FINAL
    ===================================================================== */
 'use strict';
 
 const CONFIG = {
-  chaveTema: 'proto2030_tema_v3',
+  chaveTema: 'proto2030_tema_v4',
   chaveVisTotal: 'myfairday_vis_num_v2',
   chaveTriagem: 'proto2030_triagem_stats_v2',
+  chaveEnquete1: 'proto2030_enquete1_v1',
   chaveEnquete: 'proto2030_enquete_v2'
 };
 
 /* ---------------------------------------------------------------------
-   1. MOTOR DE ÁUDIO DE SUSPENSE (STREAM + SINTETIZADOR AMBIENTE)
+   1. MOTOR DE ÁUDIO DE SUSPENSE
    --------------------------------------------------------------------- */
 const AudioSuspense = {
   ctx: null,
@@ -183,6 +184,7 @@ const Sismografo = {
 const Estado = {
   inicioGeralTs: 0,
   ehInscrito: false,
+  voto1Registrado: null,
   votoRegistrado: null
 };
 
@@ -338,8 +340,8 @@ const Jogo1Labirinto = {
     this.ativo = false;
     if (this.animId) cancelAnimationFrame(this.animId);
     document.getElementById('jogo-1').hidden = true;
-    document.getElementById('fase-indicador').textContent = '02 / 04';
-    Jogo2Sintonia.iniciar();
+    document.getElementById('fase-indicador').textContent = 'CONSULTA 01';
+    EnqueteIntermediaria.iniciar();
   },
 
   eventosLigados: false,
@@ -460,6 +462,61 @@ const Jogo1Labirinto = {
     ctx.beginPath();
     ctx.arc(px, py, 7, 0, Math.PI * 2);
     ctx.fill();
+  }
+};
+
+/* ---------------------------------------------------------------------
+   3B. ENQUETE INTERMEDIÁRIA (LOGO APÓS O JOGO 01)
+   --------------------------------------------------------------------- */
+const EnqueteIntermediaria = {
+  votos: { sim: 782, nao: 114, perdoaria: 19, sofrer: 945 },
+
+  iniciar() {
+    const sec = document.getElementById('enquete-intermediaria');
+    sec.hidden = false;
+
+    try {
+      const salvos = JSON.parse(localStorage.getItem(CONFIG.chaveEnquete1) || 'null');
+      if (salvos && typeof salvos.sim === 'number') this.votos = salvos;
+    } catch (_) { /* ignora */ }
+
+    const totalInicial = this.votos.sim + this.votos.nao + this.votos.perdoaria + this.votos.sofrer;
+    document.getElementById('enquete1-total').textContent = `VOTOS: ${totalInicial.toLocaleString('pt-BR')}`;
+
+    document.querySelectorAll('.opcao-voto-1').forEach((btn) => {
+      btn.addEventListener('click', () => this.votar(btn.dataset.opcao1));
+    });
+
+    document.getElementById('btn-avancar-jogo2').addEventListener('click', () => {
+      sec.hidden = true;
+      document.getElementById('fase-indicador').textContent = '02 / 04';
+      Jogo2Sintonia.iniciar();
+    });
+  },
+
+  votar(opcao) {
+    if (Estado.voto1Registrado) return;
+    Estado.voto1Registrado = opcao;
+    this.votos[opcao] = (this.votos[opcao] || 0) + 1;
+
+    try { localStorage.setItem(CONFIG.chaveEnquete1, JSON.stringify(this.votos)); } catch (_) {}
+
+    const chaves = ['sim', 'nao', 'perdoaria', 'sofrer'];
+    const total = chaves.reduce((acc, k) => acc + this.votos[k], 0);
+
+    chaves.forEach((k) => {
+      const pct = Math.round((this.votos[k] / total) * 100);
+      document.getElementById(`pct1-${k}`).textContent = `${pct}%`;
+      document.getElementById(`bar1-${k}`).style.width = `${pct}%`;
+    });
+
+    document.querySelectorAll('.opcao-voto-1').forEach((b) => {
+      b.classList.toggle('votado', b.dataset.opcao1 === opcao);
+    });
+
+    document.getElementById('enquete1-total').textContent = `VOTOS: ${total.toLocaleString('pt-BR')}`;
+    document.getElementById('enquete1-acoes').hidden = false;
+    Sismografo.pico(1.8);
   }
 };
 
@@ -669,7 +726,6 @@ const Jogo4Matematica = {
     let res = 0;
 
     if (nivel <= 3) {
-      // Somas e subtrações rápidas de 2 dígitos
       const a = rand(24, 98);
       const b = rand(15, 79);
       if (Math.random() > 0.5) {
@@ -682,20 +738,17 @@ const Jogo4Matematica = {
         res = maior - menor;
       }
     } else if (nivel <= 6) {
-      // Multiplicações diretas
       const a = rand(7, 16);
       const b = rand(6, 14);
       texto = `${a} × ${b}`;
       res = a * b;
     } else if (nivel <= 8) {
-      // Expressões com multiplicação + soma/subtração
       const a = rand(6, 13);
       const b = rand(4, 11);
       const c = rand(10, 45);
       texto = `(${a} × ${b}) + ${c}`;
       res = a * b + c;
     } else {
-      // Nível 9 e 10: potência ou expressão composta
       const base = rand(6, 12);
       const sub = rand(12, 35);
       texto = `${base}² − ${sub}`;
@@ -825,7 +878,7 @@ const EnqueteFinal = {
       this.liberarEnquete();
     });
 
-    document.querySelectorAll('.opcao-voto').forEach((btn) => {
+    document.querySelectorAll('[data-opcao]').forEach((btn) => {
       btn.addEventListener('click', () => this.votar(btn.dataset.opcao));
     });
   },
@@ -866,7 +919,7 @@ const EnqueteFinal = {
       document.getElementById(`bar-${k}`).style.width = `${pct}%`;
     });
 
-    document.querySelectorAll('.opcao-voto').forEach((b) => {
+    document.querySelectorAll('[data-opcao]').forEach((b) => {
       b.classList.toggle('votado', b.dataset.opcao === opcao);
     });
 
