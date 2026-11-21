@@ -19,7 +19,7 @@ const CONFIG = {
 };
 
 /* ---------------------------------------------------------------------
-   2. UTILITÁRIOS E REDE (com fallback automático de CORS sem chave)
+   2. UTILITÁRIOS E REDE
    --------------------------------------------------------------------- */
 const NS_SVG = 'http://www.w3.org/2000/svg';
 
@@ -65,7 +65,7 @@ function svg(tag, attrs = {}) {
 }
 
 // Fetch com timeout e cadeia de relays CORS gratuitos (sem chave)
-async function fetchSeguro(url, tipo = 'json', timeoutMs = 15000) {
+async function fetchSeguro(url, tipo = 'json', timeoutMs = 14000) {
   const tentar = async (targetUrl, unwrapAllOrigins = false) => {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -74,7 +74,7 @@ async function fetchSeguro(url, tipo = 'json', timeoutMs = 15000) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       if (unwrapAllOrigins) {
         const wrapper = await res.json();
-        if (!wrapper || typeof wrapper.contents !== 'string') throw new Error('Resposta inválida');
+        if (!wrapper || typeof wrapper.contents !== 'string') throw new Error('Resposta vazia');
         return tipo === 'text' ? wrapper.contents : JSON.parse(wrapper.contents);
       }
       return tipo === 'text' ? await res.text() : await res.json();
@@ -83,22 +83,17 @@ async function fetchSeguro(url, tipo = 'json', timeoutMs = 15000) {
     }
   };
 
-  // 1. Direto (funciona para APIs com CORS aberto: USGS, NASA, Open-Meteo, GDELT, Manifold)
+  // 1. Direto
   try {
     return await tentar(url, false);
-  } catch (_) { /* segue para os relays CORS */ }
+  } catch (_) { /* segue para relays CORS */ }
 
-  // 2. Relay CORS.lol (gratuito, suporta até 10 MB — ideal para OpenSky)
-  try {
-    return await tentar(`https://api.cors.lol/?url=${encodeURIComponent(url)}`, false);
-  } catch (_) { /* próximo relay */ }
-
-  // 3. Relay CodeTabs
+  // 2. CodeTabs
   try {
     return await tentar(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`, false);
   } catch (_) { /* próximo relay */ }
 
-  // 4. Relay AllOrigins (/get encapsula em JSON e lida melhor com respostas comprimidas)
+  // 3. AllOrigins (/get)
   return await tentar(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, true);
 }
 
@@ -253,12 +248,22 @@ function criarSensor(def) {
 }
 
 /* ---------------------------------------------------------------------
-   6. OS 9 SENSORES EM TEMPO REAL
+   6. OS 8 SENSORES EM TEMPO REAL
    --------------------------------------------------------------------- */
 
-/* ===== 01 · AVIÕES NO AR — OpenSky Network / ADSB.fi — 30 s ============ */
+/* ===== 01 · AVIÕES NO AR — Rede ADS-B Global / OpenSky — 30 s =========== */
+const SETORES_AEREOS = [
+  { lat: 39.8, lon: -98.5, dist: 250 },  // América do Norte
+  { lat: -23.5, lon: -46.6, dist: 250 }, // América do Sul
+  { lat: 50.1, lon: 8.6, dist: 250 },    // Europa Central
+  { lat: 25.2, lon: 55.3, dist: 250 },   // Oriente Médio
+  { lat: 28.6, lon: 77.2, dist: 250 },   // Sul da Ásia
+  { lat: 35.6, lon: 139.7, dist: 250 },  // Leste Asiático
+  { lat: -33.8, lon: 151.2, dist: 250 }  // Oceania
+];
+
 const aviacao = criarSensor({
-  id: 'aviacao', num: '01', titulo: 'AVIÕES NO AR', fonte: 'OpenSky Network', freq: 30,
+  id: 'aviacao', num: '01', titulo: 'AVIÕES NO AR', fonte: 'ADSB Exchange / OpenSky', freq: 30,
   e: { total: 0, desvios: [], pontos: [], vistosDesvios: new Set() },
 
   async atualizar() {
@@ -266,38 +271,52 @@ const aviacao = criarSensor({
     const desvios = [];
     const pontos = [];
 
-    try {
-      const dados = await fetchSeguro('https://opensky-network.org/api/states/all', 'json', 18000);
-      const states = Array.isArray(dados?.states) ? dados.states : [];
-      if (states.length === 0) throw new Error('Sem estados retornados');
+    // 1) Consulta setores aéreos globais na rede aberta ADSB.lol (respostas leves e rápidas)
+    const resultadosSetores = await Promise.allSettled([
+      ...SETORES_AEREOS.map((s) =>
+        fetchSeguro(`https://api.adsb.lol/v2/point/${s.lat}/${s.lon}/${s.dist}`, 'json', 10000)
+      ),
+      fetchSeguro('https://api.adsb.lol/v2/mil', 'json', 10000)
+    ]);
 
-      const noAr = states.filter((s) => s && s[8] === false);
-      total = noAr.length;
+    const aeronavesMap = new Map();
+    resultadosSetores.forEach((res) => {
+      if (res.status === 'fulfilled' && Array.isArray(res.value?.ac)) {
+        res.value.ac.forEach((a) => {
+          if (a && a.hex && a.alt_baro !== 'ground') {
+            aeronavesMap.set(a.hex, a);
+          }
+        });
+      }
+    });
 
-      for (let i = 0; i < noAr.length; i++) {
-        const s = noAr[i];
-        const callsign = (s[1] || s[0] || 'N/A').trim();
-        const lon = Number(s[5]);
-        const lat = Number(s[6]);
-        const vRate = Number(s[11]) || 0;
-        const squawk = String(s[14] || '');
+    if (aeronavesMap.size > 0) {
+      const lista = [...aeronavesMap.values()];
+      total = lista.length;
+
+      lista.forEach((a) => {
+        const call = (a.flight || a.r || a.hex || 'N/A').trim();
+        const sq = String(a.squawk || '');
+        const baroRate = Number(a.baro_rate) || 0;
+        const lat = Number(a.lat);
+        const lon = Number(a.lon);
 
         let motivo = '';
-        if (squawk === '7700') motivo = 'Squawk 7700 (emergência geral)';
-        else if (squawk === '7600') motivo = 'Squawk 7600 (falha de comunicação)';
-        else if (squawk === '7500') motivo = 'Squawk 7500 (interferência ilícita)';
-        else if (Math.abs(vRate) > 32) motivo = `Variação vertical brusca (${U.sinal(vRate, 0)} m/s)`;
+        if (sq === '7700') motivo = 'Squawk 7700 (emergência geral)';
+        else if (sq === '7600') motivo = 'Squawk 7600 (falha de comunicação)';
+        else if (sq === '7500') motivo = 'Squawk 7500 (interferência ilícita)';
+        else if (Math.abs(baroRate) > 6000) motivo = `Razão vertical extrema (${U.sinal(baroRate, 0)} ft/min)`;
 
         if (motivo) {
-          desvios.push({ id: `${callsign}-${motivo}`, indicativo: callsign, motivo, lon, lat });
+          desvios.push({ id: `${call}-${motivo}`, indicativo: call, motivo, lon, lat });
         }
-      }
+      });
 
-      const passo = Math.max(1, Math.floor(noAr.length / 55));
-      for (let i = 0; i < noAr.length && pontos.length < 55; i += passo) {
-        const s = noAr[i];
-        if (typeof s[5] === 'number' && typeof s[6] === 'number') {
-          pontos.push({ lon: s[5], lat: s[6], hot: false });
+      const passo = Math.max(1, Math.floor(lista.length / 55));
+      for (let i = 0; i < lista.length && pontos.length < 55; i += passo) {
+        const a = lista[i];
+        if (typeof a.lat === 'number' && typeof a.lon === 'number') {
+          pontos.push({ lon: a.lon, lat: a.lat, hot: false });
         }
       }
       desvios.slice(0, 8).forEach((d) => {
@@ -305,30 +324,30 @@ const aviacao = criarSensor({
           pontos.push({ lon: d.lon, lat: d.lat, hot: true });
         }
       });
-      this.fonte = 'OpenSky Network';
-    } catch (_) {
-      // Fallback via rede aberta ADSB.fi / ADSB.lol (payload leve)
-      let dados;
-      try {
-        dados = await fetchSeguro('https://opendata.adsb.fi/api/v2/mil', 'json', 12000);
-        this.fonte = 'ADSB.fi (Rede Aberta)';
-      } catch (__) {
-        dados = await fetchSeguro('https://api.adsb.lol/v2/mil', 'json', 12000);
-        this.fonte = 'ADSB.lol (Rede Aberta)';
-      }
+      this.fonte = 'Rede ADS-B Global';
+    } else {
+      // 2) Fallback secundário: OpenSky Network
+      const dados = await fetchSeguro('https://opensky-network.org/api/states/all', 'json', 14000);
+      const states = Array.isArray(dados?.states) ? dados.states : [];
+      if (states.length === 0) throw new Error('Radares temporariamente indisponíveis');
 
-      const ac = Array.isArray(dados?.ac) ? dados.ac : [];
-      total = ac.length;
-      ac.forEach((a) => {
-        const sq = String(a.squawk || '');
-        const call = (a.flight || a.hex || 'N/A').trim();
+      const noAr = states.filter((s) => s && s[8] === false);
+      total = noAr.length;
+      noAr.forEach((s) => {
+        const call = (s[1] || s[0] || 'N/A').trim();
+        const sq = String(s[14] || '');
         if (sq === '7700' || sq === '7600' || sq === '7500') {
-          desvios.push({ id: `${call}-${sq}`, indicativo: call, motivo: `Squawk ${sq}`, lon: a.lon, lat: a.lat });
-        }
-        if (typeof a.lon === 'number' && typeof a.lat === 'number' && pontos.length < 55) {
-          pontos.push({ lon: a.lon, lat: a.lat, hot: sq === '7700' });
+          desvios.push({ id: `${call}-${sq}`, indicativo: call, motivo: `Squawk ${sq}`, lon: s[5], lat: s[6] });
         }
       });
+      const passo = Math.max(1, Math.floor(noAr.length / 55));
+      for (let i = 0; i < noAr.length && pontos.length < 55; i += passo) {
+        const s = noAr[i];
+        if (typeof s[5] === 'number' && typeof s[6] === 'number') {
+          pontos.push({ lon: s[5], lat: s[6], hot: false });
+        }
+      }
+      this.fonte = 'OpenSky Network';
     }
 
     this.e.total = total;
@@ -345,7 +364,7 @@ const aviacao = criarSensor({
     });
 
     if (novos > 0) Caos.registrar(novos);
-    else this.logar(`${U.num(total)} aeronaves rastreadas em tempo real`);
+    else this.logar(`${U.num(total)} aeronaves monitoradas nos corredores globais`);
   },
 
   metrica() { return this.e.total; },
@@ -355,7 +374,7 @@ const aviacao = criarSensor({
     return { texto: U.num(this.e.total), nivel: d >= 5 ? 'crit' : d >= 2 ? 'warn' : 'ok' };
   },
   contexto() {
-    if (!this.carregado) return 'conectando ao radar aéreo…';
+    if (!this.carregado) return 'sincronizando radar aéreo…';
     return `${this.e.desvios.length} alerta(s) de squawk/rota ativo(s) · pontos vermelhos = alertas`;
   },
   montarViz() { /* preenchido após primeira leitura real */ },
@@ -868,4 +887,379 @@ const manchetes = criarSensor({
     }
     el.replaceChildren(...this.e.lista.map((m) => {
       const li = h('li');
-      li.append(h('span', 'fonte-tag', m.f), h('span', 'nome', m.t), h('span', 'hora', U.hora(
+      li.append(h('span', 'fonte-tag', m.f), h('span', 'nome', m.t), h('span', 'hora', U.hora(m.ts).slice(0, 5)));
+      return li;
+    }));
+  },
+  eventosIniciais() { return this.e.total24; }
+});
+
+/* ===== 08 · PALAVRAS-CHAVE NOTÓRIAS — GDELT Project — 15 min ========= */
+const TERMOS_MONITORADOS = [
+  { t: 'ataque terrorista', q: '("terrorist attack" OR "ataque terrorista")' },
+  { t: 'guerra', q: '(war OR guerra)' },
+  { t: 'colapso', q: '(collapse OR colapso)' },
+  { t: 'crise', q: '(crisis OR crise)' },
+  { t: 'catástrofe', q: '(catastrophe OR "catástrofe")' },
+  { t: 'pandemia', q: '(pandemic OR pandemia)' },
+  { t: 'golpe de estado', q: '("coup" OR "golpe de estado")' }
+];
+
+const palavras = criarSensor({
+  id: 'palavras', num: '08', titulo: 'PALAVRAS-CHAVE NOTÓRIAS', fonte: 'GDELT Project', freq: 900,
+  e: { termos: [], ultimoTotal: 0 },
+
+  async atualizar() {
+    const resultados = await Promise.all(TERMOS_MONITORADOS.map(async (item) => {
+      try {
+        const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(item.q)}&mode=timelinevolraw&timespan=48h&format=json`;
+        const dados = await fetchSeguro(url, 'json', 10000);
+        const serie = dados?.timeline?.[0]?.data || [];
+        const meio = Math.floor(serie.length / 2);
+
+        let ontem = 0;
+        let hoje = 0;
+        serie.forEach((pt, idx) => {
+          const val = Number(pt?.value) || 0;
+          if (idx < meio) ontem += val;
+          else hoje += val;
+        });
+
+        return { t: item.t, hoje: Math.round(hoje), ontem: Math.round(ontem) };
+      } catch (_) {
+        const prev = this.e.termos.find((x) => x.t === item.t);
+        return prev || { t: item.t, hoje: 0, ontem: 0 };
+      }
+    }));
+
+    const totalAnterior = this.e.ultimoTotal;
+    this.e.termos = resultados;
+    const totalAtual = this.total();
+    this.e.ultimoTotal = totalAtual;
+
+    if (totalAnterior > 0 && totalAtual > totalAnterior) {
+      Caos.registrar(totalAtual - totalAnterior);
+    }
+
+    const top = this.maiorAlta();
+    this.logar(
+      top ? `Maior alta: "${top.t}" (${this.fmtVar(top)})` : 'Monitoramento de 48h sincronizado',
+      top && this.variacao(top) >= 40 ? 'alerta' : ''
+    );
+  },
+
+  variacao(x) {
+    if (x.ontem === 0) return x.hoje > 0 ? Infinity : 0;
+    return ((x.hoje - x.ontem) / x.ontem) * 100;
+  },
+  fmtVar(x) {
+    const v = this.variacao(x);
+    return v === Infinity ? 'novo' : `${U.sinal(v, 0)}%`;
+  },
+  maiorAlta() {
+    const candidatos = this.e.termos.filter((x) => x.hoje >= 5);
+    if (candidatos.length === 0) return null;
+    return candidatos.sort((a, b) => this.variacao(b) - this.variacao(a))[0];
+  },
+  total() { return this.e.termos.reduce((s, x) => s + x.hoje, 0); },
+  metrica() { return this.total(); },
+  principal() {
+    if (!this.carregado) return { texto: '—', nivel: 'ok' };
+    const top = this.maiorAlta();
+    const v = top ? this.variacao(top) : 0;
+    return { texto: U.num(this.total()), nivel: v >= 100 ? 'crit' : v >= 40 ? 'warn' : 'ok' };
+  },
+  contexto() {
+    if (!this.carregado) return 'indexando menções globais GDELT…';
+    const top = this.maiorAlta();
+    return top ? `menções em 24h · maior alta: "${top.t}" (${this.fmtVar(top)} vs. ontem)` : 'menções em 24h · sem altas relevantes';
+  },
+  montarViz() { /* lista */ },
+  renderViz(el) {
+    el.replaceChildren(...this.e.termos.map((x) => {
+      const v = this.variacao(x);
+      const li = h('li');
+      li.append(
+        h('span', 'nome', x.t),
+        h('span', 'val', U.num(x.hoje)),
+        h('span', 'val ' + (v >= 100 ? 'verm' : v >= 40 ? 'amb' : 'suave'), this.fmtVar(x))
+      );
+      return li;
+    }));
+  },
+  eventosIniciais() { return this.total(); }
+});
+
+// Ordem dos cards no painel
+const SENSORES = [aviacao, microtremores, incendios, temperaturas, anomalias, ar, manchetes, palavras];
+const SENSOR_POR_ID = Object.fromEntries(SENSORES.map((s) => [s.id, s]));
+
+/* ---------------------------------------------------------------------
+   7. INTERFACE E SISMÓGRAFO
+   --------------------------------------------------------------------- */
+const estado = { ultima: Date.now(), rota: null };
+const NIVEIS = { ok: 'normal', warn: 'atenção', crit: 'crítico' };
+
+const Sismografo = {
+  n: 240,
+  amostras: [],
+  energia: 0,
+  linha: null,
+  caixa: null,
+
+  iniciar() {
+    const el = document.getElementById('sismo');
+    this.linha = el.querySelector('polyline');
+    this.caixa = document.getElementById('sismografo');
+    this.amostras = Array.from({ length: this.n }, () => (Math.random() * 2 - 1) * 0.05);
+    this.desenhar();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    setInterval(() => this.passo(), 50);
+  },
+
+  pico(n) {
+    this.energia = Math.min(1, this.energia + 0.35 + Math.log10(n + 1) * 0.25);
+  },
+
+  passo() {
+    const anterior = this.amostras[this.amostras.length - 1];
+    const ruido = (Math.random() * 2 - 1) * (0.04 + this.energia);
+    this.amostras.push(anterior * 0.5 + ruido * 0.5 * 2);
+    this.amostras.shift();
+    this.energia = this.energia < 0.01 ? 0 : this.energia * 0.96;
+    this.caixa.classList.toggle('agitado', this.energia > 0.25);
+    this.desenhar();
+  },
+
+  desenhar() {
+    const passoX = 1000 / (this.n - 1);
+    this.linha.setAttribute('points',
+      this.amostras.map((v, i) => `${(i * passoX).toFixed(1)},${(50 - U.clamp(v, -1, 1) * 46).toFixed(1)}`).join(' '));
+  }
+};
+
+function relogio() {
+  const d = new Date();
+  const dia = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).replace(/\./g, '');
+  document.getElementById('relogio').textContent = `${dia} ${d.toLocaleTimeString('pt-BR')}`;
+}
+
+const UI = {
+  cards: {},
+
+  montar() {
+    SENSORES.forEach((s) => {
+      const raiz = document.querySelector(`[data-sensor="${s.id}"]`);
+      const campo = (nome) => raiz.querySelector(`[data-campo="${nome}"]`);
+      const pe = raiz.querySelector('.card-pe');
+
+      const nivel = h('span', 'nivel', NIVEIS.ok);
+      pe.insertBefore(nivel, pe.firstChild);
+
+      const ciclo = h('div', 'ciclo');
+      const preench = h('i');
+      ciclo.appendChild(preench);
+      raiz.insertBefore(ciclo, pe);
+
+      this.cards[s.id] = {
+        raiz,
+        valor: campo('valor'),
+        contexto: campo('contexto'),
+        viz: campo('viz'),
+        tempo: campo('tempo'),
+        nivel,
+        ciclo: preench,
+        pAnt: 0
+      };
+      s.montarViz(this.cards[s.id].viz);
+    });
+  },
+
+  renderCard(s, animar) {
+    const c = this.cards[s.id];
+    const p = s.principal();
+    c.valor.textContent = p.texto;
+    c.raiz.dataset.nivel = p.nivel;
+    c.nivel.textContent = NIVEIS[p.nivel];
+    c.contexto.textContent = s.contexto();
+    s.renderViz(c.viz);
+    this.renderTempo(s);
+    if (animar) {
+      c.valor.classList.remove('pulsou');
+      void c.valor.offsetWidth;
+      c.valor.classList.add('pulsou');
+    }
+  },
+
+  renderTempo(s) {
+    this.cards[s.id].tempo.textContent = s.ultima ? 'atualizado ' + U.relativo(s.ultima) : 'sincronizando…';
+  },
+  renderTempos() { SENSORES.forEach((s) => this.renderTempo(s)); },
+
+  renderCiclos() {
+    const agora = Date.now();
+    SENSORES.forEach((s) => {
+      const c = this.cards[s.id];
+      if (!s.proximo || !s.intervaloMs) return;
+      const p = U.clamp(1 - (s.proximo - agora) / s.intervaloMs, 0, 1);
+      c.ciclo.style.transition = p < c.pAnt ? 'none' : '';
+      c.ciclo.style.width = (p * 100).toFixed(1) + '%';
+      c.pAnt = p;
+    });
+  },
+
+  renderRodape() {
+    const data = new Date(estado.ultima).toLocaleString('pt-BR', {
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    document.getElementById('ultima').textContent = 'Última atualização geral: ' + data;
+  }
+};
+
+// Página de detalhe de um sensor
+const Detalhe = {
+  render(s) {
+    const p = s.principal();
+    const raiz = document.getElementById('detalhe');
+    raiz.dataset.nivel = p.nivel;
+    document.getElementById('det-num').textContent = s.num;
+    document.getElementById('det-titulo').textContent = s.titulo;
+    document.getElementById('det-fonte').textContent = s.fonte;
+    document.getElementById('det-freq').textContent = `a cada ${U.freq(s.freq)}`;
+    document.getElementById('det-ultima').textContent = s.ultima ? `${U.hora(s.ultima)} (${U.relativo(s.ultima)})` : 'sincronizando…';
+    document.getElementById('det-valor').textContent = p.texto;
+    document.getElementById('det-contexto').textContent = s.contexto();
+    this.grafico(document.getElementById('det-grafico'), s.historico);
+
+    const log = document.getElementById('det-log');
+    log.replaceChildren(...s.log.map((l) => {
+      const li = h('li', l.nivel);
+      li.append(h('span', 'hora', U.hora(l.ts)), h('span', 'nome texto', l.texto));
+      return li;
+    }));
+  },
+
+  grafico(el, dados) {
+    el.replaceChildren();
+    const W = 600, H = 160, P = 26;
+    if (dados.length < 2) {
+      const t = svg('text', { x: W / 2, y: H / 2, 'text-anchor': 'middle' });
+      t.textContent = 'aguardando mais leituras em tempo real…';
+      el.appendChild(t);
+      return;
+    }
+    const min = Math.min(...dados);
+    const max = Math.max(...dados);
+    const faixa = (max - min) || 1;
+    const fmt = (v) => (Number.isInteger(v) ? U.num(v) : U.dec(v, 1));
+    const pts = dados.map((v, i) => [
+      P + i * (W - 2 * P) / (dados.length - 1),
+      H - P - (v - min) / faixa * (H - 2 * P)
+    ]);
+    el.appendChild(svg('line', { class: 'grade', x1: P, y1: P, x2: W - P, y2: P }));
+    el.appendChild(svg('line', { class: 'grade', x1: P, y1: H - P, x2: W - P, y2: H - P }));
+    el.appendChild(svg('polyline', { class: 'linha', points: pts.map((q) => q.join(',')).join(' ') }));
+    const ultimo = pts[pts.length - 1];
+    el.appendChild(svg('circle', { class: 'ponto-final', cx: ultimo[0], cy: ultimo[1], r: 3.5 }));
+    const tMax = svg('text', { x: P, y: P - 8 });
+    tMax.textContent = 'máx ' + fmt(max);
+    const tMin = svg('text', { x: P, y: H - P + 16 });
+    tMin.textContent = 'mín ' + fmt(min);
+    el.append(tMax, tMin);
+  }
+};
+
+/* ---------------------------------------------------------------------
+   8. AGENDADOR EM TEMPO REAL E ROTEADOR
+   --------------------------------------------------------------------- */
+async function executar(s, animar = true) {
+  if (s.ocupado) return;
+  s.ocupado = true;
+  try {
+    await s.atualizar();
+    s.carregado = true;
+    s.registrarHistorico();
+    s.ultima = Date.now();
+    estado.ultima = s.ultima;
+    UI.renderCard(s, animar);
+    UI.renderRodape();
+    if (estado.rota === s.id) Detalhe.render(s);
+  } catch (err) {
+    s.logar(`Falha temporária na leitura (${err?.message || 'rede'})`);
+    if (estado.rota === s.id) Detalhe.render(s);
+  } finally {
+    s.proximo = Date.now() + s.intervaloMs;
+    s.ocupado = false;
+  }
+}
+
+const Agendador = {
+  timers: [],
+
+  iniciar() {
+    this.parar();
+    SENSORES.forEach((s) => {
+      const ms = s.freq * 1000;
+      s.intervaloMs = ms;
+      s.proximo = Date.now() + ms;
+      this.timers.push(setInterval(() => executar(s, true), ms));
+    });
+  },
+
+  parar() {
+    this.timers.forEach(clearInterval);
+    this.timers = [];
+  }
+};
+
+function rotear() {
+  const m = location.hash.match(/^#\/sensor\/([a-z]+)$/);
+  const s = m ? SENSOR_POR_ID[m[1]] : null;
+  const home = document.getElementById('vista-home');
+  const detalhe = document.getElementById('vista-detalhe');
+  if (s) {
+    estado.rota = s.id;
+    home.hidden = true;
+    detalhe.hidden = false;
+    Detalhe.render(s);
+    window.scrollTo(0, 0);
+  } else {
+    estado.rota = null;
+    detalhe.hidden = true;
+    home.hidden = false;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   9. INICIALIZAÇÃO
+   --------------------------------------------------------------------- */
+async function iniciar() {
+  UI.montar();
+  SENSORES.forEach((s) => UI.renderCard(s, false));
+  Sismografo.iniciar();
+  relogio();
+  Visitantes.iniciar();
+
+  Agendador.iniciar();
+
+  setInterval(() => {
+    UI.renderTempos();
+    UI.renderCiclos();
+    relogio();
+    if (estado.rota) {
+      const s = SENSOR_POR_ID[estado.rota];
+      document.getElementById('det-ultima').textContent = s.ultima
+        ? `${U.hora(s.ultima)} (${U.relativo(s.ultima)})`
+        : 'sincronizando…';
+    }
+  }, 1000);
+
+  window.addEventListener('hashchange', rotear);
+  rotear();
+
+  await Promise.allSettled(SENSORES.map((s) => executar(s, false)));
+  Caos.iniciar(SENSORES.reduce((soma, s) => soma + s.eventosIniciais(), 0));
+}
+
+document.addEventListener('DOMContentLoaded', iniciar);
