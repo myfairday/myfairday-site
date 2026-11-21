@@ -352,7 +352,7 @@ function renderizarMapaReal(el, pontos) {
 }
 
 /* ---------------------------------------------------------------------
-   3. CONTADOR DE VISITANTES (CORS NATIVO + CONTAGEM POR SESSÃO)
+   3. CONTADOR DE VISITANTES (CONTAGEM GLOBAL GENUÍNA + FALLBACK CORS)
    --------------------------------------------------------------------- */
 const Visitantes = {
   total: 0,
@@ -363,21 +363,23 @@ const Visitantes = {
     el.textContent = this.total > 0 ? `${T('visitantes')}: ${U.num(this.total)}` : `${T('visitantes')}: —`;
   },
 
-  async consultarDireto(url) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 7000);
+  async consultarContador(url) {
+    // Tenta requisição direta primeiro (mais rápido)
     try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 6000);
       const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    } finally {
       clearTimeout(timer);
-    }
+      if (res.ok) return await res.json();
+    } catch (_) { /* cai para o proxy CORS abaixo */ }
+
+    // Fallback usando o fetchSeguro do próprio painel caso haja bloqueio de CORS
+    return await fetchSeguro(url, 'json', 8000);
   },
 
   async iniciar() {
-    const namespace = 'thiagomistery-anomalias-globais';
-    const key = 'acessos-v2';
+    const namespace = 'thiagomistery-painel-anomalias';
+    const key = 'visitantes-unicos-v1';
     let cache = 0;
     let jaContouSessao = false;
 
@@ -391,14 +393,16 @@ const Visitantes = {
       this.atualizarTexto();
     }
 
-    const endpoint = jaContouSessao
-      ? `https://abacus.jasoncameron.dev/get/${namespace}/${key}`
-      : `https://abacus.jasoncameron.dev/hit/${namespace}/${key}`;
+    // Se já contou nesta aba/sessão, apenas lê o total atual (/get).
+    // Se for um novo acesso/sessão, incrementa +1 no servidor global (/up).
+    const baseUrl = `https://api.counterapi.dev/v1/${namespace}/${key}`;
+    const endpoint = jaContouSessao ? baseUrl : `${baseUrl}/up`;
 
     try {
-      const data = await this.consultarDireto(endpoint);
-      const val = Number(data?.value);
-      if (val > 0) {
+      const data = await this.consultarContador(endpoint);
+      const val = Number(data?.count ?? data?.value);
+
+      if (!Number.isNaN(val) && val > 0) {
         this.total = Math.max(val, cache);
         try {
           sessionStorage.setItem(CONFIG.chaveVisitante, '1');
@@ -406,6 +410,7 @@ const Visitantes = {
         } catch (_) { /* ignora */ }
       }
     } catch (_) {
+      // Só usa incremento local se ambos (direto e proxy) falharem
       if (!jaContouSessao) {
         this.total = cache + 1;
         try {
