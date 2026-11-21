@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body class="estado-escuro">
 
@@ -150,21 +150,33 @@
       <div class="mem-input-display" id="mem-digitado">AGUARDANDO TRANSMISSÃO...</div>
     </section>
 
-    <!-- ================= JOGO 04: DESARME DE NÚCLEO (PRECISÃO) ================= -->
+    <!-- ================= JOGO 04: 10 CÁLCULOS MATEMÁTICOS ================= -->
     <section class="painel-etapa" id="jogo-4" hidden>
       <div class="etapa-header">
-        <span class="etapa-tag">04 // TRAVA DE CONTENÇÃO FINAL</span>
-        <span class="lab-timer" id="nucleo-travas">TRAVAS: 0 / 4</span>
+        <span class="etapa-tag">04 // CRIPTOGRAFIA NUMÉRICA</span>
+        <div class="hud-direita">
+          <span class="badge-erros" id="math-erros">ERROS: 0 / 2</span>
+          <span class="lab-timer" id="math-progresso">CÁLCULO: 1 / 10</span>
+        </div>
       </div>
 
       <p class="etapa-desc">
-        Pressione <strong>TRAVAR AGORA</strong> (ou barra de espaço) exatamente quando o feixe cruzar a zona iluminada. A velocidade aumenta a cada trava.
+        Resolva os <strong>10 cálculos matemáticos</strong> em sequência. Se você errar <strong>2 vezes</strong>, o sistema reseta tudo para o início.
       </p>
 
-      <div class="nucleo-wrap">
-        <canvas id="canvas-nucleo" width="320" height="320"></canvas>
-        <button type="button" class="btn-travar-nucleo" id="btn-travar-nucleo">TRAVAR AGORA</button>
-      </div>
+      <div class="math-visor" id="math-equacao">—</div>
+
+      <form class="math-form" id="form-math" autocomplete="off">
+        <input
+          type="number"
+          id="input-math"
+          placeholder="Digite o resultado…"
+          required
+        >
+        <button type="submit" class="btn-travar-nucleo" id="btn-math-enviar">CONFIRMAR</button>
+      </form>
+
+      <p class="math-feedback" id="math-feedback"></p>
     </section>
 
     <!-- ================= ETAPA 05: INTERRUPTOR DO CONTADOR 2030 ================= -->
@@ -286,6 +298,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
