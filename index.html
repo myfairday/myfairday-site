@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   =====================================================================
-  PAINEL DE ANOMALIAS GLOBAIS — index.html (24 Sensores Interativos)
+  PAINEL DE ANOMALIAS GLOBAIS — index.html (19 Sensores Interativos)
   Criado por Thiago Mistery (https://www.youtube.com/@thiagomistery)
   =====================================================================
 -->
@@ -10,13 +10,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel de Anomalias Globais — Thiago Mistery</title>
-  <meta name="description" content="Painel de monitoramento em tempo real de 24 sensores globais interativos. Criado por Thiago Mistery.">
+  <meta name="description" content="Painel de monitoramento em tempo real de 19 sensores globais interativos. Criado por Thiago Mistery.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=14">
+  <!-- Motor 3D estilo Google Earth (Globe.gl + Three.js) -->
+  <script src="https://unpkg.com/globe.gl@2.32.1/dist/globe.gl.min.js"></script>
+
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -36,7 +39,7 @@
       <span class="topo-direita">
         <span class="visitantes" id="visitantes" title="Total de visitantes únicos">visitantes: —</span>
 
-        <!-- ITEM 20: SELETOR DE CORES DO SITE NO TOPO -->
+        <!-- SELETOR DE CORES DO PAINEL -->
         <span class="tema-switch" role="group" aria-label="Cores do painel">
           <button type="button" class="btn-tema ativo" data-tema-btn="verde" title="Terminal Verde"></button>
           <button type="button" class="btn-tema" data-tema-btn="ambar" title="Radar Âmbar"></button>
@@ -70,19 +73,19 @@
       <p class="aviso-noscript">Este painel precisa de JavaScript para funcionar.</p>
     </noscript>
 
-    <!-- ================= VISTA HOME: GRID DE 24 SENSORES ================= -->
+    <!-- ================= VISTA HOME: GRID DE 19 SENSORES ================= -->
     <section id="vista-home" aria-label="Sensores">
       <div class="grid" id="grid">
 
-        <!-- 01 · GLOBO 3D INTERATIVO (ITEM 1 - ESTILO GOOGLE EARTH) -->
+        <!-- 01 · GOOGLE EARTH 3D · PLANETA TERRA REALISTA -->
         <article class="card card-globo" data-sensor="globo" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">01</span>
-            <h2>GLOBO 3D · TERRA AO VIVO</h2>
-            <span class="card-freq" title="Interativo 3D">3D</span>
+            <h2>GOOGLE EARTH · TERRA 3D</h2>
+            <span class="card-freq" title="Globo Interativo 3D">3D</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">arraste para girar · clique nos pontos do planeta…</p>
+          <p class="contexto" data-campo="contexto">arraste e dê zoom para explorar todo o planeta…</p>
           <div class="viz viz-globo" data-campo="viz"></div>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -172,26 +175,26 @@
           </footer>
         </article>
 
-        <!-- 07 · NOTÍCIAS · BBC BRASIL COM ABA DE BUSCA -->
+        <!-- 07 · NOTÍCIAS · GOOGLE NEWS -->
         <article class="card card-noticias" data-sensor="manchetes" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">07</span>
-            <h2>NOTÍCIAS · BBC BRASIL</h2>
+            <h2>NOTÍCIAS · GOOGLE</h2>
             <span class="card-freq" title="Frequência de atualização">10min</span>
           </header>
 
-          <form class="busca-cidade" id="form-bbc" autocomplete="off">
+          <form class="busca-cidade" id="form-google-news" autocomplete="off">
             <input
               type="text"
-              id="input-bbc"
-              placeholder="Buscar na BBC Brasil…"
-              aria-label="Pesquisar notícias na BBC Brasil"
+              id="input-google-news"
+              placeholder="Pesquisar no Google Notícias…"
+              aria-label="Pesquisar qualquer assunto no Google Notícias"
             >
-            <button type="submit" id="btn-bbc">Buscar</button>
+            <button type="submit" id="btn-google-news">Buscar</button>
           </form>
 
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">sincronizando BBC News Brasil…</p>
+          <p class="contexto" data-campo="contexto">buscando notícias no Google…</p>
           <ul class="viz viz-lista viz-manchetes" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -306,42 +309,10 @@
           </footer>
         </article>
 
-        <!-- 14 · RADAR AÉREO EM TEMPO REAL (ADS-B / OPENSKY) -->
-        <article class="card" data-sensor="avioes" data-nivel="ok">
-          <header class="card-topo">
-            <span class="card-id">14</span>
-            <h2>RADAR AÉREO EM TEMPO REAL</h2>
-            <span class="card-freq" title="Frequência de atualização">1min</span>
-          </header>
-          <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">varrendo transponders ADS-B…</p>
-          <ul class="viz viz-lista" data-campo="viz"></ul>
-          <footer class="card-pe">
-            <span class="tempo" data-campo="tempo">atualizado —</span>
-            <a class="ver" href="#/sensor/avioes">ver detalhes</a>
-          </footer>
-        </article>
-
-        <!-- 15 · RELÓGIO DO JUÍZO FINAL (ITEM 5) -->
-        <article class="card" data-sensor="juizo" data-nivel="crit">
-          <header class="card-topo">
-            <span class="card-id">15</span>
-            <h2>RELÓGIO DO JUÍZO FINAL</h2>
-            <span class="card-freq" title="Frequência de atualização">30min</span>
-          </header>
-          <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">monitorando alertas estratégicos…</p>
-          <ul class="viz viz-lista" data-campo="viz"></ul>
-          <footer class="card-pe">
-            <span class="tempo" data-campo="tempo">atualizado —</span>
-            <a class="ver" href="#/sensor/juizo">ver detalhes</a>
-          </footer>
-        </article>
-
-        <!-- 16 · OBSERVATÓRIO DE RAIOS GLOBAIS (ITEM 9) -->
+        <!-- 14 · OBSERVATÓRIO DE RAIOS GLOBAIS -->
         <article class="card" data-sensor="raios" data-nivel="ok">
           <header class="card-topo">
-            <span class="card-id">16</span>
+            <span class="card-id">14</span>
             <h2>OBSERVATÓRIO DE RAIOS</h2>
             <span class="card-freq" title="Frequência de atualização">15min</span>
           </header>
@@ -354,10 +325,10 @@
           </footer>
         </article>
 
-        <!-- 17 · POPULAÇÃO MUNDIAL AO VIVO (ITEM 11) -->
+        <!-- 15 · POPULAÇÃO MUNDIAL AO VIVO -->
         <article class="card" data-sensor="populacao" data-nivel="ok">
           <header class="card-topo">
-            <span class="card-id">17</span>
+            <span class="card-id">15</span>
             <h2>POPULAÇÃO MUNDIAL AO VIVO</h2>
             <span class="card-freq" title="Atualização contínua">1s</span>
           </header>
@@ -370,10 +341,10 @@
           </footer>
         </article>
 
-        <!-- 18 · ONDAS, SWELL & CONDIÇÃO COSTEIRA (ITEM 17) -->
+        <!-- 16 · ONDAS, SWELL & MARÉ -->
         <article class="card" data-sensor="ondas" data-nivel="ok">
           <header class="card-topo">
-            <span class="card-id">18</span>
+            <span class="card-id">16</span>
             <h2>ONDAS, SWELL & MARÉ</h2>
             <span class="card-freq" title="Frequência de atualização">1h</span>
           </header>
@@ -386,31 +357,36 @@
           </footer>
         </article>
 
-        <!-- 19 · RÁDIO · TORRES DE CONTROLE AÉREO (ITEM 18) -->
-        <article class="card card-audio" data-sensor="radioatc" data-nivel="ok">
-          <header class="card-topo">
-            <span class="card-id">19</span>
-            <h2>RÁDIO · TORRES DE CONTROLE</h2>
-            <span class="card-freq" title="Frequência Aérea">ATC</span>
-          </header>
-          <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">sintonize frequências reais de aviação…</p>
-          <div class="viz viz-audio" data-campo="viz"></div>
-          <footer class="card-pe">
-            <span class="tempo" data-campo="tempo">ao vivo</span>
-            <a class="ver" href="#/sensor/radioatc">ver detalhes</a>
-          </footer>
-        </article>
-
-        <!-- 20 · RÁDIO MUSICAL GRATUITA AO VIVO -->
+        <!-- 17 · RÁDIO · SINTONIZADOR LIVRE & ESTAÇÕES AO VIVO -->
         <article class="card card-audio" data-sensor="radiomusica" data-nivel="ok">
           <header class="card-topo">
-            <span class="card-id">20</span>
-            <h2>RÁDIO MUSICAL · AO VIVO</h2>
-            <span class="card-freq" title="Stream Gratuito">GRÁTIS</span>
+            <span class="card-id">17</span>
+            <h2>RÁDIO · SINTONIZADOR AO VIVO</h2>
+            <span class="card-freq" title="Rádio Livre">FM / WEB</span>
           </header>
+
+          <!-- Dial / Linha de Sintonia + Input para o visitante ouvir qualquer stream -->
+          <div class="radio-dial" aria-hidden="true">
+            <div class="radio-dial-escala">
+              <span>88</span><span>92</span><span>96</span><span>100</span><span>104</span><span>108 MHz</span>
+            </div>
+            <div class="radio-dial-trilho">
+              <div class="radio-dial-agulha" id="radio-agulha"></div>
+            </div>
+          </div>
+
+          <form class="busca-cidade" id="form-radio-custom" autocomplete="off">
+            <input
+              type="url"
+              id="input-radio-url"
+              placeholder="Cole o link da rádio (MP3/AAC)…"
+              aria-label="URL de stream de rádio para sintonizar"
+            >
+            <button type="submit" id="btn-radio-sintonizar">Ouvir</button>
+          </form>
+
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">escolha uma estação gratuita para ouvir…</p>
+          <p class="contexto" data-campo="contexto">sintonize uma rádio abaixo ou cole um link…</p>
           <div class="viz viz-audio" data-campo="viz"></div>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">ao vivo</span>
@@ -418,26 +394,10 @@
           </footer>
         </article>
 
-        <!-- 21 · TENDÊNCIAS GLOBAIS (GOOGLE TRENDS) -->
-        <article class="card" data-sensor="trends" data-nivel="ok">
-          <header class="card-topo">
-            <span class="card-id">21</span>
-            <h2>TENDÊNCIAS · GOOGLE TRENDS</h2>
-            <span class="card-freq" title="Frequência de atualização">15min</span>
-          </header>
-          <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">lendo picos de busca em tempo real…</p>
-          <ul class="viz viz-lista" data-campo="viz"></ul>
-          <footer class="card-pe">
-            <span class="tempo" data-campo="tempo">atualizado —</span>
-            <a class="ver" href="#/sensor/trends">ver detalhes</a>
-          </footer>
-        </article>
-
-        <!-- 22 · QUEDAS DE INTERNET (IODA) -->
+        <!-- 18 · QUEDAS DE INTERNET (IODA) -->
         <article class="card" data-sensor="internet" data-nivel="ok">
           <header class="card-topo">
-            <span class="card-id">22</span>
+            <span class="card-id">18</span>
             <h2>QUEDAS DE INTERNET (IODA)</h2>
             <span class="card-freq" title="Frequência de atualização">10min</span>
           </header>
@@ -450,10 +410,10 @@
           </footer>
         </article>
 
-        <!-- 23 · NÍVEL & VAZÃO DOS RIOS -->
+        <!-- 19 · NÍVEL & VAZÃO DOS RIOS -->
         <article class="card" data-sensor="rios" data-nivel="ok">
           <header class="card-topo">
-            <span class="card-id">23</span>
+            <span class="card-id">19</span>
             <h2>NÍVEL & VAZÃO DOS RIOS</h2>
             <span class="card-freq" title="Frequência de atualização">1h</span>
           </header>
@@ -463,34 +423,6 @@
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
             <a class="ver" href="#/sensor/rios">ver detalhes</a>
-          </footer>
-        </article>
-
-        <!-- 24 · CÁPSULA DO TEMPO DO VISITANTE (ITEM 19) -->
-        <article class="card card-capsula" data-sensor="capsula" data-nivel="ok">
-          <header class="card-topo">
-            <span class="card-id">24</span>
-            <h2>CÁPSULA DO TEMPO · LOG</h2>
-            <span class="card-freq" title="Interativo">TERMINAL</span>
-          </header>
-
-          <form class="busca-cidade" id="form-capsula" autocomplete="off">
-            <input
-              type="text"
-              id="input-capsula"
-              maxlength="90"
-              placeholder="Deixe um registro anônimo neste momento…"
-              aria-label="Mensagem para a cápsula do tempo"
-            >
-            <button type="submit" id="btn-capsula">Gravar</button>
-          </form>
-
-          <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">mensagens carimbadas com o índice do caos…</p>
-          <ul class="viz viz-lista viz-manchetes" data-campo="viz"></ul>
-          <footer class="card-pe">
-            <span class="tempo" data-campo="tempo">terminal ativo</span>
-            <a class="ver" href="#/sensor/capsula">ver detalhes</a>
           </footer>
         </article>
 
@@ -515,6 +447,9 @@
 
         <div class="det-valor" id="det-valor">—</div>
         <p class="contexto" id="det-contexto">—</p>
+
+        <!-- Globo 3D expandido quando o visitante abrir detalhes do Google Earth -->
+        <div id="det-globo-box" hidden></div>
 
         <h3 id="lbl-historico">HISTÓRICO DO DADO PRINCIPAL</h3>
         <svg class="det-grafico" id="det-grafico" viewBox="0 0 600 160" aria-hidden="true"></svg>
@@ -543,6 +478,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>
