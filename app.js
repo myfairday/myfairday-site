@@ -1,5 +1,5 @@
 /* =====================================================================
-   PAINEL DE ANOMALIAS GLOBAIS — app.js (Tempo Real · 24 Sensores · PT/EN)
+   PAINEL DE ANOMALIAS GLOBAIS — app.js (Tempo Real · 19 Sensores · PT/EN)
    Criado por Thiago Mistery — https://www.youtube.com/@thiagomistery
    ===================================================================== */
 'use strict';
@@ -17,7 +17,6 @@ const CONFIG = {
   chaveNasaNeo: 'painel_neo_v1',
   chaveIdioma: 'painel_idioma_v1',
   chaveTema: 'painel_tema_v1',
-  chaveCapsula: 'painel_capsula_v1',
   chaveVisitante: 'myfairday_vis_ok',
   chaveVisTotal: 'myfairday_vis_num'
 };
@@ -59,36 +58,31 @@ const I18N = {
     max: 'máx ',
     min: 'mín ',
     placeholderCidade: 'Digite uma cidade…',
-    placeholderBbc: 'Buscar na BBC Brasil…',
+    placeholderGoogleNews: 'Pesquisar no Google Notícias…',
     buscar: 'Buscar',
-    placeholderCapsula: 'Deixe um registro anônimo neste momento…',
-    gravar: 'Gravar',
+    placeholderRadio: 'Cole o link da rádio (MP3/AAC)…',
+    ouvir: 'Ouvir',
     niveis: { ok: 'normal', warn: 'atenção', crit: 'crítico' },
     sensores: {
-      globo: 'GLOBO 3D · TERRA AO VIVO',
+      globo: 'GOOGLE EARTH · TERRA 3D',
       bolsa: 'BOLSA DE VALORES (B3)',
       microtremores: 'MICROTREMORES',
       incendios: 'FOCOS DE INCÊNDIO',
       temperaturas: 'TEMPERATURAS EXTREMAS',
       anomalias: 'ANOMALIAS CLIMÁTICAS',
-      manchetes: 'NOTÍCIAS · BBC BRASIL',
+      manchetes: 'NOTÍCIAS · GOOGLE',
       ar: 'QUALIDADE DO AR',
       desastres: 'DESASTRES NATURAIS (ONU)',
       asteroides: 'ASTEROIDES PRÓXIMOS (NASA)',
       mare: 'NÍVEL DO MAR & RESSACAS',
       uv: 'RADIAÇÃO UV EXTREMA',
       cidade: 'CLIMA POR CIDADE',
-      avioes: 'RADAR AÉREO EM TEMPO REAL',
-      juizo: 'RELÓGIO DO JUÍZO FINAL',
       raios: 'OBSERVATÓRIO DE RAIOS',
       populacao: 'POPULAÇÃO MUNDIAL AO VIVO',
       ondas: 'ONDAS, SWELL & MARÉ',
-      radioatc: 'RÁDIO · TORRES DE CONTROLE',
-      radiomusica: 'RÁDIO MUSICAL · AO VIVO',
-      trends: 'TENDÊNCIAS · GOOGLE TRENDS',
+      radiomusica: 'RÁDIO · SINTONIZADOR AO VIVO',
       internet: 'QUEDAS DE INTERNET (IODA)',
-      rios: 'NÍVEL & VAZÃO DOS RIOS',
-      capsula: 'CÁPSULA DO TEMPO · LOG'
+      rios: 'NÍVEL & VAZÃO DOS RIOS'
     }
   },
   en: {
@@ -117,36 +111,31 @@ const I18N = {
     max: 'max ',
     min: 'min ',
     placeholderCidade: 'Enter a city…',
-    placeholderBbc: 'Search BBC Brasil…',
+    placeholderGoogleNews: 'Search Google News…',
     buscar: 'Search',
-    placeholderCapsula: 'Leave an anonymous timestamped note…',
-    gravar: 'Log',
+    placeholderRadio: 'Paste radio stream URL (MP3/AAC)…',
+    ouvir: 'Tune',
     niveis: { ok: 'normal', warn: 'warning', crit: 'critical' },
     sensores: {
-      globo: '3D GLOBE · LIVE EARTH',
+      globo: 'GOOGLE EARTH · 3D PLANET',
       bolsa: 'BRAZIL STOCK EXCHANGE (B3)',
       microtremores: 'MICROTREMORS',
       incendios: 'ACTIVE WILDFIRES',
       temperaturas: 'EXTREME TEMPERATURES',
       anomalias: 'CLIMATE ANOMALIES',
-      manchetes: 'NEWS · BBC BRASIL',
+      manchetes: 'NEWS · GOOGLE',
       ar: 'AIR QUALITY (PM2.5)',
       desastres: 'NATURAL DISASTERS (UN)',
       asteroides: 'NEAR-EARTH ASTEROIDS (NASA)',
       mare: 'SEA LEVEL & STORM SURGES',
       uv: 'EXTREME UV RADIATION',
       cidade: 'WEATHER BY CITY',
-      avioes: 'LIVE FLIGHT RADAR (ADS-B)',
-      juizo: 'DOOMSDAY CLOCK & NUCLEAR',
       raios: 'GLOBAL LIGHTNING OBSERVATORY',
       populacao: 'LIVE WORLD POPULATION',
       ondas: 'OCEAN WAVES, SWELL & TIDE',
-      radioatc: 'LIVE AIR TRAFFIC CONTROL (ATC)',
-      radiomusica: 'FREE MUSIC RADIO · LIVE',
-      trends: 'TRENDING · GOOGLE TRENDS',
+      radiomusica: 'LIVE RADIO TUNER',
       internet: 'INTERNET OUTAGES (IODA)',
-      rios: 'RIVER LEVELS & DISCHARGE',
-      capsula: 'VISITOR TIME CAPSULE'
+      rios: 'RIVER LEVELS & DISCHARGE'
     }
   }
 };
@@ -193,8 +182,7 @@ const U = {
     if (seg < 60) return `${seg} s`;
     if (seg < 3600) return `${seg / 60} min`;
     return `${seg / 3600} h`;
-  },
-  normalizar: (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  }
 };
 
 function h(tag, classe, texto) {
@@ -408,23 +396,17 @@ function criarSensor(def) {
 }
 
 /* ---------------------------------------------------------------------
-   6. OS 24 SENSORES EM TEMPO REAL
+   6. OS 19 SENSORES EM TEMPO REAL
    --------------------------------------------------------------------- */
 
-/* ===== 01 · GLOBO 3D INTERATIVO (ESTILO GOOGLE EARTH) — Canvas 3D ===== */
+/* ===== 01 · GOOGLE EARTH 3D · PLANETA TERRA REALISTA ================= */
 const globo = criarSensor({
-  id: 'globo', num: '01', titulo: 'GLOBO 3D · TERRA AO VIVO', fonte: 'USGS + NASA EONET · 3D Engine', freq: 300,
+  id: 'globo', num: '01', titulo: 'GOOGLE EARTH · TERRA 3D', fonte: 'NASA Blue Marble + USGS + EONET 3D', freq: 300,
   e: {
     pontos: [],
-    rotLon: -45,
-    rotLat: -15,
-    zoom: 1,
-    arrastando: false,
-    ultX: 0,
-    ultY: 0,
     selecionado: null,
-    projetados: [],
-    animId: null
+    instanciaCard: null,
+    instanciaDetalhe: null
   },
 
   async atualizar() {
@@ -432,8 +414,8 @@ const globo = criarSensor({
     const ontemISO = new Date(agora - 24 * 3600 * 1000).toISOString();
 
     const [eqRes, fireRes] = await Promise.allSettled([
-      fetchSeguro(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=3.5&starttime=${ontemISO}&limit=45`, 'json', 10000),
-      fetchSeguro('https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires,volcanoes,severeStorms&status=open&days=15&limit=35', 'json', 10000)
+      fetchSeguro(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=3.5&starttime=${ontemISO}&limit=50`, 'json', 10000),
+      fetchSeguro('https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires,volcanoes,severeStorms&status=open&days=15&limit=40', 'json', 10000)
     ]);
 
     const pts = [];
@@ -446,9 +428,10 @@ const globo = criarSensor({
         pts.push({
           tipo: 'EQ',
           titulo: `M${U.dec(mag)} · ${f.properties?.place || 'Terremoto'}`,
-          lon: Number(c[0]),
+          lng: Number(c[0]),
           lat: Number(c[1]),
-          crit: mag >= 5.2
+          cor: mag >= 5.2 ? '#ff4d5e' : '#f5b942',
+          raio: mag >= 5.2 ? 0.65 : 0.42
         });
       });
     }
@@ -461,9 +444,10 @@ const globo = criarSensor({
         pts.push({
           tipo: 'NASA',
           titulo: ev.title || 'Evento NASA EONET',
-          lon: Number(c[0]),
+          lng: Number(c[0]),
           lat: Number(c[1]),
-          crit: true
+          cor: '#ff4d5e',
+          raio: 0.6
         });
       });
     }
@@ -471,8 +455,92 @@ const globo = criarSensor({
     if (pts.length > 0) {
       this.e.pontos = pts;
       if (!this.e.selecionado) this.e.selecionado = pts[0];
-      this.logar(`${pts.length} eventos georreferenciados ativos no Globo 3D`);
+      this.logar(`${pts.length} eventos georreferenciados no Google Earth 3D`);
+      this.atualizarPontosGlobos();
     }
+  },
+
+  atualizarPontosGlobos() {
+    [this.e.instanciaCard, this.e.instanciaDetalhe].forEach((g) => {
+      if (g && typeof g.pointsData === 'function') {
+        g.pointsData(this.e.pontos);
+      }
+    });
+  },
+
+  criarInstanciaTerra(container, largura, altura, altitudeInicial = 2.1) {
+    if (typeof window.Globe !== 'function') return null;
+
+    container.replaceChildren();
+    const mundo = window.Globe()(container)
+      .width(largura)
+      .height(altura)
+      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+      .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
+      .showAtmosphere(true)
+      .atmosphereColor('#4da6ff')
+      .atmosphereAltitude(0.18)
+      .pointsData(this.e.pontos)
+      .pointLat('lat')
+      .pointLng('lng')
+      .pointColor('cor')
+      .pointRadius('raio')
+      .pointAltitude(0.035)
+      .pointLabel((d) => `<div style="background:#08090c;border:1px solid #2ee59d;padding:4px 8px;border-radius:3px;font-family:monospace;font-size:11px;color:#fff;">${d.titulo}</div>`)
+      .onPointClick((pt) => {
+        if (!pt) return;
+        this.e.selecionado = pt;
+        this.logar(`Google Earth: ${pt.titulo} (${U.dec(pt.lat, 1)}°, ${U.dec(pt.lng, 1)}°)`);
+        mundo.pointOfView({ lat: pt.lat, lng: pt.lng, altitude: 1.35 }, 900);
+        UI.renderCard(this, false);
+      });
+
+    mundo.pointOfView({ lat: -14, lng: -48, altitude: altitudeInicial });
+
+    const controls = mundo.controls();
+    if (controls) {
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.55;
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+    }
+
+    // Botões de zoom e pausa de rotação
+    const barra = h('div', 'globo-ctrl');
+
+    const btnMais = document.createElement('button');
+    btnMais.type = 'button';
+    btnMais.textContent = '+';
+    btnMais.title = 'Aproximar (Zoom +)';
+    btnMais.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const pov = mundo.pointOfView();
+      mundo.pointOfView({ altitude: Math.max(0.45, pov.altitude * 0.72) }, 400);
+    });
+
+    const btnMenos = document.createElement('button');
+    btnMenos.type = 'button';
+    btnMenos.textContent = '−';
+    btnMenos.title = 'Afastar (Zoom −)';
+    btnMenos.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const pov = mundo.pointOfView();
+      mundo.pointOfView({ altitude: Math.min(3.8, pov.altitude * 1.35) }, 400);
+    });
+
+    const btnGirar = document.createElement('button');
+    btnGirar.type = 'button';
+    btnGirar.textContent = '⟳';
+    btnGirar.title = 'Alternar rotação automática';
+    btnGirar.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (controls) controls.autoRotate = !controls.autoRotate;
+    });
+
+    barra.append(btnMais, btnMenos, btnGirar);
+    container.appendChild(barra);
+    return mundo;
   },
 
   metrica() { return this.e.pontos.length; },
@@ -482,198 +550,26 @@ const globo = criarSensor({
   contexto() {
     if (this.e.selecionado) {
       const s = this.e.selecionado;
-      return `${s.titulo} (${U.dec(s.lat, 1)}°, ${U.dec(s.lon, 1)}°)`;
+      return `${s.titulo} (${U.dec(s.lat, 1)}°, ${U.dec(s.lng, 1)}°)`;
     }
     return IDIOMA === 'en'
-      ? 'drag to rotate globe · click any glowing marker'
-      : 'arraste para girar o globo · clique nos pontos luminosos';
+      ? 'drag & zoom to explore planet Earth in 3D'
+      : 'arraste e dê zoom para percorrer o planeta Terra em 3D';
   },
   montarViz(el) {
     el.replaceChildren();
     const wrap = h('div', 'globo-wrap');
-    const canvas = document.createElement('canvas');
-    canvas.width = 320;
-    canvas.height = 148;
-    canvas.className = 'globo-canvas';
-
-    const controles = h('div', 'globo-ctrl');
-    const btnMais = document.createElement('button');
-    btnMais.type = 'button';
-    btnMais.textContent = '+';
-    btnMais.title = 'Zoom +';
-    btnMais.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      this.e.zoom = U.clamp(this.e.zoom + 0.25, 0.8, 2.2);
-    });
-
-    const btnMenos = document.createElement('button');
-    btnMenos.type = 'button';
-    btnMenos.textContent = '−';
-    btnMenos.title = 'Zoom −';
-    btnMenos.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      this.e.zoom = U.clamp(this.e.zoom - 0.25, 0.8, 2.2);
-    });
-
-    controles.append(btnMais, btnMenos);
-    wrap.append(canvas, controles);
     el.appendChild(wrap);
 
-    const iniciarDrag = (x, y) => {
-      this.e.arrastando = true;
-      this.e.ultX = x;
-      this.e.ultY = y;
-    };
-    const moverDrag = (x, y) => {
-      if (!this.e.arrastando) return;
-      const dx = x - this.e.ultX;
-      const dy = y - this.e.ultY;
-      this.e.rotLon -= dx * 0.45;
-      this.e.rotLat = U.clamp(this.e.rotLat + dy * 0.45, -75, 75);
-      this.e.ultX = x;
-      this.e.ultY = y;
-    };
-
-    canvas.addEventListener('mousedown', (ev) => iniciarDrag(ev.clientX, ev.clientY));
-    window.addEventListener('mousemove', (ev) => moverDrag(ev.clientX, ev.clientY));
-    window.addEventListener('mouseup', () => { this.e.arrastando = false; });
-
-    canvas.addEventListener('touchstart', (ev) => {
-      if (ev.touches[0]) iniciarDrag(ev.touches[0].clientX, ev.touches[0].clientY);
-    }, { passive: true });
-    canvas.addEventListener('touchmove', (ev) => {
-      if (ev.touches[0]) moverDrag(ev.touches[0].clientX, ev.touches[0].clientY);
-    }, { passive: true });
-    canvas.addEventListener('touchend', () => { this.e.arrastando = false; });
-
-    canvas.addEventListener('click', (ev) => {
-      const rect = canvas.getBoundingClientRect();
-      const cx = ((ev.clientX - rect.left) / rect.width) * canvas.width;
-      const cy = ((ev.clientY - rect.top) / rect.height) * canvas.height;
-      let melhor = null;
-      let minDist = 14;
-      this.e.projetados.forEach((p) => {
-        const d = Math.hypot(p.x - cx, p.y - cy);
-        if (d < minDist) {
-          minDist = d;
-          melhor = p.dados;
-        }
-      });
-      if (melhor) {
-        this.e.selecionado = melhor;
-        this.logar(`Selecionado no Globo: ${melhor.titulo}`);
-        UI.renderCard(this, false);
-      }
+    requestAnimationFrame(() => {
+      const w = wrap.clientWidth || 310;
+      const hBox = wrap.clientHeight || 165;
+      this.e.instanciaCard = this.criarInstanciaTerra(wrap, w, hBox, 2.15);
     });
-
-    const desenhar = () => {
-      if (!this.e.arrastando) this.e.rotLon += 0.18;
-      this.desenharGlobo(canvas);
-      this.e.animId = requestAnimationFrame(desenhar);
-    };
-    if (this.e.animId) cancelAnimationFrame(this.e.animId);
-    desenhar();
   },
-
-  desenharGlobo(canvas) {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const W = canvas.width;
-    const H = canvas.height;
-    const cx = W / 2;
-    const cy = H / 2;
-    const R = Math.min(W, H) * 0.44 * this.e.zoom;
-
-    const estilo = getComputedStyle(document.documentElement);
-    const corPrim = estilo.getPropertyValue('--ok').trim() || '#2ee59d';
-    const corCrit = estilo.getPropertyValue('--crit').trim() || '#ff4d5e';
-    const corWarn = estilo.getPropertyValue('--warn').trim() || '#f5b942';
-
-    ctx.clearRect(0, 0, W, H);
-
-    const grad = ctx.createRadialGradient(cx, cy, R * 0.85, cx, cy, R * 1.15);
-    grad.addColorStop(0, 'rgba(255,255,255,0.03)');
-    grad.addColorStop(1, 'transparent');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R * 1.15, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#06080c';
-    ctx.strokeStyle = corPrim;
-    ctx.lineWidth = 1.1;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    const rad = Math.PI / 180;
-    const lon0 = this.e.rotLon * rad;
-    const lat0 = this.e.rotLat * rad;
-
-    const projetar = (latDeg, lonDeg) => {
-      const lat = latDeg * rad;
-      const lon = lonDeg * rad - lon0;
-      const cosLat = Math.cos(lat);
-      const x = cosLat * Math.sin(lon);
-      const y = Math.cos(lat0) * Math.sin(lat) - Math.sin(lat0) * cosLat * Math.cos(lon);
-      const z = Math.sin(lat0) * Math.sin(lat) + Math.cos(lat0) * cosLat * Math.cos(lon);
-      return { x: cx + x * R, y: cy - y * R, visivel: z > 0 };
-    };
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 0.7;
-    for (let lon = -180; lon < 180; lon += 30) {
-      ctx.beginPath();
-      let iniciou = false;
-      for (let lat = -90; lat <= 90; lat += 6) {
-        const p = projetar(lat, lon);
-        if (p.visivel) {
-          if (!iniciou) { ctx.moveTo(p.x, p.y); iniciou = true; }
-          else ctx.lineTo(p.x, p.y);
-        } else {
-          iniciou = false;
-        }
-      }
-      ctx.stroke();
-    }
-    for (let lat = -60; lat <= 60; lat += 30) {
-      ctx.beginPath();
-      let iniciou = false;
-      for (let lon = -180; lon <= 180; lon += 6) {
-        const p = projetar(lat, lon);
-        if (p.visivel) {
-          if (!iniciou) { ctx.moveTo(p.x, p.y); iniciou = true; }
-          else ctx.lineTo(p.x, p.y);
-        } else {
-          iniciou = false;
-        }
-      }
-      ctx.stroke();
-    }
-
-    const visiveis = [];
-    this.e.pontos.forEach((pt) => {
-      const p = projetar(pt.lat, pt.lon);
-      if (!p.visivel) return;
-      visiveis.push({ x: p.x, y: p.y, dados: pt });
-      const ativo = this.e.selecionado === pt;
-      ctx.fillStyle = pt.crit ? corCrit : corWarn;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, ativo ? 4.5 : 2.8, 0, Math.PI * 2);
-      ctx.fill();
-      if (ativo) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 7.5, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-    });
-    this.e.projetados = visiveis;
+  renderViz() {
+    this.atualizarPontosGlobos();
   },
-
-  renderViz() {},
   eventosIniciais() { return 0; }
 });
 
@@ -1172,77 +1068,111 @@ const anomalias = criarSensor({
   eventosIniciais() { return this.e.desvios.filter((d) => Math.abs(d.desvio) >= 4).length; }
 });
 
-/* ===== 07 · NOTÍCIAS · BBC BRASIL COM ABA DE BUSCA — 10 min ============= */
+/* ===== 07 · NOTÍCIAS · GOOGLE NEWS (BUSCA POR QUALQUER ASSUNTO) ======= */
 const manchetes = criarSensor({
-  id: 'manchetes', num: '07', titulo: 'NOTÍCIAS · BBC BRASIL', fonte: 'BBC News Brasil (RSS Oficial)', freq: 600,
-  e: { itens: [], filtro: '', vistas: new Set() },
+  id: 'manchetes', num: '07', titulo: 'NOTÍCIAS · GOOGLE', fonte: 'Google News Search (Tempo Real)', freq: 600,
+  e: { itens: [], termoBusca: '', buscando: false, vistas: new Set() },
 
-  filtrar(termo) {
-    this.e.filtro = String(termo || '').trim();
+  async buscarAssunto(termo) {
+    this.e.termoBusca = String(termo || '').trim();
+    this.e.buscando = true;
     UI.renderCard(this, false);
-  },
-
-  itensFiltrados() {
-    if (!this.e.filtro) return this.e.itens;
-    const q = U.normalizar(this.e.filtro);
-    return this.e.itens.filter((it) => U.normalizar(it.titulo + ' ' + it.resumo).includes(q));
+    try {
+      await this.atualizar();
+      this.ultima = Date.now();
+      this.carregado = true;
+    } catch (_) {
+      this.e.itens = [];
+    } finally {
+      this.e.buscando = false;
+      UI.renderCard(this, true);
+    }
   },
 
   async atualizar() {
-    const rssUrl = 'https://feeds.bbci.co.uk/portuguese/rss.xml';
+    const q = this.e.termoBusca;
+    const rssUrl = q
+      ? `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
+      : 'https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419';
+
     const xmlStr = await fetchSeguro(rssUrl, 'text', 12000);
     const doc = new DOMParser().parseFromString(xmlStr, 'text/xml');
     const items = Array.from(doc.querySelectorAll('item'));
 
-    if (items.length === 0) throw new Error('BBC Brasil feed empty');
-
     const lista = [];
-    items.slice(0, 35).forEach((node) => {
-      const titulo = (node.querySelector('title')?.textContent || '').trim();
+    items.slice(0, 30).forEach((node) => {
+      const tituloRaw = (node.querySelector('title')?.textContent || '').trim();
       const link = (node.querySelector('link')?.textContent || '').trim();
-      const resumo = (node.querySelector('description')?.textContent || '').trim();
       const pubDate = (node.querySelector('pubDate')?.textContent || '').trim();
+      const fonteEl = node.querySelector('source');
+      const fonte = (fonteEl?.textContent || 'Google News').trim();
       const ts = pubDate ? Date.parse(pubDate) : Date.now();
-      if (!titulo || !link) return;
 
-      lista.push({ titulo, link, resumo, ts: Number.isNaN(ts) ? Date.now() : ts });
+      if (!tituloRaw || !link) return;
+
+      const tituloLimpo = tituloRaw.replace(/\s+-\s+[^-]+$/, '').trim() || tituloRaw;
+
+      lista.push({
+        titulo: tituloLimpo,
+        link,
+        fonte,
+        ts: Number.isNaN(ts) ? Date.now() : ts
+      });
+
       if (registrarUnico(this.e.vistas, link)) {
-        this.logar(`BBC Brasil · ${titulo}`, '', Number.isNaN(ts) ? Date.now() : ts);
+        this.logar(`[${fonte}] ${tituloLimpo}`, '', Number.isNaN(ts) ? Date.now() : ts);
       }
     });
 
     this.e.itens = lista;
   },
 
-  metrica() { return this.itensFiltrados().length; },
+  metrica() { return this.e.itens.length; },
   principal() {
+    if (this.e.buscando) return { texto: '…', nivel: 'ok' };
     if (!this.carregado) return { texto: '—', nivel: 'ok' };
-    const n = this.itensFiltrados().length;
-    return { texto: U.num(n), nivel: 'ok' };
+    return { texto: U.num(this.e.itens.length), nivel: 'ok' };
   },
   contexto() {
-    if (!this.carregado) return 'sincronizando BBC News Brasil…';
-    if (this.e.filtro) {
+    if (this.e.buscando) {
       return IDIOMA === 'en'
-        ? `results on BBC Brasil for "${this.e.filtro}"`
-        : `reportagens na BBC Brasil para "${this.e.filtro}"`;
+        ? `searching Google News for "${this.e.termoBusca}"…`
+        : `pesquisando "${this.e.termoBusca}" no Google Notícias…`;
+    }
+    if (!this.carregado) {
+      return IDIOMA === 'en' ? 'syncing Google News…' : 'sincronizando Google Notícias…';
+    }
+    if (this.e.termoBusca) {
+      return IDIOMA === 'en'
+        ? `Google News results for "${this.e.termoBusca}" · click to open`
+        : `resultados no Google para "${this.e.termoBusca}" · clique para ler`;
     }
     return IDIOMA === 'en'
-      ? 'latest reports from BBC News Brasil · click headline to read'
-      : 'últimas reportagens da BBC News Brasil · clique para ler';
+      ? 'top headlines on Google News · type any topic above'
+      : 'principais notícias no Google · digite qualquer assunto acima';
   },
   montarViz() {},
   renderViz(el) {
-    const filtrados = this.itensFiltrados();
-    if (filtrados.length === 0) {
-      el.replaceChildren(
-        h('li', 'vazio', this.e.filtro
-          ? `nenhuma reportagem encontrada para "${this.e.filtro}"`
-          : 'aguardando notícias da BBC Brasil…')
-      );
+    if (this.e.buscando) {
+      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'searching Google…' : 'buscando no Google…'));
       return;
     }
-    el.replaceChildren(...filtrados.slice(0, 18).map((m) => {
+    if (this.e.itens.length === 0) {
+      const li = h('li', 'vazio');
+      const linkGoogle = document.createElement('a');
+      const query = this.e.termoBusca || 'notícias hoje';
+      linkGoogle.href = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=nws`;
+      linkGoogle.target = '_blank';
+      linkGoogle.rel = 'noopener noreferrer';
+      linkGoogle.className = 'link-lei';
+      linkGoogle.textContent = this.e.termoBusca
+        ? `Abrir pesquisa "${this.e.termoBusca}" direto no Google ↗`
+        : 'Abrir Google Notícias ↗';
+      li.appendChild(linkGoogle);
+      el.replaceChildren(li);
+      return;
+    }
+    el.replaceChildren(...this.e.itens.map((m) => {
       const li = h('li');
       const link = document.createElement('a');
       link.href = m.link;
@@ -1252,7 +1182,7 @@ const manchetes = criarSensor({
       link.textContent = m.titulo;
 
       li.append(
-        h('span', 'fonte-tag', 'BBC BR'),
+        h('span', 'fonte-tag', m.fonte.slice(0, 14)),
         link,
         h('span', 'val suave', U.relativo(m.ts))
       );
@@ -1900,163 +1830,7 @@ const cidade = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 14 · RADAR AÉREO EM TEMPO REAL (MULTI-FONTE GRATUITA) — 1 min === */
-const avioes = criarSensor({
-  id: 'avioes', num: '14', titulo: 'RADAR AÉREO EM TEMPO REAL', fonte: 'ADS-B Live / OpenSky / AirNav', freq: 60,
-  e: { voos: [], totalNoAr: 0, fonteAtiva: 'ADS-B' },
-
-  async atualizar() {
-    let lista = [];
-    let total = 0;
-    let fonte = 'ADS-B Live';
-
-    try {
-      const [sq77, ladd] = await Promise.allSettled([
-        fetchSeguro('https://api.adsb.lol/v2/sqk/7700', 'json', 8000),
-        fetchSeguro('https://api.adsb.lol/v2/ladd', 'json', 9000)
-      ]);
-
-      const ac77 = sq77.status === 'fulfilled' && Array.isArray(sq77.value?.ac) ? sq77.value.ac : [];
-      const acLadd = ladd.status === 'fulfilled' && Array.isArray(ladd.value?.ac) ? ladd.value.ac : [];
-
-      ac77.forEach((a) => {
-        const flight = (a.flight || a.r || a.hex || 'N/A').trim();
-        lista.push({
-          flight,
-          info: `${a.t || 'Aeronave'} · SQK 7700`,
-          alt: Number.isNaN(Number(a.alt_baro)) ? 'solo' : `${U.num(Number(a.alt_baro))} ft`,
-          emergencia: true,
-          link: `https://pt.airnavradar.com/data/flights/${encodeURIComponent(flight)}`
-        });
-      });
-
-      acLadd.slice(0, 25).forEach((a) => {
-        const flight = (a.flight || a.r || a.hex || 'N/A').trim();
-        const vel = Number(a.gs);
-        lista.push({
-          flight,
-          info: `${a.t || 'Jato'} · ${Number.isNaN(vel) ? '' : U.num(vel) + ' kt'}`,
-          alt: Number.isNaN(Number(a.alt_baro)) ? 'solo' : `${U.num(Number(a.alt_baro))} ft`,
-          emergencia: false,
-          link: `https://pt.airnavradar.com/data/flights/${encodeURIComponent(flight)}`
-        });
-      });
-
-      total = ac77.length + acLadd.length;
-    } catch (_) { /* segue para fallback */ }
-
-    if (lista.length === 0) {
-      try {
-        const os = await fetchSeguro('https://opensky-network.org/api/states/all?lamin=-35&lomin=-75&lamax=15&lomax=-30', 'json', 10000);
-        const states = Array.isArray(os?.states) ? os.states : [];
-        total = states.length;
-        fonte = 'OpenSky South America';
-        states.slice(0, 25).forEach((s) => {
-          const flight = String(s[1] || s[0] || 'VOO').trim();
-          const pais = String(s[2] || '').trim();
-          const altM = Number(s[7]);
-          const altFt = Number.isNaN(altM) ? 'solo' : `${U.num(altM * 3.28084)} ft`;
-          lista.push({
-            flight,
-            info: pais || 'Em voo',
-            alt: altFt,
-            emergencia: false,
-            link: `https://pt.airnavradar.com/data/flights/${encodeURIComponent(flight)}`
-          });
-        });
-      } catch (_) { /* segue */ }
-    }
-
-    if (lista.length === 0) throw new Error('Radar feeds temporarily busy');
-
-    this.e.voos = lista.slice(0, 25);
-    this.e.totalNoAr = total;
-    this.e.fonteAtiva = fonte;
-    this.logar(`${U.num(total)} aeronaves rastreadas ao vivo (${fonte})`);
-  },
-
-  metrica() { return this.e.totalNoAr; },
-  principal() {
-    if (!this.carregado) return { texto: '—', nivel: 'ok' };
-    const temEmerg = this.e.voos.some((v) => v.emergencia);
-    return { texto: U.num(this.e.totalNoAr), nivel: temEmerg ? 'crit' : 'ok' };
-  },
-  contexto() {
-    if (!this.carregado) return IDIOMA === 'en' ? 'scanning live ADS-B transponders…' : 'varrendo transponders ADS-B ao vivo…';
-    return IDIOMA === 'en'
-      ? `aircraft tracked live (${this.e.fonteAtiva}) · click flight for AirNav map`
-      : `aeronaves rastreadas ao vivo (${this.e.fonteAtiva}) · clique no voo para abrir radar`;
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.voos.length === 0) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'scanning radar frequencies…' : 'varrendo frequências de radar…'));
-      return;
-    }
-    el.replaceChildren(...this.e.voos.map((v) => {
-      const li = h('li');
-      const link = document.createElement('a');
-      link.href = v.link;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.className = 'nome link-lei';
-      link.textContent = `${v.flight} · ${v.info}`;
-
-      li.append(
-        h('span', 'fonte-tag', v.emergencia ? 'EMERG' : 'ADS-B'),
-        link,
-        h('span', 'val ' + (v.emergencia ? 'verm' : 'suave'), v.alt)
-      );
-      return li;
-    }));
-  },
-  eventosIniciais() { return 0; }
-});
-
-/* ===== 15 · RELÓGIO DO JUÍZO FINAL (ITEM 5) — GDELT — 30 min =========== */
-const juizo = criarSensor({
-  id: 'juizo', num: '15', titulo: 'RELÓGIO DO JUÍZO FINAL', fonte: 'Bulletin of Atomic Scientists / GDELT', freq: 1800,
-  e: { segundos: 85, noticias: [] },
-
-  async atualizar() {
-    const q = '("doomsday clock" OR "nuclear threat" OR "nuclear test" OR "nuclear alert")';
-    const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(q)}&mode=artlist&maxrecords=12&timespan=24h&format=json`;
-    const dados = await fetchSeguro(url, 'json', 10000);
-    const arts = Array.isArray(dados?.articles) ? dados.articles : [];
-
-    this.e.noticias = arts.slice(0, 10).map((a) => ({
-      fonte: (a.domain || 'News').replace(/^www\./, ''),
-      titulo: (a.title || '').trim()
-    })).filter((x) => x.titulo);
-
-    this.logar(`Doomsday Clock: ${this.e.segundos}s para meia-noite · ${this.e.noticias.length} alertas estratégicos`);
-  },
-
-  metrica() { return this.e.segundos; },
-  principal() {
-    return { texto: `${this.e.segundos} SEG`, nivel: 'crit' };
-  },
-  contexto() {
-    return IDIOMA === 'en'
-      ? '85 seconds to midnight · closest to global catastrophe in history'
-      : '85 segundos para a meia-noite · recorde histórico de proximidade';
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.noticias.length === 0) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'monitoring nuclear & strategic feeds…' : 'monitorando feeds nucleares e estratégicos…'));
-      return;
-    }
-    el.replaceChildren(...this.e.noticias.map((n) => {
-      const li = h('li');
-      li.append(h('span', 'fonte-tag', n.fonte), h('span', 'nome', n.titulo));
-      return li;
-    }));
-  },
-  eventosIniciais() { return 0; }
-});
-
-/* ===== 16 · OBSERVATÓRIO DE RAIOS GLOBAIS (ITEM 9) — 15 min =========== */
+/* ===== 14 · OBSERVATÓRIO DE RAIOS GLOBAIS — 15 min ==================== */
 const ZONAS_RAIOS = [
   { nome: 'Catatumbo, VE', lat: 9.35, lon: -71.75 },
   { nome: 'Kifuka, CD', lat: -2.85, lon: 28.05 },
@@ -2073,7 +1847,7 @@ const ZONAS_RAIOS = [
 ];
 
 const raios = criarSensor({
-  id: 'raios', num: '16', titulo: 'OBSERVATÓRIO DE RAIOS', fonte: 'Global Convective CAPE Telemetry', freq: 900,
+  id: 'raios', num: '14', titulo: 'OBSERVATÓRIO DE RAIOS', fonte: 'Global Convective CAPE Telemetry', freq: 900,
   e: { pontos: [], ativas: 0, estimativaMin: 0 },
 
   async atualizar() {
@@ -2122,9 +1896,9 @@ const raios = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 17 · POPULAÇÃO MUNDIAL AO VIVO (ITEM 11) — 1 s ================== */
+/* ===== 15 · POPULAÇÃO MUNDIAL AO VIVO — 1 s ============================ */
 const populacao = criarSensor({
-  id: 'populacao', num: '17', titulo: 'POPULAÇÃO MUNDIAL AO VIVO', fonte: 'UN DESA / World Population Clock', freq: 3600,
+  id: 'populacao', num: '15', titulo: 'POPULAÇÃO MUNDIAL AO VIVO', fonte: 'UN DESA / World Population Clock', freq: 3600,
   e: { inicioSessao: Date.now(), nascimentosSessao: 0, mortesSessao: 0 },
 
   calcularAtual() {
@@ -2169,7 +1943,7 @@ const populacao = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 18 · ONDAS, SWELL & MARÉ (ITEM 17) — Open-Meteo Marine — 1 h ==== */
+/* ===== 16 · ONDAS, SWELL & MARÉ — Open-Meteo Marine — 1 h ============= */
 const PRAIAS_SWELL = [
   { nome: 'Nazaré, PT', lat: 39.6012, lon: -9.0715 },
   { nome: 'Pipeline, HI', lat: 21.6656, lon: -158.0539 },
@@ -2182,7 +1956,7 @@ const PRAIAS_SWELL = [
 ];
 
 const ondas = criarSensor({
-  id: 'ondas', num: '18', titulo: 'ONDAS, SWELL & MARÉ', fonte: 'Open-Meteo Marine Telemetry', freq: 3600,
+  id: 'ondas', num: '16', titulo: 'ONDAS, SWELL & MARÉ', fonte: 'Open-Meteo Marine Telemetry', freq: 3600,
   e: { lista: [], maiorOnda: 0 },
 
   async atualizar() {
@@ -2247,101 +2021,25 @@ const ondas = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 19 · RÁDIO · TORRES DE CONTROLE AÉREO (ITEM 18) — LiveATC ======= */
-const TORRES_ATC = [
-  { nome: 'KJFK · New York Tower', freq: '119.10 MHz', url: 'https://s1-bos.liveatc.net/kjfk_twr' },
-  { nome: 'EGLL · London Heathrow', freq: '118.50 MHz', url: 'https://s1-fmt2.liveatc.net/egll_twr' },
-  { nome: 'KLAX · Los Angeles Approach', freq: '124.90 MHz', url: 'https://s1-fmt2.liveatc.net/klax_app' },
-  { nome: 'RJTT · Tokyo Haneda Tower', freq: '118.10 MHz', url: 'https://s1-fmt2.liveatc.net/rjtt_twr' }
-];
-
-const radioatc = criarSensor({
-  id: 'radioatc', num: '19', titulo: 'RÁDIO · TORRES DE CONTROLE', fonte: 'LiveATC Global VHF Feeds', freq: 3600,
-  e: { idx: 0, tocando: false, erroAudio: false, audio: null },
-
-  garantirAudio() {
-    if (!this.e.audio) {
-      this.e.audio = new Audio();
-      this.e.audio.preload = 'none';
-      this.e.audio.addEventListener('error', () => {
-        this.e.erroAudio = true;
-        this.e.tocando = false;
-        UI.renderCard(this, false);
-      });
-    }
-    return this.e.audio;
-  },
-
-  alternar(novoIdx = null) {
-    const audio = this.garantirAudio();
-    if (novoIdx !== null && novoIdx !== this.e.idx) {
-      this.e.idx = novoIdx;
-      this.e.tocando = false;
-    }
-    const torre = TORRES_ATC[this.e.idx];
-    if (this.e.tocando) {
-      audio.pause();
-      audio.src = '';
-      this.e.tocando = false;
-    } else {
-      if (radiomusica.e.tocando) radiomusica.alternar();
-      this.e.erroAudio = false;
-      audio.src = torre.url;
-      audio.play().then(() => {
-        this.e.tocando = true;
-        this.logar(`Sintonizado ATC: ${torre.nome} (${torre.freq})`);
-        UI.renderCard(this, false);
-      }).catch(() => {
-        this.e.erroAudio = true;
-        this.e.tocando = false;
-        UI.renderCard(this, false);
-      });
-    }
-    UI.renderCard(this, false);
-  },
-
-  async atualizar() {},
-  metrica() { return TORRES_ATC.length; },
-  principal() {
-    const torre = TORRES_ATC[this.e.idx];
-    return { texto: this.e.tocando ? torre.freq : 'VHF OFF', nivel: this.e.tocando ? 'warn' : 'ok' };
-  },
-  contexto() {
-    const torre = TORRES_ATC[this.e.idx];
-    if (this.e.erroAudio) {
-      return IDIOMA === 'en' ? 'tower frequency offline · try another airport' : 'frequência offline no momento · tente outro aeroporto';
-    }
-    return `${torre.nome} · ${torre.freq}`;
-  },
-  montarViz(el) { this.renderViz(el); },
-  renderViz(el) {
-    el.replaceChildren();
-    const lista = h('div', 'radio-lista');
-    TORRES_ATC.forEach((t, i) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = i === this.e.idx ? 'radio-item ativo' : 'radio-item';
-      btn.textContent = `${i === this.e.idx && this.e.tocando ? '■' : '▶'} ${t.nome} (${t.freq})`;
-      btn.addEventListener('click', () => this.alternar(i));
-      lista.appendChild(btn);
-    });
-    el.appendChild(lista);
-  },
-  eventosIniciais() { return 0; }
-});
-
-/* ===== 20 · RÁDIO MUSICAL GRATUITA AO VIVO =========================== */
+/* ===== 17 · RÁDIO · SINTONIZADOR LIVRE & ESTAÇÕES AO VIVO ============== */
 const ESTACOES_MUSICA = [
-  { nome: 'Lofi Beats 24/7', genero: 'Chill / Study', url: 'https://play.streamafrica.net/lofiradio' },
-  { nome: 'Nightride FM', genero: 'Synthwave', url: 'https://stream.nightride.fm/nightride.m4a' },
-  { nome: 'SomaFM · Groove Salad', genero: 'Ambient / Downtempo', url: 'https://ice1.somafm.com/groovesalad-128-mp3' },
-  { nome: 'SomaFM · Drone Zone', genero: 'Space / Deep', url: 'https://ice1.somafm.com/dronezone-128-mp3' },
-  { nome: 'Jazz24 Live', genero: 'Jazz / Instrumental', url: 'https://live.wostreaming.net/direct/ppm-jazz24mp3-ibc1' }
+  { nome: 'Lofi Beats 24/7', genero: 'Chill / Study', dial: '18%', url: 'https://play.streamafrica.net/lofiradio' },
+  { nome: 'SomaFM · Groove Salad', genero: 'Ambient / Downtempo', dial: '42%', url: 'https://ice1.somafm.com/groovesalad-128-mp3' },
+  { nome: 'SomaFM · Drone Zone', genero: 'Space / Deep', dial: '66%', url: 'https://ice1.somafm.com/dronezone-128-mp3' },
+  { nome: 'Jazz24 Live', genero: 'Jazz / Instrumental', dial: '86%', url: 'https://live.wostreaming.net/direct/ppm-jazz24mp3-ibc1' }
 ];
 
 const radiomusica = criarSensor({
-  id: 'radiomusica', num: '20', titulo: 'RÁDIO MUSICAL · AO VIVO', fonte: 'SomaFM / Nightride / Free Streams', freq: 3600,
-  e: { idx: 0, tocando: false, erroAudio: false, audio: null },
+  id: 'radiomusica', num: '17', titulo: 'RÁDIO · SINTONIZADOR AO VIVO', fonte: 'Sintonizador Livre + SomaFM / Jazz24', freq: 3600,
+  e: {
+    idx: 0,
+    tocando: false,
+    erroAudio: false,
+    customAtiva: false,
+    customNome: '',
+    customUrl: '',
+    audio: null
+  },
 
   garantirAudio() {
     if (!this.e.audio) {
@@ -2356,10 +2054,49 @@ const radiomusica = criarSensor({
     return this.e.audio;
   },
 
+  atualizarAgulha(porcentagem) {
+    const agulha = document.getElementById('radio-agulha');
+    if (agulha) agulha.style.left = porcentagem;
+  },
+
+  tocarUrl(url, titulo, dialPos = '50%', ehCustom = false) {
+    const audio = this.garantirAudio();
+    this.e.erroAudio = false;
+    this.e.customAtiva = ehCustom;
+    if (ehCustom) {
+      this.e.customUrl = url;
+      this.e.customNome = titulo;
+    }
+    this.atualizarAgulha(dialPos);
+    audio.src = url;
+    audio.play().then(() => {
+      this.e.tocando = true;
+      this.logar(`Sintonizado: ${titulo}`);
+      UI.renderCard(this, false);
+    }).catch(() => {
+      this.e.erroAudio = true;
+      this.e.tocando = false;
+      UI.renderCard(this, false);
+    });
+    UI.renderCard(this, false);
+  },
+
+  sintonizarCustom(urlDigitada) {
+    const u = String(urlDigitada || '').trim();
+    if (!u) return;
+    let titulo = 'Rádio Personalizada';
+    try {
+      const parsed = new URL(u);
+      titulo = parsed.hostname.replace(/^www\./, '');
+    } catch (_) { /* mantém padrão */ }
+    this.tocarUrl(u, titulo, '52%', true);
+  },
+
   alternar(novoIdx = null) {
     const audio = this.garantirAudio();
-    if (novoIdx !== null && novoIdx !== this.e.idx) {
+    if (novoIdx !== null && (novoIdx !== this.e.idx || this.e.customAtiva)) {
       this.e.idx = novoIdx;
+      this.e.customAtiva = false;
       this.e.tocando = false;
     }
     const est = ESTACOES_MUSICA[this.e.idx];
@@ -2367,44 +2104,42 @@ const radiomusica = criarSensor({
       audio.pause();
       audio.src = '';
       this.e.tocando = false;
+      UI.renderCard(this, false);
     } else {
-      if (radioatc.e.tocando) radioatc.alternar();
-      this.e.erroAudio = false;
-      audio.src = est.url;
-      audio.play().then(() => {
-        this.e.tocando = true;
-        this.logar(`Tocando rádio: ${est.nome}`);
-        UI.renderCard(this, false);
-      }).catch(() => {
-        this.e.erroAudio = true;
-        this.e.tocando = false;
-        UI.renderCard(this, false);
-      });
+      this.tocarUrl(est.url, est.nome, est.dial, false);
     }
-    UI.renderCard(this, false);
   },
 
   async atualizar() {},
   metrica() { return ESTACOES_MUSICA.length; },
   principal() {
-    return { texto: this.e.tocando ? 'ON AIR' : 'STANDBY', nivel: 'ok' };
+    return { texto: this.e.tocando ? 'ON AIR' : 'STANDBY', nivel: this.e.tocando ? 'ok' : 'ok' };
   },
   contexto() {
-    const est = ESTACOES_MUSICA[this.e.idx];
     if (this.e.erroAudio) {
-      return IDIOMA === 'en' ? 'stream busy · select another station below' : 'transmissão ocupada · escolha outra estação abaixo';
+      return IDIOMA === 'en'
+        ? 'stream unavailable · check URL or pick another station'
+        : 'stream indisponível · verifique o link ou escolha outra estação';
     }
+    if (this.e.customAtiva) {
+      return `${this.e.customNome} · ${IDIOMA === 'en' ? 'custom stream' : 'sintonia personalizada'}`;
+    }
+    const est = ESTACOES_MUSICA[this.e.idx];
     return `${est.nome} · ${est.genero}`;
   },
-  montarViz(el) { this.renderViz(el); },
+  montarViz(el) {
+    this.atualizarAgulha(ESTACOES_MUSICA[0].dial);
+    this.renderViz(el);
+  },
   renderViz(el) {
     el.replaceChildren();
     const lista = h('div', 'radio-lista');
     ESTACOES_MUSICA.forEach((est, i) => {
+      const selecionada = !this.e.customAtiva && i === this.e.idx;
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = i === this.e.idx ? 'radio-item ativo' : 'radio-item';
-      btn.textContent = `${i === this.e.idx && this.e.tocando ? '■' : '▶'} ${est.nome}`;
+      btn.className = selecionada ? 'radio-item ativo' : 'radio-item';
+      btn.textContent = `${selecionada && this.e.tocando ? '■' : '▶'} ${est.nome}`;
       btn.addEventListener('click', () => this.alternar(i));
       lista.appendChild(btn);
     });
@@ -2413,100 +2148,9 @@ const radiomusica = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 21 · TENDÊNCIAS GLOBAIS — GOOGLE TRENDS RSS — 15 min ============ */
-const trends = criarSensor({
-  id: 'trends', num: '21', titulo: 'TENDÊNCIAS · GOOGLE TRENDS', fonte: 'Google Trends Daily Feed (BR / US)', freq: 900,
-  e: { itens: [], vistos: new Set() },
-
-  async lerGeo(geo) {
-    const url = `https://trends.google.com/trending/rss?geo=${geo}`;
-    const xmlStr = await fetchSeguro(url, 'text', 10000);
-    const doc = new DOMParser().parseFromString(xmlStr, 'text/xml');
-    const items = Array.from(doc.querySelectorAll('item'));
-    const lista = [];
-
-    items.slice(0, 12).forEach((node) => {
-      const termo = (node.querySelector('title')?.textContent || '').trim();
-      const trafego = (node.getElementsByTagName('ht:approx_traffic')[0]?.textContent || '').trim();
-      if (!termo) return;
-      lista.push({ geo, termo, trafego: trafego || 'em alta' });
-    });
-    return lista;
-  },
-
-  async atualizar() {
-    const [brRes, usRes] = await Promise.allSettled([
-      this.lerGeo('BR'),
-      this.lerGeo('US')
-    ]);
-
-    const combinados = [];
-    const br = brRes.status === 'fulfilled' ? brRes.value : [];
-    const us = usRes.status === 'fulfilled' ? usRes.value : [];
-    const maxLen = Math.max(br.length, us.length);
-
-    for (let i = 0; i < maxLen; i++) {
-      if (br[i]) combinados.push(br[i]);
-      if (us[i]) combinados.push(us[i]);
-    }
-
-    if (combinados.length === 0) throw new Error('Google Trends feed unavailable');
-
-    this.e.itens = combinados.slice(0, 20);
-    let novos = 0;
-    this.e.itens.forEach((it) => {
-      if (registrarUnico(this.e.vistos, `${it.geo}-${it.termo}`)) {
-        novos++;
-        this.logar(`[${it.geo}] ${it.termo} (${it.trafego})`);
-      }
-    });
-
-    if (novos > 0) Caos.registrar(Math.min(2, novos));
-  },
-
-  metrica() { return this.e.itens.length; },
-  principal() {
-    if (!this.carregado) return { texto: '—', nivel: 'ok' };
-    return { texto: U.num(this.e.itens.length), nivel: 'ok' };
-  },
-  contexto() {
-    if (!this.carregado || this.e.itens.length === 0) {
-      return IDIOMA === 'en' ? 'reading Google Trends search spikes…' : 'lendo picos de busca no Google Trends…';
-    }
-    const top = this.e.itens[0];
-    return IDIOMA === 'en'
-      ? `top real-time searches · #1: ${top.termo} (${top.trafego})`
-      : `buscas em alta agora · topo: ${top.termo} (${top.trafego})`;
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.itens.length === 0) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'waiting for trends…' : 'aguardando tendências…'));
-      return;
-    }
-    el.replaceChildren(...this.e.itens.map((it) => {
-      const li = h('li');
-      const link = document.createElement('a');
-      link.href = `https://trends.google.com/trends/explore?q=${encodeURIComponent(it.termo)}&geo=${it.geo}`;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.className = 'nome link-lei';
-      link.textContent = it.termo;
-
-      li.append(
-        h('span', 'fonte-tag', it.geo),
-        link,
-        h('span', 'val suave', it.trafego)
-      );
-      return li;
-    }));
-  },
-  eventosIniciais() { return 0; }
-});
-
-/* ===== 22 · QUEDAS DE INTERNET & BLECAPES — Georgia Tech IODA — 10 min === */
+/* ===== 18 · QUEDAS DE INTERNET & BLECAPES — Georgia Tech IODA — 10 min === */
 const internet = criarSensor({
-  id: 'internet', num: '22', titulo: 'QUEDAS DE INTERNET (IODA)', fonte: 'Georgia Tech IODA · BGP & Active Probing', freq: 600,
+  id: 'internet', num: '18', titulo: 'QUEDAS DE INTERNET (IODA)', fonte: 'Georgia Tech IODA · BGP & Active Probing', freq: 600,
   e: { alertas: [], vistos: new Set() },
 
   async atualizar() {
@@ -2577,7 +2221,7 @@ const internet = criarSensor({
   eventosIniciais() { return this.criticos(); }
 });
 
-/* ===== 23 · NÍVEL & VAZÃO DOS RIOS — Open-Meteo Flood (GloFAS) — 1 h ==== */
+/* ===== 19 · NÍVEL & VAZÃO DOS RIOS — Open-Meteo Flood (GloFAS) — 1 h ==== */
 const BACIAS_RIOS = [
   { nome: 'Rio Amazonas (Manaus)', lat: -3.13, lon: -59.98 },
   { nome: 'Rio Paraná (Foz)', lat: -25.51, lon: -54.58 },
@@ -2590,7 +2234,7 @@ const BACIAS_RIOS = [
 ];
 
 const rios = criarSensor({
-  id: 'rios', num: '23', titulo: 'NÍVEL & VAZÃO DOS RIOS', fonte: 'Open-Meteo Flood / GloFAS', freq: 3600,
+  id: 'rios', num: '19', titulo: 'NÍVEL & VAZÃO DOS RIOS', fonte: 'Open-Meteo Flood / GloFAS', freq: 3600,
   e: { bacias: [], maiorVazao: 0 },
 
   async atualizar() {
@@ -2666,72 +2310,11 @@ const rios = criarSensor({
   eventosIniciais() { return this.cheias(); }
 });
 
-/* ===== 24 · CÁPSULA DO TEMPO DO VISITANTE (ITEM 19) ==================== */
-const capsula = criarSensor({
-  id: 'capsula', num: '24', titulo: 'CÁPSULA DO TEMPO · LOG', fonte: 'Terminal Local · Carimbo do Caos', freq: 3600,
-  e: { registros: [] },
-
-  carregar() {
-    try {
-      const salvo = JSON.parse(localStorage.getItem(CONFIG.chaveCapsula) || '[]');
-      if (Array.isArray(salvo) && salvo.length > 0) {
-        this.e.registros = salvo;
-        return;
-      }
-    } catch (_) { /* ignora */ }
-    this.e.registros = [
-      { ts: Date.now() - 3600000, caos: 142, texto: 'Observando o planeta em tempo real pelo painel.' }
-    ];
-  },
-
-  gravar(mensagem) {
-    const txt = String(mensagem || '').trim().slice(0, 90);
-    if (!txt) return;
-    if (this.e.registros.length === 0) this.carregar();
-    const item = { ts: Date.now(), caos: Caos.valor, texto: txt };
-    this.e.registros.unshift(item);
-    this.e.registros = this.e.registros.slice(0, 30);
-    try { localStorage.setItem(CONFIG.chaveCapsula, JSON.stringify(this.e.registros)); } catch (_) { /* ignora */ }
-    this.logar(`Registro gravado [Caos ${item.caos}]: ${txt}`);
-    UI.renderCard(this, true);
-  },
-
-  async atualizar() {
-    if (this.e.registros.length === 0) this.carregar();
-  },
-
-  metrica() { return this.e.registros.length; },
-  principal() {
-    if (this.e.registros.length === 0) this.carregar();
-    return { texto: `${U.num(this.e.registros.length)} LOGS`, nivel: 'ok' };
-  },
-  contexto() {
-    return IDIOMA === 'en'
-      ? 'leave a timestamped note marked with current Chaos Index'
-      : 'deixe uma frase carimbada com data, hora e índice do caos';
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.registros.length === 0) this.carregar();
-    el.replaceChildren(...this.e.registros.map((r) => {
-      const li = h('li');
-      li.append(
-        h('span', 'fonte-tag', `CAOS ${U.num(r.caos)}`),
-        h('span', 'nome', r.texto),
-        h('span', 'val suave', U.hora(r.ts).slice(0, 5))
-      );
-      return li;
-    }));
-  },
-  eventosIniciais() { return 0; }
-});
-
-/* Lista ordenada dos 24 sensores ativos */
+/* Lista ordenada dos 19 sensores ativos */
 const SENSORES = [
   globo, bolsa, microtremores, incendios, temperaturas, anomalias,
   manchetes, ar, desastres, asteroides, mare, uv, cidade,
-  avioes, juizo, raios, populacao, ondas, radioatc, radiomusica,
-  trends, internet, rios, capsula
+  raios, populacao, ondas, radiomusica, internet, rios
 ];
 const POR_ID = Object.fromEntries(SENSORES.map((s) => [s.id, s]));
 
@@ -2800,16 +2383,13 @@ const UI = {
       s.montarViz(vizEl);
     });
 
-    // Formulário de busca da BBC Brasil (Sensor 07)
-    const formBbc = document.getElementById('form-bbc');
-    const inputBbc = document.getElementById('input-bbc');
-    if (formBbc && inputBbc) {
-      formBbc.addEventListener('submit', (ev) => {
+    // Formulário de busca no Google Notícias (Sensor 07)
+    const formGoogleNews = document.getElementById('form-google-news');
+    const inputGoogleNews = document.getElementById('input-google-news');
+    if (formGoogleNews && inputGoogleNews) {
+      formGoogleNews.addEventListener('submit', (ev) => {
         ev.preventDefault();
-        manchetes.filtrar(inputBbc.value);
-      });
-      inputBbc.addEventListener('input', () => {
-        manchetes.filtrar(inputBbc.value);
+        manchetes.buscarAssunto(inputGoogleNews.value);
       });
     }
 
@@ -2823,16 +2403,13 @@ const UI = {
       });
     }
 
-    // Formulário da Cápsula do Tempo (Sensor 24)
-    const formCapsula = document.getElementById('form-capsula');
-    const inputCapsula = document.getElementById('input-capsula');
-    if (formCapsula && inputCapsula) {
-      formCapsula.addEventListener('submit', (ev) => {
+    // Formulário de sintonizador livre de rádio (Sensor 17)
+    const formRadioCustom = document.getElementById('form-radio-custom');
+    const inputRadioUrl = document.getElementById('input-radio-url');
+    if (formRadioCustom && inputRadioUrl) {
+      formRadioCustom.addEventListener('submit', (ev) => {
         ev.preventDefault();
-        if (inputCapsula.value.trim()) {
-          capsula.gravar(inputCapsula.value);
-          inputCapsula.value = '';
-        }
+        radiomusica.sintonizarCustom(inputRadioUrl.value);
       });
     }
 
@@ -2887,13 +2464,13 @@ const UI = {
     if (inpCidade) inpCidade.placeholder = T('placeholderCidade');
     setTxt('btn-cidade', T('buscar'));
 
-    const inpBbc = document.getElementById('input-bbc');
-    if (inpBbc) inpBbc.placeholder = T('placeholderBbc');
-    setTxt('btn-bbc', T('buscar'));
+    const inpGoogle = document.getElementById('input-google-news');
+    if (inpGoogle) inpGoogle.placeholder = T('placeholderGoogleNews');
+    setTxt('btn-google-news', T('buscar'));
 
-    const inpCap = document.getElementById('input-capsula');
-    if (inpCap) inpCap.placeholder = T('placeholderCapsula');
-    setTxt('btn-capsula', T('gravar'));
+    const inpRadio = document.getElementById('input-radio-url');
+    if (inpRadio) inpRadio.placeholder = T('placeholderRadio');
+    setTxt('btn-radio-sintonizar', T('ouvir'));
 
     SENSORES.forEach((s) => {
       const c = this.cards[s.id];
@@ -2916,7 +2493,7 @@ const UI = {
 
     if (s.id === 'cidade' && !s.e.buscada && !s.e.buscando) {
       c.tempo.textContent = T('aguardandoBusca');
-    } else if (s.id === 'populacao' || s.id === 'radioatc' || s.id === 'radiomusica' || s.id === 'capsula') {
+    } else if (s.id === 'populacao' || s.id === 'radiomusica') {
       c.tempo.textContent = T('aoVivo');
     } else {
       c.tempo.textContent = s.ultima ? T('atualizado') + U.relativo(s.ultima) : T('sincronizando');
@@ -2938,7 +2515,7 @@ const UI = {
       if (!c) return;
       if (s.id === 'cidade' && !s.e.buscada && !s.e.buscando) {
         c.tempo.textContent = T('aguardandoBusca');
-      } else if (s.id === 'populacao' || s.id === 'radioatc' || s.id === 'radiomusica' || s.id === 'capsula') {
+      } else if (s.id === 'populacao' || s.id === 'radiomusica') {
         c.tempo.textContent = T('aoVivo');
       } else {
         c.tempo.textContent = s.ultima ? T('atualizado') + U.relativo(s.ultima) : T('sincronizando');
@@ -2982,6 +2559,22 @@ const UI = {
       s.ultima ? `${U.hora(s.ultima)} · ${U.relativo(s.ultima)}` : T('sincronizando');
     document.getElementById('det-valor').textContent = p.texto;
     document.getElementById('det-contexto').textContent = s.contexto();
+
+    const detGloboBox = document.getElementById('det-globo-box');
+    if (detGloboBox) {
+      if (id === 'globo') {
+        detGloboBox.hidden = false;
+        detGloboBox.className = 'det-globo-grande';
+        requestAnimationFrame(() => {
+          const w = detGloboBox.clientWidth || 720;
+          globo.e.instanciaDetalhe = globo.criarInstanciaTerra(detGloboBox, w, 440, 1.85);
+        });
+      } else {
+        detGloboBox.hidden = true;
+        detGloboBox.replaceChildren();
+        globo.e.instanciaDetalhe = null;
+      }
+    }
 
     this.desenharGrafico(document.getElementById('det-grafico'), s.historico);
 
