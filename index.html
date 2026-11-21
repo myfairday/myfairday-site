@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body class="estado-escuro">
 
@@ -97,6 +97,63 @@
         <p class="modal-feedback" id="modal-feedback"></p>
       </div>
     </div>
+
+    <!-- ================= ENQUETE INTERMEDIÁRIA (APÓS O JOGO 01) ================= -->
+    <section class="painel-etapa" id="enquete-intermediaria" hidden>
+      <div class="etapa-header">
+        <span class="etapa-tag">CONSULTA OBRIGATÓRIA // REGISTRO DE POSICIONAMENTO</span>
+        <span class="lab-timer" id="enquete1-total">VOTOS: —</span>
+      </div>
+
+      <h2 class="enquete-pergunta">
+        Você é a favor da pena de morte para criminosos s3xu4is ?
+      </h2>
+
+      <div class="enquete-opcoes" id="enquete1-opcoes">
+        <button type="button" class="opcao-voto opcao-voto-1" data-opcao1="sim">
+          <div class="opcao-topo">
+            <span class="opcao-num">1)</span>
+            <span class="opcao-titulo">Sim</span>
+            <span class="opcao-pct" id="pct1-sim">—</span>
+          </div>
+          <div class="opcao-barra"><span class="opcao-fill" id="bar1-sim"></span></div>
+        </button>
+
+        <button type="button" class="opcao-voto opcao-voto-1" data-opcao1="nao">
+          <div class="opcao-topo">
+            <span class="opcao-num">2)</span>
+            <span class="opcao-titulo">Não</span>
+            <span class="opcao-pct" id="pct1-nao">—</span>
+          </div>
+          <div class="opcao-barra"><span class="opcao-fill" id="bar1-nao"></span></div>
+        </button>
+
+        <button type="button" class="opcao-voto opcao-voto-1" data-opcao1="perdoaria">
+          <div class="opcao-topo">
+            <span class="opcao-num">3)</span>
+            <span class="opcao-titulo">Eu perdoaria</span>
+            <span class="opcao-pct" id="pct1-perdoaria">—</span>
+          </div>
+          <div class="opcao-barra"><span class="opcao-fill" id="bar1-perdoaria"></span></div>
+        </button>
+
+        <button type="button" class="opcao-voto opcao-voto-1" data-opcao1="sofrer">
+          <div class="opcao-topo">
+            <span class="opcao-num">4)</span>
+            <span class="opcao-titulo">Eles precisam sofrer o mesmo que suas vítimas</span>
+            <span class="opcao-pct" id="pct1-sofrer">—</span>
+          </div>
+          <div class="opcao-barra"><span class="opcao-fill" id="bar1-sofrer"></span></div>
+        </button>
+      </div>
+
+      <div class="enquete1-acoes" id="enquete1-acoes" hidden>
+        <p class="enquete-rodape-info" id="enquete1-feedback">✓ Resposta registrada.</p>
+        <button type="button" class="btn-travar-nucleo" id="btn-avancar-jogo2">
+          AVANÇAR PARA O PRÓXIMO DESAFIO →
+        </button>
+      </div>
+    </section>
 
     <!-- ================= JOGO 02: SINTONIA DE FREQUÊNCIA INSTÁVEL ================= -->
     <section class="painel-etapa" id="jogo-2" hidden>
@@ -211,7 +268,6 @@
         <span class="prova-social-badge" id="prova-social-texto">Comunidade: 84% Inscritos · 16% Externos</span>
       </div>
 
-      <!-- Triagem movida exclusivamente para o final -->
       <div id="bloco-triagem-final">
         <p class="etapa-desc">
           Antes de registrar sua escolha no arquivo, confirme seu vínculo com o canal:
@@ -247,7 +303,6 @@
         </div>
       </div>
 
-      <!-- Enquete -->
       <div id="bloco-enquete" hidden>
         <h2 class="enquete-pergunta">Quais conteúdos você quer ver no canal Thiago Mistery?</h2>
 
@@ -298,6 +353,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
