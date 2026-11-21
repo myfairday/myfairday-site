@@ -1,58 +1,52 @@
 /* =====================================================================
-   PROTOCOLO 2030 · STYLE.CSS
+   STYLE.CSS — TELA PRETA + 4 JOGOS + CONTADOR 2030 + ENQUETE
    ===================================================================== */
 
 :root,
 html[data-tema="verde"] {
-  --bg:        #07080b;
-  --card:      #0d1016;
-  --borda:     #1b202b;
-  --borda-hi:  #2c3547;
+  --bg:        #050608;
+  --card:      #0b0d12;
+  --borda:     #191e28;
+  --borda-hi:  #2a3344;
   --txt:       #e6e8ec;
-  --txt-dim:   #828b9e;
-  --txt-faint: #464e5e;
-
+  --txt-dim:   #7c8599;
   --ok:        #2ee59d;
   --warn:      #f5b942;
   --crit:      #ff4d5e;
-
   --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
 }
 
 html[data-tema="ambar"] {
-  --bg:        #0a0805;
-  --card:      #120e09;
-  --borda:     #2a2013;
+  --bg:        #080604;
+  --card:      #110d08;
+  --borda:     #291f12;
   --borda-hi:  #42311b;
   --txt:       #f2e6d5;
   --txt-dim:   #998468;
-  --txt-faint: #574836;
   --ok:        #ffb02e;
   --warn:      #ff7a2e;
   --crit:      #ff3b3b;
 }
 
 html[data-tema="vermelho"] {
-  --bg:        #0a0506;
-  --card:      #13090b;
+  --bg:        #080405;
+  --card:      #12080a;
   --borda:     #2b1317;
   --borda-hi:  #451d23;
   --txt:       #f5e1e4;
   --txt-dim:   #9c7379;
-  --txt-faint: #593b40;
   --ok:        #ff4d5e;
   --warn:      #ff9f43;
   --crit:      #ff1e38;
 }
 
 html[data-tema="ciano"] {
-  --bg:        #05090d;
-  --card:      #091118;
+  --bg:        #04080b;
+  --card:      #081017;
   --borda:     #132433;
   --borda-hi:  #1e3952;
   --txt:       #e0f0fa;
   --txt-dim:   #6d8ca3;
-  --txt-faint: #3c5366;
   --ok:        #38d9ff;
   --warn:      #f5b942;
   --crit:      #ff4d6d;
@@ -68,17 +62,74 @@ html, body {
   font-family: var(--mono);
   font-size: 14px;
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-/* ================= CABEÇALHO ================= */
+body.estado-escuro {
+  background: #000000;
+  overflow: hidden;
+}
+
+/* ================= TELA PRETA INICIAL ================= */
+.tela-preta {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.9s ease;
+}
+.tela-preta.apagando {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gatilho-inicio {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  cursor: pointer;
+  padding: 30px;
+}
+
+.orbe-pulso {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 24px var(--ok), 0 0 60px var(--ok);
+  animation: respirar 2.4s ease-in-out infinite;
+}
+
+@keyframes respirar {
+  0%, 100% { transform: scale(0.85); opacity: 0.35; }
+  50%      { transform: scale(1.25); opacity: 1; }
+}
+
+.texto-gatilho {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  color: #555e6e;
+  transition: color 0.3s;
+}
+.gatilho-inicio:hover .texto-gatilho {
+  color: var(--ok);
+}
+
+/* ================= CABEÇALHO MINIMALISTA ================= */
 .topo {
-  max-width: 920px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 22px 20px 18px;
+  padding: 18px 20px 12px;
   border-bottom: 1px solid var(--borda);
 }
+.topo[hidden] { display: none; }
 
 .topo-barra {
   display: flex;
@@ -88,7 +139,6 @@ html, body {
   gap: 12px;
   font-size: 12px;
   color: var(--txt-dim);
-  letter-spacing: 0.08em;
 }
 
 .ao-vivo {
@@ -96,7 +146,8 @@ html, body {
   align-items: center;
   gap: 8px;
   color: var(--ok);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.1em;
 }
 
 .led {
@@ -105,17 +156,12 @@ html, body {
   border-radius: 50%;
   background: var(--ok);
   box-shadow: 0 0 8px var(--ok);
-  animation: piscar 2s ease-in-out infinite;
+  animation: piscar 2s infinite;
 }
 
 @keyframes piscar {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.25; }
-}
-
-.relogio {
-  font-variant-numeric: tabular-nums;
-  color: var(--txt);
 }
 
 .topo-direita {
@@ -130,6 +176,16 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
+.btn-som {
+  background: var(--card);
+  border: 1px solid var(--borda-hi);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: var(--ok);
+  cursor: pointer;
+  font-size: 12px;
+}
+
 .tema-switch {
   display: inline-flex;
   align-items: center;
@@ -141,8 +197,8 @@ html, body {
 }
 
 .btn-tema {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 0;
@@ -152,48 +208,32 @@ html, body {
 .btn-tema[data-tema-btn="ambar"]    { background: #ffb02e; }
 .btn-tema[data-tema-btn="vermelho"] { background: #ff4d5e; }
 .btn-tema[data-tema-btn="ciano"]    { background: #38d9ff; }
-.btn-tema.ativo {
-  transform: scale(1.25);
-  box-shadow: 0 0 8px #ffffff;
-  border-color: #ffffff;
-}
-
-.topo h1 {
-  margin: 14px 0 8px;
-  font-size: clamp(20px, 3.4vw, 30px);
-  font-weight: 800;
-  letter-spacing: 0.06em;
-}
+.btn-tema.ativo { transform: scale(1.25); box-shadow: 0 0 6px #fff; }
 
 .sismografo {
   width: 100%;
-  height: 26px;
-  margin: 4px 0 8px;
+  height: 22px;
+  margin-top: 10px;
 }
 .sismografo svg { width: 100%; height: 100%; display: block; }
 .sismografo .base { stroke: var(--borda); stroke-width: 1; }
 .sismografo polyline {
   fill: none;
   stroke: var(--ok);
-  stroke-width: 1.5;
+  stroke-width: 1.4;
   vector-effect: non-scaling-stroke;
 }
 
-.lema {
-  margin: 0;
-  color: var(--txt-dim);
-  font-size: 13px;
-}
-
-/* ================= CONTAINER PRINCIPAL E ETAPAS ================= */
+/* ================= MAIN & PAINÉIS ================= */
 main {
-  max-width: 920px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 24px 20px 40px;
+  padding: 24px 20px 44px;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
+main[hidden] { display: none; }
 
 .painel-etapa {
   background: var(--card);
@@ -201,12 +241,12 @@ main {
   border-top: 2px solid var(--ok);
   border-radius: 4px;
   padding: 22px;
-  animation: surgir 0.4s ease-out;
+  animation: surgir 0.45s ease-out;
 }
 .painel-etapa[hidden] { display: none; }
 
 @keyframes surgir {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -228,9 +268,16 @@ main {
   color: var(--ok);
 }
 
+.hud-direita {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-chave,
+.lab-timer,
 .prova-social-badge,
-.badge-rank,
-.lab-timer {
+.badge-rank {
   font-size: 11px;
   padding: 3px 9px;
   border-radius: 3px;
@@ -240,65 +287,19 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
+.badge-chave.obtida {
+  border-color: var(--warn);
+  color: var(--warn);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--warn) 30%, transparent);
+}
+
 .etapa-desc {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
   color: var(--txt-dim);
   font-size: 13px;
 }
 
-/* ================= ETAPA 1: TRIAGEM ================= */
-.triagem-botoes {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-@media (max-width: 600px) {
-  .triagem-botoes { grid-template-columns: 1fr; }
-}
-
-.btn-triagem {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 16px 18px;
-  background: var(--bg);
-  border: 1px solid var(--borda-hi);
-  border-radius: 4px;
-  color: var(--txt);
-  font-family: var(--mono);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.2s, transform 0.15s, background 0.2s;
-}
-.btn-triagem:hover {
-  transform: translateY(-2px);
-}
-.btn-inscrito:hover,
-.btn-inscrito.selecionado {
-  border-color: var(--ok);
-  background: color-mix(in srgb, var(--ok) 12%, var(--bg));
-}
-.btn-nao-inscrito:hover,
-.btn-nao-inscrito.selecionado {
-  border-color: var(--crit);
-  background: color-mix(in srgb, var(--crit) 12%, var(--bg));
-}
-
-.btn-titulo {
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-}
-.btn-inscrito .btn-titulo { color: var(--ok); }
-.btn-nao-inscrito .btn-titulo { color: var(--crit); }
-
-.btn-sub {
-  font-size: 11px;
-  color: var(--txt-dim);
-}
-
-/* ================= ETAPA 2: LABIRINTO ================= */
+/* ================= JOGO 1: LABIRINTO ================= */
 .lab-hud {
   display: flex;
   justify-content: space-between;
@@ -316,38 +317,21 @@ main {
   color: var(--ok);
   font-family: var(--mono);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   padding: 5px 12px;
   border-radius: 3px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
 }
 .btn-sonar:hover:not(:disabled) {
   background: var(--ok);
   color: var(--bg);
 }
-.btn-sonar:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.lab-alerta-armadilha {
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  background: color-mix(in srgb, var(--crit) 16%, var(--bg));
-  border: 1px solid var(--crit);
-  border-radius: 3px;
-  color: var(--crit);
-  font-size: 12px;
-  font-weight: 700;
-  animation: piscar 0.8s infinite;
-}
-.lab-alerta-armadilha[hidden] { display: none; }
+.btn-sonar:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .lab-canvas-wrap {
   position: relative;
   width: 100%;
-  background: #020304;
+  background: #010203;
   border: 1px solid var(--borda-hi);
   border-radius: 4px;
   overflow: hidden;
@@ -370,13 +354,8 @@ main {
   background: var(--bg);
   border-top: 1px solid var(--borda);
 }
-@media (max-width: 768px) {
-  .lab-controles-mobile { display: flex; }
-}
-.lab-controles-linha {
-  display: flex;
-  gap: 12px;
-}
+@media (max-width: 768px) { .lab-controles-mobile { display: flex; } }
+.lab-controles-linha { display: flex; gap: 12px; }
 .lab-controles-mobile button {
   width: 44px;
   height: 44px;
@@ -385,22 +364,195 @@ main {
   border-radius: 4px;
   color: var(--ok);
   font-size: 16px;
-  cursor: pointer;
 }
 
-.lab-dica {
-  margin: 12px 0 0;
+/* ================= MODAL PERGUNTA (1 CHANCE) ================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay[hidden] { display: none; }
+
+.modal-box {
+  width: 100%;
+  max-width: 540px;
+  background: var(--card);
+  border: 1px solid var(--crit);
+  border-radius: 4px;
+  padding: 24px;
+  box-shadow: 0 0 40px rgba(255, 77, 94, 0.25);
+}
+
+.modal-alerta {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--crit);
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+.modal-questao {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--txt);
+  line-height: 1.4;
+}
+
+.modal-alternativas {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.btn-alt {
+  width: 100%;
+  text-align: left;
+  padding: 11px 14px;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  border-radius: 3px;
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn-alt:hover {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, var(--bg));
+}
+
+.modal-feedback {
+  margin: 14px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 18px;
+  color: var(--crit);
+}
+
+/* ================= JOGO 2: ONDAS ================= */
+#canvas-onda {
+  width: 100%;
+  height: auto;
+  background: #020305;
+  border: 1px solid var(--borda-hi);
+  border-radius: 4px;
+  display: block;
+}
+
+.controles-onda {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (max-width: 600px) { .controles-onda { grid-template-columns: 1fr; } }
+
+.controle-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   font-size: 11px;
   color: var(--txt-dim);
 }
+.controle-slider input[type="range"] {
+  width: 100%;
+  accent-color: var(--ok);
+  cursor: pointer;
+}
 
-/* ================= ETAPA 3: INTERRUPTOR & CONTADOR 2030 ================= */
+/* ================= JOGO 3: MEMÓRIA REVERSA ================= */
+.visor-sequencia {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  padding: 24px;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  border-radius: 4px;
+  color: var(--warn);
+  margin-bottom: 16px;
+  min-height: 92px;
+}
+
+.teclado-cripto {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.btn-cripto {
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  border-radius: 4px;
+  color: var(--txt);
+  font-size: 22px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.btn-cripto:hover:not(:disabled) {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+.btn-cripto:active { transform: scale(0.96); }
+.btn-cripto:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.mem-input-display {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: var(--ok);
+  min-height: 24px;
+}
+
+/* ================= JOGO 4: NÚCLEO GIRATÓRIO ================= */
+.nucleo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+#canvas-nucleo {
+  background: #020305;
+  border: 1px solid var(--borda-hi);
+  border-radius: 50%;
+}
+
+.btn-travar-nucleo {
+  padding: 13px 28px;
+  background: var(--bg);
+  border: 1px solid var(--ok);
+  border-radius: 4px;
+  color: var(--ok);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+.btn-travar-nucleo:hover {
+  background: var(--ok);
+  color: var(--bg);
+}
+
+/* ================= INTERRUPTOR 2030 ================= */
 .interruptor-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
-  padding: 16px 0 6px;
+  gap: 20px;
+  padding: 10px 0;
 }
 
 .switch-tatico {
@@ -414,10 +566,6 @@ main {
   cursor: pointer;
   color: var(--txt);
   font-family: var(--mono);
-  transition: border-color 0.25s, box-shadow 0.25s;
-}
-.switch-tatico:hover {
-  border-color: var(--ok);
 }
 .switch-tatico.ligado {
   border-color: var(--crit);
@@ -431,7 +579,6 @@ main {
   background: #161a24;
   border: 1px solid var(--borda-hi);
   border-radius: 999px;
-  transition: background 0.25s;
 }
 .switch-tatico.ligado .switch-trilho {
   background: color-mix(in srgb, var(--crit) 30%, #161a24);
@@ -446,19 +593,14 @@ main {
   height: 20px;
   border-radius: 50%;
   background: var(--txt-dim);
-  transition: transform 0.25s ease, background 0.25s;
+  transition: transform 0.25s ease;
 }
 .switch-tatico.ligado .switch-pino {
   transform: translateX(28px);
   background: var(--crit);
-  box-shadow: 0 0 10px var(--crit);
 }
 
-.switch-label {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
+.switch-label { font-size: 12px; font-weight: 800; }
 
 .contador-2030-box {
   width: 100%;
@@ -467,7 +609,6 @@ main {
   background: var(--bg);
   border: 1px solid var(--crit);
   border-radius: 4px;
-  animation: surgir 0.4s ease-out;
 }
 .contador-2030-box[hidden] { display: none; }
 
@@ -484,8 +625,6 @@ main {
   font-weight: 800;
   color: var(--crit);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  text-shadow: 0 0 20px color-mix(in srgb, var(--crit) 35%, transparent);
 }
 
 .unidade-2030 {
@@ -493,19 +632,38 @@ main {
   margin-top: 8px;
   font-size: 11px;
   color: var(--txt-dim);
-  letter-spacing: 0.08em;
 }
 
-/* ================= ETAPA 4: ENQUETE & CONVERSÃO ================= */
-.enquete-pergunta {
-  margin: 0 0 18px;
-  font-size: clamp(16px, 2.4vw, 21px);
-  font-weight: 800;
-  color: var(--txt);
+/* ================= ETAPA FINAL: TRIAGEM + ENQUETE ================= */
+.triagem-botoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
+@media (max-width: 600px) { .triagem-botoes { grid-template-columns: 1fr; } }
+
+.btn-triagem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  border-radius: 4px;
+  color: var(--txt);
+  font-family: var(--mono);
+  text-align: left;
+  cursor: pointer;
+}
+.btn-inscrito:hover { border-color: var(--ok); }
+.btn-nao-inscrito:hover { border-color: var(--crit); }
+.btn-titulo { font-size: 14px; font-weight: 800; }
+.btn-inscrito .btn-titulo { color: var(--ok); }
+.btn-nao-inscrito .btn-titulo { color: var(--crit); }
+.btn-sub { font-size: 11px; color: var(--txt-dim); }
 
 .bloqueio-inscricao {
-  margin-bottom: 20px;
+  margin-top: 18px;
   padding: 20px;
   background: color-mix(in srgb, var(--crit) 10%, var(--bg));
   border: 1px solid var(--crit);
@@ -513,22 +671,9 @@ main {
   text-align: center;
 }
 .bloqueio-inscricao[hidden] { display: none; }
-
-.bloqueio-icone {
-  font-size: 26px;
-  margin-bottom: 6px;
-}
-.bloqueio-inscricao h3 {
-  margin: 0 0 8px;
-  font-size: 14px;
-  color: var(--crit);
-  letter-spacing: 0.08em;
-}
-.bloqueio-inscricao p {
-  margin: 0 0 16px;
-  font-size: 12px;
-  color: var(--txt-dim);
-}
+.bloqueio-icone { font-size: 24px; margin-bottom: 6px; }
+.bloqueio-inscricao h3 { margin: 0 0 8px; font-size: 14px; color: var(--crit); }
+.bloqueio-inscricao p { margin: 0 0 16px; font-size: 12px; color: var(--txt-dim); }
 
 .btn-forcar-inscricao {
   display: inline-block;
@@ -538,24 +683,19 @@ main {
   text-decoration: none;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.06em;
   border-radius: 4px;
-  box-shadow: 0 0 18px color-mix(in srgb, var(--crit) 45%, transparent);
-  transition: transform 0.15s, filter 0.15s;
 }
-.btn-forcar-inscricao:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+
+.enquete-pergunta {
+  margin: 0 0 16px;
+  font-size: clamp(16px, 2.4vw, 20px);
+  font-weight: 800;
 }
 
 .enquete-opcoes {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-.enquete-opcoes.bloqueado {
-  opacity: 0.35;
-  pointer-events: none;
 }
 
 .opcao-voto {
@@ -568,15 +708,9 @@ main {
   font-family: var(--mono);
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
 }
-.opcao-voto:hover {
-  border-color: var(--ok);
-}
-.opcao-voto.votado {
-  border-color: var(--ok);
-  background: color-mix(in srgb, var(--ok) 10%, var(--bg));
-}
+.opcao-voto:hover,
+.opcao-voto.votado { border-color: var(--ok); }
 
 .opcao-topo {
   display: flex;
@@ -584,22 +718,9 @@ main {
   gap: 10px;
   margin-bottom: 8px;
 }
-.opcao-num {
-  font-size: 11px;
-  color: var(--ok);
-  font-weight: 800;
-}
-.opcao-titulo {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 700;
-}
-.opcao-pct {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--ok);
-  font-variant-numeric: tabular-nums;
-}
+.opcao-num { font-size: 11px; color: var(--ok); font-weight: 800; }
+.opcao-titulo { flex: 1; font-size: 13px; font-weight: 700; }
+.opcao-pct { font-size: 12px; font-weight: 800; color: var(--ok); }
 
 .opcao-barra {
   width: 100%;
@@ -624,11 +745,10 @@ main {
 
 /* ================= RODAPÉ (APENAS NO FINAL) ================= */
 .rodape {
-  max-width: 920px;
+  max-width: 880px;
   margin: 0 auto;
   padding: 22px 20px 36px;
   border-top: 1px solid var(--borda);
-  animation: surgir 0.5s ease-out;
 }
 .rodape[hidden] { display: none; }
 
@@ -639,30 +759,10 @@ main {
   flex-wrap: wrap;
   gap: 12px;
 }
-
-.status-concluido {
-  font-size: 11px;
-  color: var(--ok);
-  letter-spacing: 0.08em;
-}
-
-.autoria-final {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--txt);
-}
+.status-concluido { font-size: 11px; color: var(--ok); letter-spacing: 0.08em; }
+.autoria-final { font-size: 13px; font-weight: 800; }
 .autoria-final a {
   color: var(--ok);
   text-decoration: none;
   border-bottom: 1px solid var(--ok);
-  margin-left: 4px;
-}
-.autoria-final a:hover {
-  opacity: 0.85;
-}
-
-.aviso-noscript {
-  padding: 16px;
-  border: 1px solid var(--crit);
-  color: var(--crit);
 }
