@@ -1,5 +1,5 @@
 /* =====================================================================
-   STYLE.CSS — TELA PRETA + 4 JOGOS (10 CÁLCULOS) + CONTADOR 2030 + ENQUETE
+   STYLE.CSS — TELA PRETA + 4 JOGOS + 2 ENQUETES + CONTADOR 2030
    ===================================================================== */
 
 :root,
@@ -442,6 +442,17 @@ main[hidden] { display: none; }
   min-height: 18px;
   color: var(--crit);
 }
+
+/* ================= ENQUETE INTERMEDIÁRIA ================= */
+.enquete1-acoes {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.enquete1-acoes[hidden] { display: none; }
 
 /* ================= JOGO 2: ONDAS ================= */
 #canvas-onda {
