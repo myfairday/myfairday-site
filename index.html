@@ -3,37 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Protocolo 2030 · Acesso Restrito</title>
-  <meta name="description" content="Desafio interativo de investigação e mistério.">
+  <title>...</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
-<body>
+<body class="estado-escuro">
 
-  <!-- ================= CABEÇALHO (SEM CRÉDITOS NO INÍCIO) ================= -->
-  <header class="topo">
+  <!-- ================= TELA PRETA INICIAL ================= -->
+  <div class="tela-preta" id="tela-preta">
+    <button type="button" class="gatilho-inicio" id="btn-iniciar-tudo" aria-label="Iniciar">
+      <span class="orbe-pulso"></span>
+      <span class="texto-gatilho">[ TOCAR PARA ACENDER ]</span>
+    </button>
+  </div>
+
+  <!-- ================= BARRA SUPERIOR MINIMALISTA ================= -->
+  <header class="topo" id="topo-sistema" hidden>
     <div class="topo-barra">
-      <span class="ao-vivo"><i class="led"></i><span>SINAL ATIVO</span></span>
+      <span class="ao-vivo"><i class="led"></i><span id="fase-indicador">01 / 04</span></span>
 
       <span class="relogio" id="relogio">--:--:--</span>
 
       <span class="topo-direita">
         <span class="visitantes" id="visitantes">visitantes: 1</span>
 
-        <span class="tema-switch" role="group" aria-label="Cores do terminal">
-          <button type="button" class="btn-tema ativo" data-tema-btn="verde" title="Terminal Verde"></button>
-          <button type="button" class="btn-tema" data-tema-btn="ambar" title="Radar Âmbar"></button>
-          <button type="button" class="btn-tema" data-tema-btn="vermelho" title="Alerta Vermelho"></button>
-          <button type="button" class="btn-tema" data-tema-btn="ciano" title="Visão Ciano"></button>
+        <button type="button" class="btn-som" id="btn-som" title="Alternar Áudio de Suspense">🔊</button>
+
+        <span class="tema-switch" role="group" aria-label="Cores">
+          <button type="button" class="btn-tema ativo" data-tema-btn="verde"></button>
+          <button type="button" class="btn-tema" data-tema-btn="ambar"></button>
+          <button type="button" class="btn-tema" data-tema-btn="vermelho"></button>
+          <button type="button" class="btn-tema" data-tema-btn="ciano"></button>
         </span>
       </span>
     </div>
-
-    <h1 id="titulo-principal">PROTOCOLO DE ACESSO OCULTO</h1>
 
     <div class="sismografo" aria-hidden="true">
       <svg id="sismo" viewBox="0 0 1000 100" preserveAspectRatio="none">
@@ -41,58 +48,28 @@
         <polyline points=""></polyline>
       </svg>
     </div>
-
-    <p class="lema" id="lema-principal">Identifique seu nível de credencial para iniciar a travessia.</p>
   </header>
 
-  <main>
-    <noscript>
-      <p class="aviso-noscript">Este terminal precisa de JavaScript ativado para funcionar.</p>
-    </noscript>
+  <main id="area-principal" hidden>
 
-    <!-- ================= ETAPA 1: BARRA DE TRIAGEM + PROVA SOCIAL ================= -->
-    <section class="painel-etapa" id="etapa-triagem">
+    <!-- ================= JOGO 01: LABIRINTO + PERGUNTA + CHAVE ================= -->
+    <section class="painel-etapa" id="jogo-1">
       <div class="etapa-header">
-        <span class="etapa-tag">ETAPA 01 // VERIFICAÇÃO DE CREDENCIAL</span>
-        <span class="prova-social-badge" id="prova-social-texto">Comunidade: 84% Inscritos · 16% Externos</span>
-      </div>
-
-      <p class="etapa-desc">
-        O sistema ajusta a densidade do labirinto conforme o seu vínculo com o arquivo central. Selecione abaixo para iniciar:
-      </p>
-
-      <div class="triagem-botoes">
-        <button type="button" class="btn-triagem btn-inscrito" id="btn-sou-inscrito">
-          <span class="btn-titulo">✓ INSCRITO NO CANAL</span>
-          <span class="btn-sub">Libera Radar Auxiliar + Lanterna Ampliada</span>
-        </button>
-
-        <button type="button" class="btn-triagem btn-nao-inscrito" id="btn-nao-inscrito">
-          <span class="btn-titulo">✕ NÃO INSCRITO</span>
-          <span class="btn-sub">Modo Sobrevivência · Névoa Densa</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- ================= ETAPA 2: LABIRINTO DISRUPTIVO ================= -->
-    <section class="painel-etapa" id="etapa-labirinto" hidden>
-      <div class="etapa-header">
-        <span class="etapa-tag" id="lab-status-tag">ETAPA 02 // TRAVESSIA NO ESCURO</span>
-        <span class="lab-timer" id="lab-timer">00.0s</span>
+        <span class="etapa-tag">01 // LABIRINTO DE CONTENÇÃO</span>
+        <div class="hud-direita">
+          <span class="badge-chave" id="status-chave">🔑 CHAVE: AUSENTE</span>
+          <span class="lab-timer" id="lab-timer">00.0s</span>
+        </div>
       </div>
 
       <div class="lab-hud">
-        <span id="lab-modo-info">MODO: —</span>
-        <button type="button" class="btn-sonar" id="btn-sonar">📡 PULSO DE SONAR (3)</button>
+        <span id="lab-instrucao">Encontre o ponto amarelo no escuro para obter a chave da saída.</span>
+        <button type="button" class="btn-sonar" id="btn-sonar">📡 SONAR (3)</button>
       </div>
 
-      <div class="lab-alerta-armadilha" id="lab-armadilha" hidden>
-        ⚠️ ARQUIVO CORROMPIDO — VOCÊ CAIU NUMA SAÍDA FALSA! UMA PASSAGEM SECRETA FOI ABERTA.
-      </div>
-
-      <div class="lab-canvas-wrap" id="lab-wrap">
+      <div class="lab-canvas-wrap">
         <canvas id="canvas-labirinto" width="760" height="440"></canvas>
-        <div class="lab-controles-mobile" aria-label="Controles direcionais">
+        <div class="lab-controles-mobile">
           <button type="button" data-dir="up">▲</button>
           <div class="lab-controles-linha">
             <button type="button" data-dir="left">◀</button>
@@ -101,114 +78,214 @@
           </div>
         </div>
       </div>
-
-      <p class="lab-dica">
-        Mova o cursor (ou toque/arraste no mapa ou use as setas) para guiar o sinal luminoso até o núcleo de saída. Cuidado com as paredes que pulsam com o sismógrafo.
-      </p>
     </section>
 
-    <!-- ================= ETAPA 3: INTERRUPTOR DO CONTADOR 2030 ================= -->
-    <section class="painel-etapa" id="etapa-interruptor" hidden>
+    <!-- MODAL DA PERGUNTA DE 1 CHANCE DENTRO DO LABIRINTO -->
+    <div class="modal-overlay" id="modal-pergunta" hidden>
+      <div class="modal-box">
+        <div class="modal-alerta">⚠️ ACESSO RESTRITO · VOCÊ TEM APENAS 1 CHANCE</div>
+        <h2 class="modal-questao">
+          Você tem apenas 1 chance, qual é o nome do primeiro criminoso da dark web do vídeo do canal?
+        </h2>
+        <div class="modal-alternativas" id="lista-alternativas">
+          <button type="button" class="btn-alt" data-resp="a">a) Monster 02</button>
+          <button type="button" class="btn-alt" data-resp="b">b) Lunatic</button>
+          <button type="button" class="btn-alt" data-resp="c">c) Lubasa</button>
+          <button type="button" class="btn-alt" data-resp="d">d) Eu não assisti todo o vídeo</button>
+          <button type="button" class="btn-alt" data-resp="e">e) Sou muito burro</button>
+        </div>
+        <p class="modal-feedback" id="modal-feedback"></p>
+      </div>
+    </div>
+
+    <!-- ================= JOGO 02: SINTONIA DE FREQUÊNCIA INSTÁVEL ================= -->
+    <section class="painel-etapa" id="jogo-2" hidden>
       <div class="etapa-header">
-        <span class="etapa-tag">ETAPA 03 // CHAVE TEMPORAL DESBLOQUEADA</span>
-        <span class="badge-rank" id="badge-rank-tempo">TEMPO: —</span>
+        <span class="etapa-tag">02 // INTERCEPTAÇÃO DE SINAL</span>
+        <span class="lab-timer" id="sintonia-progresso">ESTABILIDADE: 0%</span>
       </div>
 
       <p class="etapa-desc">
-        Você atravessou o labirinto. Acione o interruptor de alta tensão abaixo para expor o relógio de colapso até 2030.
+        Alinhe a onda verde à onda fantasma vermelha e mantenha o sinal estável por 3 segundos antes que o ruído derrube a frequência.
+      </p>
+
+      <canvas id="canvas-onda" width="760" height="220"></canvas>
+
+      <div class="controles-onda">
+        <label class="controle-slider">
+          <span>FREQUÊNCIA (Hz)</span>
+          <input type="range" id="slider-freq" min="1" max="100" value="20">
+        </label>
+        <label class="controle-slider">
+          <span>DESLOCAMENTO DE FASE</span>
+          <input type="range" id="slider-fase" min="1" max="100" value="80">
+        </label>
+      </div>
+    </section>
+
+    <!-- ================= JOGO 03: MEMÓRIA CRIPTOGRAFADA REVERSA ================= -->
+    <section class="painel-etapa" id="jogo-3" hidden>
+      <div class="etapa-header">
+        <span class="etapa-tag">03 // DECODIFICAÇÃO REVERSA</span>
+        <span class="lab-timer" id="mem-status">MEMORIZE A SEQUÊNCIA</span>
+      </div>
+
+      <p class="etapa-desc">
+        Observe os 6 códigos piscarem e digite-os <strong>DE TRÁS PARA FRENTE</strong> (ordem inversa). Um erro reinicia a matriz.
+      </p>
+
+      <div class="visor-sequencia" id="visor-sequencia">---</div>
+
+      <div class="teclado-cripto" id="teclado-cripto">
+        <button type="button" class="btn-cripto" data-simbolo="Ω">Ω</button>
+        <button type="button" class="btn-cripto" data-simbolo="Δ">Δ</button>
+        <button type="button" class="btn-cripto" data-simbolo="Ψ">Ψ</button>
+        <button type="button" class="btn-cripto" data-simbolo="Φ">Φ</button>
+        <button type="button" class="btn-cripto" data-simbolo="Σ">Σ</button>
+        <button type="button" class="btn-cripto" data-simbolo="Ж">Ж</button>
+        <button type="button" class="btn-cripto" data-simbolo="☢">☢</button>
+        <button type="button" class="btn-cripto" data-simbolo="👁">👁</button>
+      </div>
+
+      <div class="mem-input-display" id="mem-digitado">AGUARDANDO TRANSMISSÃO...</div>
+    </section>
+
+    <!-- ================= JOGO 04: DESARME DE NÚCLEO (PRECISÃO) ================= -->
+    <section class="painel-etapa" id="jogo-4" hidden>
+      <div class="etapa-header">
+        <span class="etapa-tag">04 // TRAVA DE CONTENÇÃO FINAL</span>
+        <span class="lab-timer" id="nucleo-travas">TRAVAS: 0 / 4</span>
+      </div>
+
+      <p class="etapa-desc">
+        Pressione <strong>TRAVAR AGORA</strong> (ou barra de espaço) exatamente quando o feixe cruzar a zona iluminada. A velocidade aumenta a cada trava.
+      </p>
+
+      <div class="nucleo-wrap">
+        <canvas id="canvas-nucleo" width="320" height="320"></canvas>
+        <button type="button" class="btn-travar-nucleo" id="btn-travar-nucleo">TRAVAR AGORA</button>
+      </div>
+    </section>
+
+    <!-- ================= ETAPA 05: INTERRUPTOR DO CONTADOR 2030 ================= -->
+    <section class="painel-etapa" id="etapa-interruptor" hidden>
+      <div class="etapa-header">
+        <span class="etapa-tag">05 // CHAVE TEMPORAL LIBERADA</span>
+        <span class="badge-rank" id="badge-rank-tempo">TEMPO TOTAL: —</span>
+      </div>
+
+      <p class="etapa-desc">
+        Todos os bloqueios caíram. Acione o interruptor abaixo para expor o relógio em minutos até 2030.
       </p>
 
       <div class="interruptor-box">
         <button type="button" class="switch-tatico" id="btn-interruptor" aria-pressed="false">
-          <span class="switch-trilho">
-            <span class="switch-pino"></span>
-          </span>
-          <span class="switch-label" id="switch-label">SISTEMA DESLIGADO — CLIQUE PARA ATIVAR</span>
+          <span class="switch-trilho"><span class="switch-pino"></span></span>
+          <span class="switch-label" id="switch-label">INTERRUPTOR DESLIGADO — ATIVAR</span>
         </button>
 
         <div class="contador-2030-box" id="box-2030" hidden>
-          <span class="rotulo-2030">TEMPO RESTANTE EXATO ATÉ 01 DE JANEIRO DE 2030:</span>
+          <span class="rotulo-2030">MINUTOS RESTANTES ATÉ 01 DE JANEIRO DE 2030:</span>
           <div class="numero-2030" id="minutos-2030">0.000.000,00</div>
-          <span class="unidade-2030">MINUTOS RESTANTES (CONTAGEM EM TEMPO REAL)</span>
+          <span class="unidade-2030">MINUTOS CORRENDO EM TEMPO REAL</span>
         </div>
       </div>
     </section>
 
-    <!-- ================= ETAPA 4: ENQUETE GAMIFICADA + CONVERSÃO ================= -->
-    <section class="painel-etapa" id="etapa-enquete" hidden>
+    <!-- ================= ETAPA FINAL: TRIAGEM + ENQUETE ================= -->
+    <section class="painel-etapa" id="etapa-final" hidden>
       <div class="etapa-header">
-        <span class="etapa-tag">ETAPA FINAL // PROTOCOLO DE DECISÃO</span>
-        <span class="badge-rank" id="cracha-investigador">NÍVEL: AGENTE DE CAMPO</span>
+        <span class="etapa-tag">ARQUIVO FINAL // VERIFICAÇÃO &amp; VOTO</span>
+        <span class="prova-social-badge" id="prova-social-texto">Comunidade: 84% Inscritos · 16% Externos</span>
       </div>
 
-      <h2 class="enquete-pergunta">Quais conteúdos você quer ver no canal Thiago Mistery?</h2>
-
-      <!-- Bloqueio para quem marcou "Não Inscrito" -->
-      <div class="bloqueio-inscricao" id="bloqueio-inscricao" hidden>
-        <div class="bloqueio-icone">🔒</div>
-        <h3>ACESSO DE VOTO RESTRITO A INSCRITOS</h3>
-        <p>
-          Você entrou como <strong>Não Inscrito</strong> e provou ter perfil de investigador sobrevivendo ao modo névoa densa.
-          Para validar seu voto com peso oficial e desbloquear o resultado da comunidade, inscreva-se agora no canal:
+      <!-- Triagem movida exclusivamente para o final -->
+      <div id="bloco-triagem-final">
+        <p class="etapa-desc">
+          Antes de registrar sua escolha no arquivo, confirme seu vínculo com o canal:
         </p>
-        <a
-          href="https://www.youtube.com/@thiagomistery?sub_confirmation=1"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-forcar-inscricao"
-          id="btn-confirmar-inscricao"
-        >
-          ▶ INSCREVER-SE NO CANAL THIAGO MISTERY E LIBERAR VOTO ↗
-        </a>
+
+        <div class="triagem-botoes">
+          <button type="button" class="btn-triagem btn-inscrito" id="btn-sou-inscrito">
+            <span class="btn-titulo">✓ INSCRITO NO CANAL</span>
+            <span class="btn-sub">Liberar voto imediato</span>
+          </button>
+
+          <button type="button" class="btn-triagem btn-nao-inscrito" id="btn-nao-inscrito">
+            <span class="btn-titulo">✕ NÃO INSCRITO</span>
+            <span class="btn-sub">Acesso restrito</span>
+          </button>
+        </div>
+
+        <div class="bloqueio-inscricao" id="bloqueio-inscricao" hidden>
+          <div class="bloqueio-icone">🔒</div>
+          <h3>VOTO BLOQUEADO PARA NÃO INSCRITOS</h3>
+          <p>
+            Apenas membros inscritos podem votar na próxima pauta oficial. Inscreva-se no canal para desbloquear as opções abaixo:
+          </p>
+          <a
+            href="https://www.youtube.com/@thiagomistery?sub_confirmation=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-forcar-inscricao"
+            id="btn-confirmar-inscricao"
+          >
+            ▶ INSCREVER-SE NO CANAL THIAGO MISTERY E LIBERAR VOTO ↗
+          </a>
+        </div>
       </div>
 
-      <!-- Opções da Enquete -->
-      <div class="enquete-opcoes" id="enquete-opcoes">
-        <button type="button" class="opcao-voto" data-opcao="deepweb">
-          <div class="opcao-topo">
-            <span class="opcao-num">01</span>
-            <span class="opcao-titulo">Curiosidades da Deep Web</span>
-            <span class="opcao-pct" id="pct-deepweb">—</span>
-          </div>
-          <div class="opcao-barra"><span class="opcao-fill" id="bar-deepweb"></span></div>
-        </button>
+      <!-- Enquete -->
+      <div id="bloco-enquete" hidden>
+        <h2 class="enquete-pergunta">Quais conteúdos você quer ver no canal Thiago Mistery?</h2>
 
-        <button type="button" class="opcao-voto" data-opcao="truecrime">
-          <div class="opcao-topo">
-            <span class="opcao-num">02</span>
-            <span class="opcao-titulo">TrueCrime pesado</span>
-            <span class="opcao-pct" id="pct-truecrime">—</span>
-          </div>
-          <div class="opcao-barra"><span class="opcao-fill" id="bar-truecrime"></span></div>
-        </button>
+        <div class="enquete-opcoes" id="enquete-opcoes">
+          <button type="button" class="opcao-voto" data-opcao="deepweb">
+            <div class="opcao-topo">
+              <span class="opcao-num">01</span>
+              <span class="opcao-titulo">Curiosidades da Deep Web</span>
+              <span class="opcao-pct" id="pct-deepweb">—</span>
+            </div>
+            <div class="opcao-barra"><span class="opcao-fill" id="bar-deepweb"></span></div>
+          </button>
 
-        <button type="button" class="opcao-voto" data-opcao="investigacoes">
-          <div class="opcao-topo">
-            <span class="opcao-num">03</span>
-            <span class="opcao-titulo">Investigações sem explicação</span>
-            <span class="opcao-pct" id="pct-investigacoes">—</span>
-          </div>
-          <div class="opcao-barra"><span class="opcao-fill" id="bar-investigacoes"></span></div>
-        </button>
+          <button type="button" class="opcao-voto" data-opcao="conspiracao">
+            <div class="opcao-topo">
+              <span class="opcao-num">02</span>
+              <span class="opcao-titulo">Teorias da Conspiração</span>
+              <span class="opcao-pct" id="pct-conspiracao">—</span>
+            </div>
+            <div class="opcao-barra"><span class="opcao-fill" id="bar-conspiracao"></span></div>
+          </button>
+
+          <button type="button" class="opcao-voto" data-opcao="investigacoes">
+            <div class="opcao-topo">
+              <span class="opcao-num">03</span>
+              <span class="opcao-titulo">Investigações sem explicação</span>
+              <span class="opcao-pct" id="pct-investigacoes">—</span>
+            </div>
+            <div class="opcao-barra"><span class="opcao-fill" id="bar-investigacoes"></span></div>
+          </button>
+        </div>
+
+        <p class="enquete-rodape-info" id="enquete-feedback">
+          Escolha uma das opções acima para registrar seu voto.
+        </p>
       </div>
-
-      <p class="enquete-rodape-info" id="enquete-feedback">
-        Selecione uma das 3 diretrizes acima para registrar sua escolha no arquivo.
-      </p>
     </section>
 
   </main>
 
-  <!-- ================= RODAPÉ (CRÉDITO REVELADO APENAS AO FINAL) ================= -->
+  <!-- ================= RODAPÉ (APENAS APÓS CONCLUIR TUDO) ================= -->
   <footer class="rodape" id="rodape-final" hidden>
     <div class="rodape-conteudo">
-      <span class="status-concluido">✓ PROTOCOLO CONCLUÍDO COM SUCESSO</span>
+      <span class="status-concluido">✓ DESAFIO CONCLUÍDO</span>
       <div class="autoria-final">
         Criado por <a href="https://www.youtube.com/@thiagomistery" target="_blank" rel="noopener noreferrer">Thiago Mistery ↗</a>
       </div>
     </div>
   </footer>
 
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
