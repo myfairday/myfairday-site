@@ -1,10 +1,10 @@
 /* =====================================================================
-   APP.JS — TELA PRETA + ÁUDIO SUSPENSE + 4 JOGOS + CONTADOR 2030 + ENQUETE
+   APP.JS — TELA PRETA + ÁUDIO SUSPENSE + 4 JOGOS (10 CÁLCULOS) + 2030 + ENQUETE
    ===================================================================== */
 'use strict';
 
 const CONFIG = {
-  chaveTema: 'proto2030_tema_v2',
+  chaveTema: 'proto2030_tema_v3',
   chaveVisTotal: 'myfairday_vis_num_v2',
   chaveTriagem: 'proto2030_triagem_stats_v2',
   chaveEnquete: 'proto2030_enquete_v2'
@@ -22,14 +22,12 @@ const AudioSuspense = {
     if (this.ativo) return;
     this.ativo = true;
 
-    // 1. Tenta tocar stream público de ambient dark/space (SomaFM Drone Zone)
     try {
       this.streamEl = new Audio('https://ice1.somafm.com/dronezone-128-mp3');
       this.streamEl.volume = 0.35;
       this.streamEl.play().catch(() => {});
     } catch (_) { /* ignora */ }
 
-    // 2. Gera simultaneamente um drone grave de tensão via Web Audio API (garante som imediato)
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioCtx();
@@ -40,10 +38,10 @@ const AudioSuspense = {
       const gain = this.ctx.createGain();
 
       osc1.type = 'sawtooth';
-      osc1.frequency.value = 46.25; // F#1 grave sombrio
+      osc1.frequency.value = 46.25;
 
       osc2.type = 'sine';
-      osc2.frequency.value = 47.1;  // Batimento binaural tenso
+      osc2.frequency.value = 47.1;
 
       filter.type = 'lowpass';
       filter.frequency.value = 135;
@@ -207,7 +205,6 @@ const Jogo1Labirinto = {
   ativo: false,
   animId: null,
 
-  // 1 = parede, 0 = livre, 2 = parede mutante
   mapa: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
@@ -287,13 +284,11 @@ const Jogo1Labirinto = {
   },
 
   checarEventos() {
-    // 1. Chegou no local da pergunta para pegar a chave
     if (!this.temChave && this.player.c === this.pontoPergunta.c && this.player.r === this.pontoPergunta.r) {
       this.abrirPergunta();
       return;
     }
 
-    // 2. Chegou na porta final do labirinto
     if (this.player.c === this.portaFinal.c && this.player.r === this.portaFinal.r) {
       if (!this.temChave) {
         document.getElementById('lab-instrucao').textContent =
@@ -318,7 +313,6 @@ const Jogo1Labirinto = {
     const fb = document.getElementById('modal-feedback');
 
     if (letra === 'c') {
-      // Acertou: ganha a chave
       this.temChave = true;
       this.perguntaAberta = false;
       modal.hidden = true;
@@ -330,7 +324,6 @@ const Jogo1Labirinto = {
         '✓ Chave obtida! Agora siga até a porta no canto inferior direito para avançar.';
       Sismografo.pico(2.2);
     } else {
-      // Errou: punição — fecha o modal e joga o jogador de volta para o início do labirinto
       fb.textContent = '✕ RESPOSTA INCORRETA! Reiniciando posição no labirinto...';
       Sismografo.pico(2.8);
       setTimeout(() => {
@@ -435,7 +428,6 @@ const Jogo1Labirinto = {
       }
     }
 
-    // Ponto da Pergunta / Chave (amarelo pulsante)
     if (!this.temChave) {
       ctx.fillStyle = '#f5b942';
       ctx.beginPath();
@@ -447,7 +439,6 @@ const Jogo1Labirinto = {
       ctx.fill();
     }
 
-    // Porta Final (vermelha se trancada, verde/tema se destrancada)
     ctx.fillStyle = this.temChave ? cor : '#ff4d5e';
     ctx.fillRect(
       this.portaFinal.c * this.cellW + 7,
@@ -456,7 +447,6 @@ const Jogo1Labirinto = {
       this.cellH - 14
     );
 
-    // Escuridão com raio de lanterna apertado
     if (Date.now() > this.sonarAtivoAte) {
       const grad = ctx.createRadialGradient(px, py, 16, px, py, 86);
       grad.addColorStop(0, 'rgba(0,0,0,0)');
@@ -466,7 +456,6 @@ const Jogo1Labirinto = {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Jogador
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(px, py, 7, 0, Math.PI * 2);
@@ -501,7 +490,6 @@ const Jogo2Sintonia = {
     const uFreq = Number(document.getElementById('slider-freq').value);
     const uFase = Number(document.getElementById('slider-fase').value);
 
-    // Alvo oscila levemente para aumentar a dificuldade
     const freqDinamica = this.alvoFreq + Math.sin(this.t * 0.4) * 6;
     const diffFreq = Math.abs(uFreq - freqDinamica);
     const diffFase = Math.abs(uFase - this.alvoFase);
@@ -539,7 +527,6 @@ const Jogo2Sintonia = {
     ctx.fillStyle = '#020305';
     ctx.fillRect(0, 0, W, H);
 
-    // Onda Alvo (vermelha)
     ctx.strokeStyle = '#ff4d5e';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -550,7 +537,6 @@ const Jogo2Sintonia = {
     }
     ctx.stroke();
 
-    // Onda do Jogador
     ctx.strokeStyle = cor;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -633,7 +619,7 @@ const Jogo3Memoria = {
             Sismografo.pico(2.2);
             document.getElementById('jogo-3').hidden = true;
             document.getElementById('fase-indicador').textContent = '04 / 04';
-            Jogo4Nucleo.iniciar();
+            Jogo4Matematica.iniciar();
           }
         } else {
           Sismografo.pico(2.5);
@@ -647,111 +633,125 @@ const Jogo3Memoria = {
 };
 
 /* ---------------------------------------------------------------------
-   6. JOGO 04: TRAVA DE NÚCLEO GIRATÓRIO (4 ACERTOS PRECISOS)
+   6. JOGO 04: 10 CÁLCULOS MATEMÁTICOS (2 ERROS = VOLTA PRO INÍCIO)
    --------------------------------------------------------------------- */
-const Jogo4Nucleo = {
-  ativo: false,
-  angulo: 0,
-  velocidade: 0.055,
-  alvoAngulo: 1.2,
-  larguraAlvo: 0.42,
-  travas: 0,
+const Jogo4Matematica = {
+  indice: 1,
+  total: 10,
+  erros: 0,
+  maxErros: 2,
+  respostaAtual: 0,
 
   iniciar() {
     document.getElementById('jogo-4').hidden = false;
-    this.ativo = true;
-    this.travas = 0;
-    this.velocidade = 0.055;
-    this.sortearAlvo();
-    this.bindEventos();
-    this.loop();
+    this.resetarTudo();
+    this.bindForm();
   },
 
-  sortearAlvo() {
-    this.alvoAngulo = Math.random() * Math.PI * 2;
-    this.larguraAlvo = Math.max(0.24, 0.44 - this.travas * 0.05);
-    this.velocidade = (0.055 + this.travas * 0.018) * (this.travas % 2 === 0 ? 1 : -1);
+  resetarTudo() {
+    this.indice = 1;
+    this.erros = 0;
+    this.atualizarHUD();
+    this.gerarCalculo();
   },
 
-  tentarTravar() {
-    if (!this.ativo) return;
-    const norm = (a) => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-    const a1 = norm(this.angulo);
-    const a2 = norm(this.alvoAngulo);
-    let diff = Math.abs(a1 - a2);
-    if (diff > Math.PI) diff = Math.PI * 2 - diff;
+  atualizarHUD() {
+    document.getElementById('math-progresso').textContent = `CÁLCULO: ${this.indice} / ${this.total}`;
+    const elErros = document.getElementById('math-erros');
+    elErros.textContent = `ERROS: ${this.erros} / ${this.maxErros}`;
+    elErros.classList.toggle('perigo', this.erros >= 1);
+  },
 
-    if (diff <= this.larguraAlvo / 2) {
-      this.travas++;
-      Sismografo.pico(1.8);
-      document.getElementById('nucleo-travas').textContent = `TRAVAS: ${this.travas} / 4`;
-      if (this.travas >= 4) {
-        this.ativo = false;
-        document.getElementById('jogo-4').hidden = true;
-        document.getElementById('fase-indicador').textContent = 'CONCLUÍDO';
-        Interruptor2030.mostrar();
-        return;
+  gerarCalculo() {
+    const nivel = this.indice;
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    let texto = '';
+    let res = 0;
+
+    if (nivel <= 3) {
+      // Somas e subtrações rápidas de 2 dígitos
+      const a = rand(24, 98);
+      const b = rand(15, 79);
+      if (Math.random() > 0.5) {
+        texto = `${a} + ${b}`;
+        res = a + b;
+      } else {
+        const maior = Math.max(a, b);
+        const menor = Math.min(a, b);
+        texto = `${maior} − ${menor}`;
+        res = maior - menor;
       }
-      this.sortearAlvo();
+    } else if (nivel <= 6) {
+      // Multiplicações diretas
+      const a = rand(7, 16);
+      const b = rand(6, 14);
+      texto = `${a} × ${b}`;
+      res = a * b;
+    } else if (nivel <= 8) {
+      // Expressões com multiplicação + soma/subtração
+      const a = rand(6, 13);
+      const b = rand(4, 11);
+      const c = rand(10, 45);
+      texto = `(${a} × ${b}) + ${c}`;
+      res = a * b + c;
     } else {
-      // Erro perde 1 trava
-      this.travas = Math.max(0, this.travas - 1);
-      Sismografo.pico(2.4);
-      document.getElementById('nucleo-travas').textContent = `TRAVAS: ${this.travas} / 4 (FALHA)`;
-      this.sortearAlvo();
+      // Nível 9 e 10: potência ou expressão composta
+      const base = rand(6, 12);
+      const sub = rand(12, 35);
+      texto = `${base}² − ${sub}`;
+      res = base * base - sub;
     }
+
+    this.respostaAtual = res;
+    document.getElementById('math-equacao').textContent = `${texto} = ?`;
+    const inp = document.getElementById('input-math');
+    inp.value = '';
+    inp.focus();
   },
 
-  bindEventos() {
+  bindForm() {
     if (this.ligado) return;
     this.ligado = true;
-    document.getElementById('btn-travar-nucleo').addEventListener('click', () => this.tentarTravar());
-    window.addEventListener('keydown', (e) => {
-      if (this.ativo && e.code === 'Space') {
-        e.preventDefault();
-        this.tentarTravar();
+
+    const form = document.getElementById('form-math');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = document.getElementById('input-math');
+      const val = parseInt(inp.value, 10);
+      const fb = document.getElementById('math-feedback');
+
+      if (Number.isNaN(val)) return;
+
+      if (val === this.respostaAtual) {
+        Sismografo.pico(1.5);
+        fb.style.color = corAtualTema();
+        fb.textContent = '✓ CORRETO!';
+
+        if (this.indice >= this.total) {
+          document.getElementById('jogo-4').hidden = true;
+          document.getElementById('fase-indicador').textContent = 'CONCLUÍDO';
+          Interruptor2030.mostrar();
+          return;
+        }
+
+        this.indice++;
+        this.atualizarHUD();
+        this.gerarCalculo();
+      } else {
+        this.erros++;
+        Sismografo.pico(2.6);
+        fb.style.color = '#ff4d5e';
+
+        if (this.erros >= this.maxErros) {
+          fb.textContent = `✕ 2º ERRO (Era ${this.respostaAtual})! REINICIANDO TODOS OS 10 CÁLCULOS...`;
+          this.resetarTudo();
+        } else {
+          fb.textContent = `✕ INCORRETO (Era ${this.respostaAtual})! VOCÊ TEM APENAS MAIS 1 CHANCE.`;
+          this.atualizarHUD();
+          this.gerarCalculo();
+        }
       }
     });
-  },
-
-  loop() {
-    if (!this.ativo) return;
-    this.angulo += this.velocidade;
-    this.desenhar();
-    requestAnimationFrame(() => this.loop());
-  },
-
-  desenhar() {
-    const canvas = document.getElementById('canvas-nucleo');
-    const ctx = canvas.getContext('2d');
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-    const r = 115;
-    const cor = corAtualTema();
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Anel base
-    ctx.strokeStyle = '#1e2533';
-    ctx.lineWidth = 18;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Zona alvo
-    ctx.strokeStyle = cor;
-    ctx.lineWidth = 18;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, this.alvoAngulo - this.larguraAlvo / 2, this.alvoAngulo + this.larguraAlvo / 2);
-    ctx.stroke();
-
-    // Ponteiro giratório
-    ctx.strokeStyle = '#ff4d5e';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + Math.cos(this.angulo) * (r + 14), cy + Math.sin(this.angulo) * (r + 14));
-    ctx.stroke();
   }
 };
 
@@ -873,7 +873,6 @@ const EnqueteFinal = {
     document.getElementById('enquete-feedback').textContent =
       `✓ Voto computado (${total.toLocaleString('pt-BR')} votos totais).`;
 
-    // Revela o rodapé com "Criado por Thiago Mistery" somente no final de tudo
     const rodape = document.getElementById('rodape-final');
     rodape.hidden = false;
     rodape.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -902,7 +901,6 @@ function iniciar() {
 
   Visitantes.iniciar();
 
-  // Clique na tela preta inicial acende o site, inicia o áudio e abre o Jogo 1
   document.getElementById('btn-iniciar-tudo').addEventListener('click', () => {
     const telaPreta = document.getElementById('tela-preta');
     telaPreta.classList.add('apagando');
