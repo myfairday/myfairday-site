@@ -1,5 +1,5 @@
 /* =====================================================================
-   PAINEL DE ANOMALIAS GLOBAIS — style.css (Temas Táticos + 19 Sensores)
+   PAINEL DE ANOMALIAS GLOBAIS — style.css (19 Sensores + UX + Satélite)
    Criado por Thiago Mistery — https://www.youtube.com/@thiagomistery
    ===================================================================== */
 
@@ -115,7 +115,6 @@ html, body {
   50%      { opacity: 0.28; }
 }
 
-/* SELO CHAMATIVO DE AUTORIA NO TOPO */
 .badge-criador {
   display: inline-flex;
   align-items: center;
@@ -154,7 +153,8 @@ html, body {
 .topo-direita {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .visitantes {
@@ -164,7 +164,24 @@ html, body {
   letter-spacing: 0.05em;
 }
 
-/* SELETOR DE CORES DO PAINEL */
+/* Botão Modo TV / Tela Cheia (Item 9) */
+.btn-tv {
+  background: var(--card);
+  border: 1px solid var(--borda-hi);
+  border-radius: 3px;
+  padding: 3px 8px;
+  color: var(--txt-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-tv:hover {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+/* Seletor de Cores */
 .tema-switch {
   display: inline-flex;
   align-items: center;
@@ -249,6 +266,112 @@ html, body {
   font-weight: 300;
 }
 
+/* Banner de Destaque do Momento (Item 4) */
+.banner-destaque {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--warn) 10%, var(--card));
+  border: 1px solid var(--warn);
+  border-radius: 3px;
+  text-decoration: none;
+  color: var(--txt);
+  font-size: 12px;
+  transition: background 0.15s;
+}
+.banner-destaque[data-nivel="crit"] {
+  background: color-mix(in srgb, var(--crit) 12%, var(--card));
+  border-color: var(--crit);
+}
+.banner-destaque:hover {
+  background: color-mix(in srgb, var(--ok) 14%, var(--card));
+}
+.destaque-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: var(--warn);
+  color: #08090c;
+  white-space: nowrap;
+}
+.banner-destaque[data-nivel="crit"] .destaque-tag {
+  background: var(--crit);
+  color: #ffffff;
+}
+.destaque-texto {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.destaque-seta {
+  color: var(--txt-dim);
+}
+
+/* Barra UX: Filtros Rápidos + Busca Global (Itens 1 e 2) */
+.barra-ux {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--borda);
+}
+
+.filtros-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn-filtro {
+  background: var(--card);
+  border: 1px solid var(--borda-hi);
+  border-radius: 3px;
+  padding: 5px 10px;
+  color: var(--txt-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.btn-filtro:hover {
+  border-color: var(--txt);
+  color: var(--txt);
+}
+.btn-filtro.ativo {
+  border-color: var(--ok);
+  color: var(--bg);
+  background: var(--ok);
+  font-weight: 600;
+}
+
+.busca-global-wrap {
+  min-width: 240px;
+  flex: 0 1 300px;
+}
+.busca-global-wrap input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--borda-hi);
+  border-radius: 3px;
+  padding: 6px 10px;
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 11px;
+  outline: none;
+}
+.busca-global-wrap input:focus {
+  border-color: var(--ok);
+}
+
 /* ================= GRID DE SENSORES ================= */
 main {
   max-width: 1440px;
@@ -283,6 +406,7 @@ main {
   transition: border-color 0.25s ease, transform 0.2s ease, background-color 0.25s ease;
 }
 
+.card[hidden] { display: none; }
 .card:hover { border-color: var(--borda-hi); }
 
 .card[data-nivel="ok"]   { --cor: var(--ok); }
@@ -297,9 +421,9 @@ main {
 
 .card-topo {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 14px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .card-id {
@@ -312,7 +436,7 @@ main {
   margin: 0;
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--txt);
   flex: 1;
 }
@@ -321,6 +445,68 @@ main {
   font-size: 10px;
   color: var(--txt-dim);
   letter-spacing: 0.06em;
+}
+
+/* Botão de Ajuda (?) e Caixa Explicativa (Item 3) */
+.btn-ajuda {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  color: var(--txt-dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-ajuda:hover,
+.btn-ajuda.ativo {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.card-ajuda-box {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border-left: 2px solid var(--ok);
+  border-radius: 2px;
+  font-size: 11px;
+  color: var(--txt-dim);
+  line-height: 1.4;
+}
+
+/* Abas Google Earth 3D vs Satélite Google Maps */
+.earth-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.btn-earth-tab {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  border-radius: 3px;
+  padding: 5px 8px;
+  color: var(--txt-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-earth-tab:hover {
+  color: var(--txt);
+  border-color: var(--txt);
+}
+.btn-earth-tab.ativo {
+  border-color: var(--ok);
+  color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 10%, var(--bg));
 }
 
 /* Formulários de Busca / Sintonizador nos Cards */
@@ -388,7 +574,7 @@ main {
   margin-bottom: 12px;
 }
 
-/* Google Earth 3D (Item 01) */
+/* Google Earth 3D & Google Maps Satélite (Item 01) */
 .globo-wrap {
   position: relative;
   width: 100%;
@@ -407,11 +593,27 @@ main {
   outline: none;
 }
 
+.gmaps-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.det-earth-duplo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0 8px;
+}
+@media (max-width: 820px) {
+  .det-earth-duplo { grid-template-columns: 1fr; }
+}
+
 .det-globo-grande {
   position: relative;
   width: 100%;
-  height: 440px;
-  margin: 18px 0 8px;
+  height: 400px;
   background: #020305;
   border: 1px solid var(--borda-hi);
   border-radius: 4px;
@@ -713,6 +915,13 @@ main {
 .ver:hover {
   color: var(--cor);
   border-bottom-color: var(--cor);
+}
+
+.vazio-filtro {
+  text-align: center;
+  color: var(--txt-dim);
+  padding: 36px 0;
+  font-size: 13px;
 }
 
 /* ================= VISTA DETALHE ================= */
