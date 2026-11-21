@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body class="estado-escuro">
 
@@ -24,7 +24,7 @@
   <!-- ================= BARRA SUPERIOR MINIMALISTA ================= -->
   <header class="topo" id="topo-sistema" hidden>
     <div class="topo-barra">
-      <span class="ao-vivo"><i class="led"></i><span id="fase-indicador">CONSULTA</span></span>
+      <span class="ao-vivo"><i class="led"></i><span id="fase-indicador">CONSULTA 01</span></span>
 
       <span class="relogio" id="relogio">--:--:--</span>
 
@@ -120,7 +120,7 @@
       </div>
 
       <div class="lab-hud">
-        <span id="lab-instrucao">Localize o núcleo amarelo no escuro para extrair o código do detonador.</span>
+        <span id="lab-instrucao">Localize o núcleo amarelo no escuro para extrair os selos da próxima câmara.</span>
         <button type="button" class="btn-sonar" id="btn-sonar">📡 SONAR (3)</button>
       </div>
 
@@ -137,42 +137,50 @@
       </div>
     </section>
 
-    <!-- ================= JOGO 02: DESARME DE 12 FIOS + CONEXÃO AG 30 ================= -->
-    <section class="painel-etapa" id="jogo-2" hidden>
+    <!-- ================= JOGO 02: QUEBRA-SELO (INTRUSO) + COFRE 4 DÍGITOS + SUBLIMINAR AG 30 ================= -->
+    <section class="painel-etapa painel-jogo2" id="jogo-2" hidden>
       <div class="etapa-header">
-        <span class="etapa-tag">02 // DETONADOR DE 12 FIOS</span>
+        <span class="etapa-tag">02 // QUEBRA-SELO &amp; COFRE DIGITAL</span>
         <div class="hud-direita">
-          <span class="badge-erros" id="fios-tentativa">CHANCE: 1 / 2</span>
-          <span class="lab-timer timer-critico" id="fios-timer">10.0s</span>
+          <span class="badge-erros" id="selo-tentativa">CHANCE: 1 / 2</span>
+          <span class="lab-timer timer-critico" id="selo-timer">10.0s</span>
         </div>
       </div>
 
-      <div class="pista-conexao" id="pista-conexao-fios">
-        FRAGMENTO EXTRAÍDO DO LABIRINTO: <strong id="simbolos-herdados">☢ 👁</strong> — USE A DIRETRIZ ABAIXO:
+      <div class="pista-conexao">
+        SELOS DO LABIRINTO: <strong id="simbolos-herdados">☢ 👁</strong> — <span id="selo-subtitulo">PASSO 1: TOQUE NO SÍMBOLO INTRUSO</span>
       </div>
 
-      <div class="fios-instrucao-box" id="fios-instrucao">
-        Carregando diretriz de corte...
+      <div id="bloco-intruso">
+        <div class="grade-intruso" id="grade-intruso"></div>
       </div>
 
-      <div class="lista-fios" id="lista-fios"></div>
+      <div id="bloco-cofre" hidden>
+        <div class="cofre-visor-alvo">
+          CÓDIGO REVELADO: <strong id="cofre-codigo-alvo">----</strong>
+        </div>
+
+        <div class="cofre-visor-digitado" id="cofre-digitado">_ _ _ _</div>
+
+        <div class="teclado-cofre" id="teclado-cofre">
+          <button type="button" class="btn-num-cofre" data-num="1">1</button>
+          <button type="button" class="btn-num-cofre" data-num="2">2</button>
+          <button type="button" class="btn-num-cofre" data-num="3">3</button>
+          <button type="button" class="btn-num-cofre" data-num="4">4</button>
+          <button type="button" class="btn-num-cofre" data-num="5">5</button>
+          <button type="button" class="btn-num-cofre" data-num="6">6</button>
+          <button type="button" class="btn-num-cofre" data-num="7">7</button>
+          <button type="button" class="btn-num-cofre" data-num="8">8</button>
+          <button type="button" class="btn-num-cofre" data-num="9">9</button>
+          <button type="button" class="btn-num-cofre btn-num-zero" data-num="0">0</button>
+        </div>
+      </div>
+
+      <div class="flash-subliminar" id="flash-subliminar" hidden aria-hidden="true">
+        <span class="flash-ruido">INTERFERÊNCIA // AG-30</span>
+        <div class="flash-texto" id="texto-subliminar">Você tem medo da ☢g 👁0 ?</div>
+      </div>
     </section>
-
-    <!-- OVERLAY DO QUESTIONAMENTO "VOCÊ TEM MEDO DA AG 30 ?" -->
-    <div class="modal-overlay" id="modal-ag30" hidden>
-      <div class="modal-box modal-ag30-box">
-        <div class="modal-alerta">⚠️ FALHA CRÍTICA DE CONTENÇÃO · INTERFERÊNCIA DETECTADA</div>
-        <h2 class="modal-questao ag30-pergunta" id="texto-ag30">
-          Você tem medo da ☢g 👁0 ?
-        </h2>
-        <p class="ag30-sub">
-          Memorize os símbolos que substituem o código acima. Eles pertencem à matriz da próxima câmara.
-        </p>
-        <button type="button" class="btn-travar-nucleo" id="btn-reiniciar-fios">
-          REARMAR DETONADOR E TENTAR NOVAMENTE
-        </button>
-      </div>
-    </div>
 
     <!-- ================= JOGO 03: MEMÓRIA CRIPTOGRAFADA REVERSA ================= -->
     <section class="painel-etapa" id="jogo-3" hidden>
@@ -199,6 +207,54 @@
       </div>
 
       <div class="mem-input-display" id="mem-digitado">AGUARDANDO TRANSMISSÃO...</div>
+    </section>
+
+    <!-- ================= MINI ENQUETE (APÓS O JOGO 03) ================= -->
+    <section class="painel-etapa" id="enquete-intermediaria-2" hidden>
+      <div class="etapa-header">
+        <span class="etapa-tag">CONSULTA 02 // TESTE PSICOLÓGICO</span>
+        <span class="lab-timer" id="enquete2-total">VOTOS: —</span>
+      </div>
+
+      <h2 class="enquete-pergunta">
+        Se o Pedro Alonso López ("O Monstro dos Andes") te pedisse água, você daria:
+      </h2>
+
+      <div class="enquete-opcoes" id="enquete2-opcoes">
+        <button type="button" class="opcao-voto opcao-voto-2" data-opcao2="filtrada">
+          <div class="opcao-topo">
+            <span class="opcao-num">1)</span>
+            <span class="opcao-titulo">Água filtrada</span>
+            <span class="opcao-pct" id="pct2-filtrada">—</span>
+          </div>
+          <div class="opcao-barra"><span class="opcao-fill" id="bar2-filtrada"></span></div>
+        </button>
+
+        <button type="button" class="opcao-voto opcao-voto-2" data-opcao2="contaminada">
+          <div class="opcao-topo">
+            <span class="opcao-num">2)</span>
+            <span class="opcao-titulo">Água contaminada</span>
+            <span class="opcao-pct" id="pct2-contaminada">—</span>
+          </div>
+          <div class="opcao-barra"><span class="opcao-fill" id="bar2-contaminada"></span></div>
+        </button>
+
+        <button type="button" class="opcao-voto opcao-voto-2" data-opcao2="rivotril">
+          <div class="opcao-topo">
+            <span class="opcao-num">3)</span>
+            <span class="opcao-titulo">Água com rivotril</span>
+            <span class="opcao-pct" id="pct2-rivotril">—</span>
+          </div>
+          <div class="opcao-barra"><span class="opcao-fill" id="bar2-rivotril"></span></div>
+        </button>
+      </div>
+
+      <div class="enquete1-acoes" id="enquete2-acoes" hidden>
+        <p class="enquete-rodape-info" id="enquete2-feedback">✓ Escolha registrada no arquivo.</p>
+        <button type="button" class="btn-travar-nucleo" id="btn-entrar-jogo4">
+          AVANÇAR PARA A CÂMARA 04 →
+        </button>
+      </div>
     </section>
 
     <!-- ================= JOGO 04: 10 CÁLCULOS (FRAÇÕES E PORCENTAGEM NO FINAL) ================= -->
@@ -347,6 +403,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
