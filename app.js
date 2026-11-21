@@ -1,10 +1,10 @@
 /* =====================================================================
-   APP.JS — TELA PRETA + ÁUDIO + JOGO 1 + ENQUETE 1 + JOGOS 2,3,4 + 2030 + FINAL
+   APP.JS — CONEXÃO TOTAL: ENQUETE -> LABIRINTO -> 8 FIOS (AG 30) -> MEMÓRIA -> 10 CÁLCULOS -> 2030 -> FINAL
    ===================================================================== */
 'use strict';
 
 const CONFIG = {
-  chaveTema: 'proto2030_tema_v4',
+  chaveTema: 'proto2030_tema_v5',
   chaveVisTotal: 'myfairday_vis_num_v2',
   chaveTriagem: 'proto2030_triagem_stats_v2',
   chaveEnquete1: 'proto2030_enquete1_v1',
@@ -181,15 +181,72 @@ const Sismografo = {
   }
 };
 
+// Estado compartilhado que interliga todos os jogos
 const Estado = {
   inicioGeralTs: 0,
   ehInscrito: false,
   voto1Registrado: null,
-  votoRegistrado: null
+  votoRegistrado: null,
+  simbolosChave: ['☢', '👁'] // Fragmentos extraídos no Jogo 1, usados no Ag 30 (Jogo 2) e na Matriz (Jogo 3)
 };
 
 /* ---------------------------------------------------------------------
-   3. JOGO 01: LABIRINTO + PERGUNTA DE 1 CHANCE + CHAVE DA PORTA
+   3. ENQUETE INICIAL (LOGO AO ENTRAR PARA PRENDER O VISITANTE)
+   --------------------------------------------------------------------- */
+const EnqueteInicial = {
+  votos: { sim: 782, nao: 114, perdoaria: 19, sofrer: 945 },
+
+  iniciar() {
+    const sec = document.getElementById('enquete-inicial');
+    sec.hidden = false;
+
+    try {
+      const salvos = JSON.parse(localStorage.getItem(CONFIG.chaveEnquete1) || 'null');
+      if (salvos && typeof salvos.sim === 'number') this.votos = salvos;
+    } catch (_) { /* ignora */ }
+
+    const totalInicial = this.votos.sim + this.votos.nao + this.votos.perdoaria + this.votos.sofrer;
+    document.getElementById('enquete1-total').textContent = `VOTOS: ${totalInicial.toLocaleString('pt-BR')}`;
+
+    document.querySelectorAll('.opcao-voto-1').forEach((btn) => {
+      btn.addEventListener('click', () => this.votar(btn.dataset.opcao1));
+    });
+
+    document.getElementById('btn-entrar-jogo1').addEventListener('click', () => {
+      sec.hidden = true;
+      document.getElementById('fase-indicador').textContent = '01 / 04';
+      Jogo1Labirinto.iniciar();
+    });
+  },
+
+  votar(opcao) {
+    if (Estado.voto1Registrado) return;
+    Estado.voto1Registrado = opcao;
+    this.votos[opcao] = (this.votos[opcao] || 0) + 1;
+
+    try { localStorage.setItem(CONFIG.chaveEnquete1, JSON.stringify(this.votos)); } catch (_) {}
+
+    const chaves = ['sim', 'nao', 'perdoaria', 'sofrer'];
+    const total = chaves.reduce((acc, k) => acc + this.votos[k], 0);
+
+    chaves.forEach((k) => {
+      const pct = Math.round((this.votos[k] / total) * 100);
+      document.getElementById(`pct1-${k}`).textContent = `${pct}%`;
+      document.getElementById(`bar1-${k}`).style.width = `${pct}%`;
+    });
+
+    document.querySelectorAll('.opcao-voto-1').forEach((b) => {
+      b.classList.toggle('votado', b.dataset.opcao1 === opcao);
+    });
+
+    document.getElementById('enquete1-total').textContent = `VOTOS: ${total.toLocaleString('pt-BR')}`;
+    document.getElementById('enquete1-acoes').hidden = false;
+    Sismografo.pico(1.8);
+  }
+};
+
+/* ---------------------------------------------------------------------
+   4. JOGO 01: LABIRINTO + EXTRAÇÃO DE FRAGMENTO SIMBÓLICO
    --------------------------------------------------------------------- */
 const Jogo1Labirinto = {
   cols: 19,
@@ -197,10 +254,9 @@ const Jogo1Labirinto = {
   cellW: 40,
   cellH: 40,
   player: { c: 1, r: 1 },
-  pontoPergunta: { c: 9, r: 5 },
+  pontoFragmento: { c: 9, r: 5 },
   portaFinal: { c: 17, r: 9 },
-  temChave: false,
-  perguntaAberta: false,
+  temFragmento: false,
   sonarRestante: 3,
   sonarAtivoAte: 0,
   inicioTs: 0,
@@ -222,18 +278,23 @@ const Jogo1Labirinto = {
   ],
 
   iniciar() {
+    document.getElementById('jogo-1').hidden = false;
     this.player = { c: 1, r: 1 };
-    this.temChave = false;
-    this.perguntaAberta = false;
+    this.temFragmento = false;
     this.sonarRestante = 3;
     this.sonarAtivoAte = 0;
     this.inicioTs = Date.now();
     this.ativo = true;
 
-    document.getElementById('status-chave').textContent = '🔑 CHAVE: AUSENTE';
+    // Sorteia 2 símbolos que conectarão o Jogo 1 ao Jogo 2 (Ag 30) e ao Jogo 3
+    const pool = ['Ω', 'Δ', 'Ψ', 'Φ', 'Σ', 'Ж', '☢', '👁'];
+    const s1 = pool[Math.floor(Math.random() * pool.length)];
+    let s2 = pool[Math.floor(Math.random() * pool.length)];
+    while (s2 === s1) s2 = pool[Math.floor(Math.random() * pool.length)];
+    Estado.simbolosChave = [s1, s2];
+
+    document.getElementById('status-chave').textContent = '🔑 FRAGMENTO: PENDENTE';
     document.getElementById('status-chave').classList.remove('obtida');
-    document.getElementById('lab-instrucao').textContent =
-      'Encontre o terminal amarelo no escuro para responder à pergunta e pegar a chave.';
     this.atualizarSonarBtn();
     this.bindEventos();
 
@@ -248,7 +309,7 @@ const Jogo1Labirinto = {
   },
 
   dispararSonar() {
-    if (!this.ativo || this.perguntaAberta || this.sonarRestante <= 0) return;
+    if (!this.ativo || this.sonarRestante <= 0) return;
     this.sonarRestante--;
     this.sonarAtivoAte = Date.now() + 1100;
     Sismografo.pico(1.6);
@@ -264,7 +325,7 @@ const Jogo1Labirinto = {
   },
 
   mover(dc, dr) {
-    if (!this.ativo || this.perguntaAberta) return;
+    if (!this.ativo) return;
     const nc = this.player.c + dc;
     const nr = this.player.r + dr;
     if (!this.ehParede(nc, nr)) {
@@ -275,7 +336,7 @@ const Jogo1Labirinto = {
   },
 
   guiarPonteiro(x, y) {
-    if (!this.ativo || this.perguntaAberta) return;
+    if (!this.ativo) return;
     const tc = Math.floor(x / this.cellW);
     const tr = Math.floor(y / this.cellH);
     const dc = Math.sign(tc - this.player.c);
@@ -286,15 +347,21 @@ const Jogo1Labirinto = {
   },
 
   checarEventos() {
-    if (!this.temChave && this.player.c === this.pontoPergunta.c && this.player.r === this.pontoPergunta.r) {
-      this.abrirPergunta();
+    if (!this.temFragmento && this.player.c === this.pontoFragmento.c && this.player.r === this.pontoFragmento.r) {
+      this.temFragmento = true;
+      const badge = document.getElementById('status-chave');
+      badge.textContent = `🔑 CÓDIGO: ${Estado.simbolosChave.join(' ')}`;
+      badge.classList.add('obtida');
+      document.getElementById('lab-instrucao').textContent =
+        `✓ Fragmento [${Estado.simbolosChave.join(' ')}] extraído! Siga até a porta no canto inferior direito.`;
+      Sismografo.pico(2.2);
       return;
     }
 
     if (this.player.c === this.portaFinal.c && this.player.r === this.portaFinal.r) {
-      if (!this.temChave) {
+      if (!this.temFragmento) {
         document.getElementById('lab-instrucao').textContent =
-          '🔒 PORTA TRANCADA! Você precisa encontrar o terminal amarelo e pegar a chave primeiro.';
+          '🔒 PORTA TRANCADA! Colete o núcleo amarelo no centro do labirinto primeiro.';
         Sismografo.pico(1.8);
       } else {
         this.concluir();
@@ -302,46 +369,12 @@ const Jogo1Labirinto = {
     }
   },
 
-  abrirPergunta() {
-    this.perguntaAberta = true;
-    const modal = document.getElementById('modal-pergunta');
-    const fb = document.getElementById('modal-feedback');
-    fb.textContent = '';
-    modal.hidden = false;
-  },
-
-  responderPergunta(letra) {
-    const modal = document.getElementById('modal-pergunta');
-    const fb = document.getElementById('modal-feedback');
-
-    if (letra === 'c') {
-      this.temChave = true;
-      this.perguntaAberta = false;
-      modal.hidden = true;
-
-      const badge = document.getElementById('status-chave');
-      badge.textContent = '🔑 CHAVE: OBTIDA';
-      badge.classList.add('obtida');
-      document.getElementById('lab-instrucao').textContent =
-        '✓ Chave obtida! Agora siga até a porta no canto inferior direito para avançar.';
-      Sismografo.pico(2.2);
-    } else {
-      fb.textContent = '✕ RESPOSTA INCORRETA! Reiniciando posição no labirinto...';
-      Sismografo.pico(2.8);
-      setTimeout(() => {
-        modal.hidden = true;
-        this.perguntaAberta = false;
-        this.player = { c: 1, r: 1 };
-      }, 1200);
-    }
-  },
-
   concluir() {
     this.ativo = false;
     if (this.animId) cancelAnimationFrame(this.animId);
     document.getElementById('jogo-1').hidden = true;
-    document.getElementById('fase-indicador').textContent = 'CONSULTA 01';
-    EnqueteIntermediaria.iniciar();
+    document.getElementById('fase-indicador').textContent = '02 / 04';
+    Jogo2Fios.iniciar();
   },
 
   eventosLigados: false,
@@ -370,7 +403,7 @@ const Jogo1Labirinto = {
     }, { passive: true });
 
     window.addEventListener('keydown', (e) => {
-      if (!this.ativo || this.perguntaAberta) return;
+      if (!this.ativo) return;
       const teclas = {
         ArrowUp: [0, -1], w: [0, -1], W: [0, -1],
         ArrowDown: [0, 1], s: [0, 1], S: [0, 1],
@@ -391,10 +424,6 @@ const Jogo1Labirinto = {
         if (d === 'left') this.mover(-1, 0);
         if (d === 'right') this.mover(1, 0);
       });
-    });
-
-    document.querySelectorAll('.btn-alt').forEach((b) => {
-      b.addEventListener('click', () => this.responderPergunta(b.dataset.resp));
     });
   },
 
@@ -430,18 +459,18 @@ const Jogo1Labirinto = {
       }
     }
 
-    if (!this.temChave) {
+    if (!this.temFragmento) {
       ctx.fillStyle = '#f5b942';
       ctx.beginPath();
       ctx.arc(
-        this.pontoPergunta.c * this.cellW + this.cellW / 2,
-        this.pontoPergunta.r * this.cellH + this.cellH / 2,
+        this.pontoFragmento.c * this.cellW + this.cellW / 2,
+        this.pontoFragmento.r * this.cellH + this.cellH / 2,
         9, 0, Math.PI * 2
       );
       ctx.fill();
     }
 
-    ctx.fillStyle = this.temChave ? cor : '#ff4d5e';
+    ctx.fillStyle = this.temFragmento ? cor : '#ff4d5e';
     ctx.fillRect(
       this.portaFinal.c * this.cellW + 7,
       this.portaFinal.r * this.cellH + 7,
@@ -450,7 +479,7 @@ const Jogo1Labirinto = {
     );
 
     if (Date.now() > this.sonarAtivoAte) {
-      const grad = ctx.createRadialGradient(px, py, 16, px, py, 86);
+      const grad = ctx.createRadialGradient(px, py, 16, px, py, 92);
       grad.addColorStop(0, 'rgba(0,0,0,0)');
       grad.addColorStop(0.75, 'rgba(0,0,0,0.88)');
       grad.addColorStop(1, 'rgba(0,0,0,0.99)');
@@ -466,148 +495,130 @@ const Jogo1Labirinto = {
 };
 
 /* ---------------------------------------------------------------------
-   3B. ENQUETE INTERMEDIÁRIA (LOGO APÓS O JOGO 01)
+   5. JOGO 02: DESARME DE 8 FIOS (10s -> 5s -> QUESTIONAMENTO AG 30)
    --------------------------------------------------------------------- */
-const EnqueteIntermediaria = {
-  votos: { sim: 782, nao: 114, perdoaria: 19, sofrer: 945 },
-
-  iniciar() {
-    const sec = document.getElementById('enquete-intermediaria');
-    sec.hidden = false;
-
-    try {
-      const salvos = JSON.parse(localStorage.getItem(CONFIG.chaveEnquete1) || 'null');
-      if (salvos && typeof salvos.sim === 'number') this.votos = salvos;
-    } catch (_) { /* ignora */ }
-
-    const totalInicial = this.votos.sim + this.votos.nao + this.votos.perdoaria + this.votos.sofrer;
-    document.getElementById('enquete1-total').textContent = `VOTOS: ${totalInicial.toLocaleString('pt-BR')}`;
-
-    document.querySelectorAll('.opcao-voto-1').forEach((btn) => {
-      btn.addEventListener('click', () => this.votar(btn.dataset.opcao1));
-    });
-
-    document.getElementById('btn-avancar-jogo2').addEventListener('click', () => {
-      sec.hidden = true;
-      document.getElementById('fase-indicador').textContent = '02 / 04';
-      Jogo2Sintonia.iniciar();
-    });
-  },
-
-  votar(opcao) {
-    if (Estado.voto1Registrado) return;
-    Estado.voto1Registrado = opcao;
-    this.votos[opcao] = (this.votos[opcao] || 0) + 1;
-
-    try { localStorage.setItem(CONFIG.chaveEnquete1, JSON.stringify(this.votos)); } catch (_) {}
-
-    const chaves = ['sim', 'nao', 'perdoaria', 'sofrer'];
-    const total = chaves.reduce((acc, k) => acc + this.votos[k], 0);
-
-    chaves.forEach((k) => {
-      const pct = Math.round((this.votos[k] / total) * 100);
-      document.getElementById(`pct1-${k}`).textContent = `${pct}%`;
-      document.getElementById(`bar1-${k}`).style.width = `${pct}%`;
-    });
-
-    document.querySelectorAll('.opcao-voto-1').forEach((b) => {
-      b.classList.toggle('votado', b.dataset.opcao1 === opcao);
-    });
-
-    document.getElementById('enquete1-total').textContent = `VOTOS: ${total.toLocaleString('pt-BR')}`;
-    document.getElementById('enquete1-acoes').hidden = false;
-    Sismografo.pico(1.8);
-  }
-};
-
-/* ---------------------------------------------------------------------
-   4. JOGO 02: SINTONIA DE FREQUÊNCIA INSTÁVEL (OSCILOSCÓPIO)
-   --------------------------------------------------------------------- */
-const Jogo2Sintonia = {
+const Jogo2Fios = {
+  cores: [
+    { id: 'vermelho', nome: 'VERMELHO', hex: '#ff4d5e' },
+    { id: 'azul',     nome: 'AZUL',     hex: '#3898ff' },
+    { id: 'verde',    nome: 'VERDE',    hex: '#2ee59d' },
+    { id: 'amarelo',  nome: 'AMARELO',  hex: '#f5b942' },
+    { id: 'roxo',     nome: 'ROXO',     hex: '#b56bff' },
+    { id: 'laranja',  nome: 'LARANJA',  hex: '#ff8a3d' },
+    { id: 'ciano',    nome: 'CIANO',    hex: '#38f2ff' },
+    { id: 'branco',   nome: 'BRANCO',   hex: '#e6e8ec' }
+  ],
+  tentativa: 1,
+  tempoRestante: 10.0,
+  fioCorretoId: '',
+  timerId: null,
   ativo: false,
-  alvoFreq: 68,
-  alvoFase: 34,
-  estabilidade: 0,
-  t: 0,
 
   iniciar() {
-    const sec = document.getElementById('jogo-2');
-    sec.hidden = false;
-    this.ativo = true;
-    this.estabilidade = 0;
-    this.alvoFreq = Math.floor(25 + Math.random() * 55);
-    this.alvoFase = Math.floor(20 + Math.random() * 60);
-    this.loop();
+    document.getElementById('jogo-2').hidden = false;
+    document.getElementById('simbolos-herdados').textContent = Estado.simbolosChave.join(' ');
+    this.tentativa = 1;
+    this.bindModal();
+    this.prepararRodada(10.0);
   },
 
-  loop() {
+  prepararRodada(segundos) {
+    if (this.timerId) clearInterval(this.timerId);
+    this.tempoRestante = segundos;
+    this.ativo = true;
+
+    const elTent = document.getElementById('fios-tentativa');
+    elTent.textContent = `CHANCE: ${this.tentativa} / 2`;
+    elTent.classList.toggle('perigo', this.tentativa === 2);
+
+    // Embaralha os 8 fios
+    const embaralhados = [...this.cores].sort(() => Math.random() - 0.5);
+
+    // Escolhe um fio âncora (entre índice 0 e 6) e o alvo será o fio imediatamente à direita dele
+    const idxAncora = Math.floor(Math.random() * 7);
+    const ancora = embaralhados[idxAncora];
+    const alvo = embaralhados[idxAncora + 1];
+    this.fioCorretoId = alvo.id;
+
+    document.getElementById('fios-instrucao').innerHTML =
+      `DIRETRIZ (${Estado.simbolosChave[0]}): Corte o fio que está <strong>IMEDIATAMENTE ABAIXO</strong> do fio <span style="color:${ancora.hex}">${ancora.nome}</span> antes que o tempo zere!`;
+
+    const container = document.getElementById('lista-fios');
+    container.innerHTML = '';
+    embaralhados.forEach((fio, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-fio';
+      btn.innerHTML = `
+        <span>0${i + 1} · ${fio.nome}</span>
+        <span class="fio-cabo" style="background:${fio.hex}; color:${fio.hex};"></span>
+      `;
+      btn.addEventListener('click', () => this.cortarFio(fio.id));
+      container.appendChild(btn);
+    });
+
+    this.iniciarCronometro();
+  },
+
+  iniciarCronometro() {
+    const elTimer = document.getElementById('fios-timer');
+    elTimer.textContent = `${this.tempoRestante.toFixed(1)}s`;
+
+    this.timerId = setInterval(() => {
+      if (!this.ativo) return;
+      this.tempoRestante = Math.max(0, this.tempoRestante - 0.1);
+      elTimer.textContent = `${this.tempoRestante.toFixed(1)}s`;
+
+      if (this.tempoRestante <= 0) {
+        this.falharRodada();
+      }
+    }, 100);
+  },
+
+  cortarFio(id) {
     if (!this.ativo) return;
-    this.t += 0.08;
-
-    const uFreq = Number(document.getElementById('slider-freq').value);
-    const uFase = Number(document.getElementById('slider-fase').value);
-
-    const freqDinamica = this.alvoFreq + Math.sin(this.t * 0.4) * 6;
-    const diffFreq = Math.abs(uFreq - freqDinamica);
-    const diffFase = Math.abs(uFase - this.alvoFase);
-
-    if (diffFreq < 4.5 && diffFase < 6) {
-      this.estabilidade = Math.min(100, this.estabilidade + 1.1);
-    } else {
-      this.estabilidade = Math.max(0, this.estabilidade - 0.8);
-    }
-
-    document.getElementById('sintonia-progresso').textContent =
-      `ESTABILIDADE: ${Math.round(this.estabilidade)}%`;
-
-    this.desenhar(uFreq, uFase, freqDinamica, this.alvoFase);
-
-    if (this.estabilidade >= 100) {
+    if (id === this.fioCorretoId) {
       this.ativo = false;
+      clearInterval(this.timerId);
       Sismografo.pico(2.0);
       document.getElementById('jogo-2').hidden = true;
       document.getElementById('fase-indicador').textContent = '03 / 04';
       Jogo3Memoria.iniciar();
-      return;
+    } else {
+      this.falharRodada();
     }
-
-    requestAnimationFrame(() => this.loop());
   },
 
-  desenhar(uFreq, uFase, tFreq, tFase) {
-    const canvas = document.getElementById('canvas-onda');
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width;
-    const H = canvas.height;
-    const cor = corAtualTema();
+  falharRodada() {
+    this.ativo = false;
+    clearInterval(this.timerId);
+    Sismografo.pico(2.8);
 
-    ctx.fillStyle = '#020305';
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.strokeStyle = '#ff4d5e';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let x = 0; x < W; x += 4) {
-      const y = H / 2 + Math.sin((x * tFreq * 0.002) + (tFase * 0.1) + this.t) * 68;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    if (this.tentativa === 1) {
+      // Primeira falha: segunda chance com 5 segundos
+      this.tentativa = 2;
+      this.prepararRodada(5.0);
+    } else {
+      // Segunda falha: exibe o questionamento "Você tem medo da Ag 30 ?" com símbolos do Jogo 3
+      const [s1, s2] = Estado.simbolosChave;
+      document.getElementById('texto-ag30').textContent = `Você tem medo da ${s1}g ${s2}0 ?`;
+      document.getElementById('modal-ag30').hidden = false;
     }
-    ctx.stroke();
+  },
 
-    ctx.strokeStyle = cor;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    for (let x = 0; x < W; x += 4) {
-      const y = H / 2 + Math.sin((x * uFreq * 0.002) + (uFase * 0.1) + this.t) * 68;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
+  bindModal() {
+    if (this.ligado) return;
+    this.ligado = true;
+    document.getElementById('btn-reiniciar-fios').addEventListener('click', () => {
+      document.getElementById('modal-ag30').hidden = true;
+      this.tentativa = 1;
+      this.prepararRodada(10.0);
+    });
   }
 };
 
 /* ---------------------------------------------------------------------
-   5. JOGO 03: MEMÓRIA CRIPTOGRAFADA REVERSA (6 SÍMBOLOS INVERTIDOS)
+   6. JOGO 03: MEMÓRIA CRIPTOGRAFADA REVERSA (CONECTADA AOS SÍMBOLOS AG 30)
    --------------------------------------------------------------------- */
 const Jogo3Memoria = {
   simbolos: ['Ω', 'Δ', 'Ψ', 'Φ', 'Σ', 'Ж', '☢', '👁'],
@@ -617,6 +628,9 @@ const Jogo3Memoria = {
 
   iniciar() {
     document.getElementById('jogo-3').hidden = false;
+    const [s1, s2] = Estado.simbolosChave;
+    document.getElementById('mem-conexao-texto').innerHTML =
+      `A matriz incorpora os selos <strong>${s1}</strong> e <strong>${s2}</strong> do protocolo Ag 30. Memorize os 6 códigos e digite-os <strong>DE TRÁS PARA FRENTE</strong>.`;
     this.bindBotoes();
     this.novaRodada();
   },
@@ -624,11 +638,13 @@ const Jogo3Memoria = {
   novaRodada() {
     this.bloqueado = true;
     this.digitado = [];
-    this.sequencia = [];
-    for (let i = 0; i < 6; i++) {
+    // Garante que os 2 símbolos conectados das fases anteriores façam parte da sequência
+    this.sequencia = [...Estado.simbolosChave];
+    while (this.sequencia.length < 6) {
       const s = this.simbolos[Math.floor(Math.random() * this.simbolos.length)];
       this.sequencia.push(s);
     }
+    this.sequencia.sort(() => Math.random() - 0.5);
 
     this.setTeclado(false);
     document.getElementById('mem-status').textContent = 'TRANSMITINDO...';
@@ -690,7 +706,7 @@ const Jogo3Memoria = {
 };
 
 /* ---------------------------------------------------------------------
-   6. JOGO 04: 10 CÁLCULOS MATEMÁTICOS (2 ERROS = VOLTA PRO INÍCIO)
+   7. JOGO 04: 10 CÁLCULOS (9º FRAÇÃO E 10º PORCENTAGEM; 2 ERROS = RESET)
    --------------------------------------------------------------------- */
 const Jogo4Matematica = {
   indice: 1,
@@ -748,11 +764,32 @@ const Jogo4Matematica = {
       const c = rand(10, 45);
       texto = `(${a} × ${b}) + ${c}`;
       res = a * b + c;
+    } else if (nivel === 9) {
+      // 9º Cálculo: Fração com resultado exato
+      const opcoesFracao = [
+        { num: 3, den: 4, base: 80, ans: 60 },
+        { num: 2, den: 5, base: 150, ans: 60 },
+        { num: 3, den: 5, base: 120, ans: 72 },
+        { num: 5, den: 8, base: 64, ans: 40 },
+        { num: 2, den: 3, base: 90, ans: 60 },
+        { num: 4, den: 5, base: 75, ans: 60 }
+      ];
+      const f = opcoesFracao[Math.floor(Math.random() * opcoesFracao.length)];
+      texto = `${f.num}/${f.den} de ${f.base}`;
+      res = f.ans;
     } else {
-      const base = rand(6, 12);
-      const sub = rand(12, 35);
-      texto = `${base}² − ${sub}`;
-      res = base * base - sub;
+      // 10º Cálculo: Porcentagem com resultado exato
+      const opcoesPct = [
+        { pct: 25, base: 160, ans: 40 },
+        { pct: 15, base: 200, ans: 30 },
+        { pct: 35, base: 200, ans: 70 },
+        { pct: 40, base: 150, ans: 60 },
+        { pct: 75, base: 120, ans: 90 },
+        { pct: 20, base: 350, ans: 70 }
+      ];
+      const p = opcoesPct[Math.floor(Math.random() * opcoesPct.length)];
+      texto = `${p.pct}% de ${p.base}`;
+      res = p.ans;
     }
 
     this.respostaAtual = res;
@@ -809,7 +846,7 @@ const Jogo4Matematica = {
 };
 
 /* ---------------------------------------------------------------------
-   7. INTERRUPTOR DE MINUTOS ATÉ 2030
+   8. INTERRUPTOR DE MINUTOS ATÉ 2030
    --------------------------------------------------------------------- */
 const Interruptor2030 = {
   mostrar() {
@@ -843,7 +880,7 @@ const Interruptor2030 = {
 };
 
 /* ---------------------------------------------------------------------
-   8. ETAPA FINAL: TRIAGEM (INSCRITO / NÃO INSCRITO) + ENQUETE + CRÉDITO
+   9. ETAPA FINAL: TRIAGEM + ENQUETE THIAGO MISTERY + CRÉDITO
    --------------------------------------------------------------------- */
 const EnqueteFinal = {
   votos: { deepweb: 412, conspiracao: 589, investigacoes: 619 },
@@ -933,7 +970,7 @@ const EnqueteFinal = {
 };
 
 /* ---------------------------------------------------------------------
-   9. INICIALIZAÇÃO A PARTIR DA TELA PRETA
+   10. INICIALIZAÇÃO A PARTIR DA TELA PRETA
    --------------------------------------------------------------------- */
 function iniciar() {
   try {
@@ -966,7 +1003,7 @@ function iniciar() {
     document.getElementById('area-principal').hidden = false;
 
     Sismografo.iniciar();
-    Jogo1Labirinto.iniciar();
+    EnqueteInicial.iniciar();
 
     setTimeout(() => { telaPreta.hidden = true; }, 900);
   });
