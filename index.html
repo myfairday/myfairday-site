@@ -10,14 +10,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel de Anomalias Globais</title>
-  <meta name="description" content="Painel de monitoramento em tempo real de 9 sensores de dados abertos globais.">
+  <meta name="description" content="Painel de monitoramento em tempo real de 8 sensores de dados abertos globais.">
 
   <!-- Fonte monoespaçada -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -50,7 +50,7 @@
       <p class="aviso-noscript">Este painel precisa de JavaScript para funcionar.</p>
     </noscript>
 
-    <!-- ================= VISTA HOME: GRID DE 9 SENSORES ================= -->
+    <!-- ================= VISTA HOME: GRID DE SENSORES ================= -->
     <section id="vista-home" aria-label="Sensores">
       <div class="grid" id="grid">
 
@@ -62,7 +62,7 @@
             <span class="card-freq" title="Frequência de atualização">30s</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">conectando ao radar…</p>
+          <p class="contexto" data-campo="contexto">sincronizando radar aéreo…</p>
           <div class="viz mapa mapa-aviacao" data-campo="viz" aria-hidden="true"></div>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -168,26 +168,10 @@
           </footer>
         </article>
 
-        <!-- 08 · MERCADOS DE PREVISÃO (ranking das maiores variações) -->
-        <article class="card" data-sensor="mercados" data-nivel="ok">
-          <header class="card-topo">
-            <span class="card-id">08</span>
-            <h2>MERCADOS DE PREVISÃO</h2>
-            <span class="card-freq" title="Frequência de atualização">30min</span>
-          </header>
-          <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">consultando probabilidades…</p>
-          <ul class="viz viz-lista" data-campo="viz"></ul>
-          <footer class="card-pe">
-            <span class="tempo" data-campo="tempo">atualizado —</span>
-            <a class="ver" href="#/sensor/mercados">ver detalhes</a>
-          </footer>
-        </article>
-
-        <!-- 09 · PALAVRAS-CHAVE NOTÓRIAS (frequência 24h e variação) -->
+        <!-- 08 · PALAVRAS-CHAVE NOTÓRIAS (frequência 24h e variação) -->
         <article class="card" data-sensor="palavras" data-nivel="ok">
           <header class="card-topo">
-            <span class="card-id">09</span>
+            <span class="card-id">08</span>
             <h2>PALAVRAS-CHAVE NOTÓRIAS</h2>
             <span class="card-freq" title="Frequência de atualização">15min</span>
           </header>
@@ -243,6 +227,6 @@
     <div class="ultima" id="ultima">Última atualização geral: —</div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
