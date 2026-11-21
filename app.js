@@ -352,7 +352,7 @@ function renderizarMapaReal(el, pontos) {
 }
 
 /* ---------------------------------------------------------------------
-   3. CONTADOR DE VISITANTES (CONTAGEM GLOBAL GENUÍNA SEM CADASTRO)
+   3. CONTADOR DE VISITANTES (SEM CONTAR F5 / VISITANTE ÚNICO REAL)
    --------------------------------------------------------------------- */
 const Visitantes = {
   total: 0,
@@ -367,24 +367,26 @@ const Visitantes = {
   async iniciar() {
     const pageId = 'myfairday.org-anomalias-globais';
     let cache = 0;
-    let jaContouSessao = false;
+    let jaContouNavegador = false;
 
     try {
       cache = parseInt(localStorage.getItem(CONFIG.chaveVisTotal), 10) || 0;
-      jaContouSessao = sessionStorage.getItem(CONFIG.chaveVisitante) === '1';
+      // Verifica no localStorage se este navegador já foi contabilizado
+      jaContouNavegador = localStorage.getItem(CONFIG.chaveVisitante) === '1';
     } catch (_) { /* ignora */ }
 
-    // Exibe imediatamente o valor salvo (ou 1) para nunca ficar "—"
     this.total = cache > 0 ? cache : 1;
     this.atualizarTexto();
 
+    // Se este navegador já foi contado antes, NÃO chama a API de incremento no F5
+    if (jaContouNavegador && cache > 0) {
+      return;
+    }
+
     try {
-      // Usa o serviço visitorbadge.io (retorna SVG com a contagem real global sem precisar criar conta)
-      // Se já contou nesta sessão, consulta apenas o status; se for nova visita, incrementa (+1)
       const urlBadge = `https://api.visitorbadge.io/api/visitors?path=${encodeURIComponent(pageId)}&countColor=%232ee59d`;
       const svgText = await fetchSeguro(urlBadge, 'text', 10000);
 
-      // Extrai os números de dentro das tags <text> do SVG retornado
       const matches = [...svgText.matchAll(/<text[^>]*>([\d.,]+)<\/text>/gi)];
       if (matches.length > 0) {
         const ultimoTexto = matches[matches.length - 1][1].replace(/[^\d]/g, '');
@@ -393,20 +395,19 @@ const Visitantes = {
         if (!Number.isNaN(contagemGlobal) && contagemGlobal > 0) {
           this.total = Math.max(contagemGlobal, cache);
           try {
-            sessionStorage.setItem(CONFIG.chaveVisitante, '1');
+            localStorage.setItem(CONFIG.chaveVisitante, '1');
             localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
           } catch (_) { /* ignora */ }
           this.atualizarTexto();
           return;
         }
       }
-    } catch (_) { /* se falhar, cai no fallback local abaixo */ }
+    } catch (_) { /* fallback abaixo */ }
 
-    // Fallback garantido caso o serviço externo oscile
-    if (!jaContouSessao) {
+    if (!jaContouNavegador) {
       this.total = cache + 1;
       try {
-        sessionStorage.setItem(CONFIG.chaveVisitante, '1');
+        localStorage.setItem(CONFIG.chaveVisitante, '1');
         localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
       } catch (_) { /* ignora */ }
     }
