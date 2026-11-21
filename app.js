@@ -1,10 +1,10 @@
 /* =====================================================================
-   APP.JS — CONEXÃO TOTAL: ENQUETE -> LABIRINTO -> 8 FIOS (AG 30) -> MEMÓRIA -> 10 CÁLCULOS -> 2030 -> FINAL
+   APP.JS — ENQUETE -> LABIRINTO -> 12 FIOS (AG 30 CORRIGIDO) -> MEMÓRIA -> 10 CÁLCULOS -> 2030 -> FINAL
    ===================================================================== */
 'use strict';
 
 const CONFIG = {
-  chaveTema: 'proto2030_tema_v5',
+  chaveTema: 'proto2030_tema_v6',
   chaveVisTotal: 'myfairday_vis_num_v2',
   chaveTriagem: 'proto2030_triagem_stats_v2',
   chaveEnquete1: 'proto2030_enquete1_v1',
@@ -181,17 +181,16 @@ const Sismografo = {
   }
 };
 
-// Estado compartilhado que interliga todos os jogos
 const Estado = {
   inicioGeralTs: 0,
   ehInscrito: false,
   voto1Registrado: null,
   votoRegistrado: null,
-  simbolosChave: ['☢', '👁'] // Fragmentos extraídos no Jogo 1, usados no Ag 30 (Jogo 2) e na Matriz (Jogo 3)
+  simbolosChave: ['☢', '👁']
 };
 
 /* ---------------------------------------------------------------------
-   3. ENQUETE INICIAL (LOGO AO ENTRAR PARA PRENDER O VISITANTE)
+   3. ENQUETE INICIAL
    --------------------------------------------------------------------- */
 const EnqueteInicial = {
   votos: { sim: 782, nao: 114, perdoaria: 19, sofrer: 945 },
@@ -286,7 +285,6 @@ const Jogo1Labirinto = {
     this.inicioTs = Date.now();
     this.ativo = true;
 
-    // Sorteia 2 símbolos que conectarão o Jogo 1 ao Jogo 2 (Ag 30) e ao Jogo 3
     const pool = ['Ω', 'Δ', 'Ψ', 'Φ', 'Σ', 'Ж', '☢', '👁'];
     const s1 = pool[Math.floor(Math.random() * pool.length)];
     let s2 = pool[Math.floor(Math.random() * pool.length)];
@@ -495,7 +493,7 @@ const Jogo1Labirinto = {
 };
 
 /* ---------------------------------------------------------------------
-   5. JOGO 02: DESARME DE 8 FIOS (10s -> 5s -> QUESTIONAMENTO AG 30)
+   5. JOGO 02: DESARME DE 12 FIOS (10s -> 5s -> QUESTIONAMENTO AG 30)
    --------------------------------------------------------------------- */
 const Jogo2Fios = {
   cores: [
@@ -506,13 +504,18 @@ const Jogo2Fios = {
     { id: 'roxo',     nome: 'ROXO',     hex: '#b56bff' },
     { id: 'laranja',  nome: 'LARANJA',  hex: '#ff8a3d' },
     { id: 'ciano',    nome: 'CIANO',    hex: '#38f2ff' },
-    { id: 'branco',   nome: 'BRANCO',   hex: '#e6e8ec' }
+    { id: 'branco',   nome: 'BRANCO',   hex: '#e6e8ec' },
+    { id: 'magenta',  nome: 'MAGENTA',  hex: '#ff47c2' },
+    { id: 'lima',     nome: 'LIMA',     hex: '#a6ff2e' },
+    { id: 'dourado',  nome: 'DOURADO',  hex: '#d4af37' },
+    { id: 'turquesa', nome: 'TURQUESA', hex: '#1abc9c' }
   ],
   tentativa: 1,
   tempoRestante: 10.0,
   fioCorretoId: '',
   timerId: null,
   ativo: false,
+  processandoClique: false,
 
   iniciar() {
     document.getElementById('jogo-2').hidden = false;
@@ -523,37 +526,50 @@ const Jogo2Fios = {
   },
 
   prepararRodada(segundos) {
-    if (this.timerId) clearInterval(this.timerId);
+    if (this.timerId) {
+      clearInterval(this.timerId);
+      this.timerId = null;
+    }
     this.tempoRestante = segundos;
     this.ativo = true;
+    this.processandoClique = false;
 
     const elTent = document.getElementById('fios-tentativa');
     elTent.textContent = `CHANCE: ${this.tentativa} / 2`;
     elTent.classList.toggle('perigo', this.tentativa === 2);
 
-    // Embaralha os 8 fios
+    // Embaralha todos os 12 fios
     const embaralhados = [...this.cores].sort(() => Math.random() - 0.5);
 
-    // Escolhe um fio âncora (entre índice 0 e 6) e o alvo será o fio imediatamente à direita dele
-    const idxAncora = Math.floor(Math.random() * 7);
+    // Escolhe um fio âncora entre 01 e 11 e define o fio imediatamente seguinte (N + 1) como alvo
+    const idxAncora = Math.floor(Math.random() * (embaralhados.length - 1));
     const ancora = embaralhados[idxAncora];
     const alvo = embaralhados[idxAncora + 1];
     this.fioCorretoId = alvo.id;
 
+    const numAncora = String(idxAncora + 1).padStart(2, '0');
+    const numAlvo = String(idxAncora + 2).padStart(2, '0');
+
     document.getElementById('fios-instrucao').innerHTML =
-      `DIRETRIZ (${Estado.simbolosChave[0]}): Corte o fio que está <strong>IMEDIATAMENTE ABAIXO</strong> do fio <span style="color:${ancora.hex}">${ancora.nome}</span> antes que o tempo zere!`;
+      `DIRETRIZ (${Estado.simbolosChave[0]}): Corte o fio seguinte ao <span style="color:${ancora.hex}">${ancora.nome} (${numAncora})</span> — posição <strong>${numAlvo}</strong>!`;
 
     const container = document.getElementById('lista-fios');
     container.innerHTML = '';
+
     embaralhados.forEach((fio, i) => {
+      const numeroStr = String(i + 1).padStart(2, '0');
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'btn-fio';
       btn.innerHTML = `
-        <span>0${i + 1} · ${fio.nome}</span>
+        <span>${numeroStr} · ${fio.nome}</span>
         <span class="fio-cabo" style="background:${fio.hex}; color:${fio.hex};"></span>
       `;
-      btn.addEventListener('click', () => this.cortarFio(fio.id));
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.cortarFio(fio.id);
+      });
       container.appendChild(btn);
     });
 
@@ -565,8 +581,8 @@ const Jogo2Fios = {
     elTimer.textContent = `${this.tempoRestante.toFixed(1)}s`;
 
     this.timerId = setInterval(() => {
-      if (!this.ativo) return;
-      this.tempoRestante = Math.max(0, this.tempoRestante - 0.1);
+      if (!this.ativo || this.processandoClique) return;
+      this.tempoRestante = Math.max(0, +(this.tempoRestante - 0.1).toFixed(1));
       elTimer.textContent = `${this.tempoRestante.toFixed(1)}s`;
 
       if (this.tempoRestante <= 0) {
@@ -576,10 +592,16 @@ const Jogo2Fios = {
   },
 
   cortarFio(id) {
-    if (!this.ativo) return;
-    if (id === this.fioCorretoId) {
-      this.ativo = false;
+    if (!this.ativo || this.processandoClique) return;
+    this.processandoClique = true;
+    this.ativo = false;
+
+    if (this.timerId) {
       clearInterval(this.timerId);
+      this.timerId = null;
+    }
+
+    if (id === this.fioCorretoId) {
       Sismografo.pico(2.0);
       document.getElementById('jogo-2').hidden = true;
       document.getElementById('fase-indicador').textContent = '03 / 04';
@@ -591,15 +613,17 @@ const Jogo2Fios = {
 
   falharRodada() {
     this.ativo = false;
-    clearInterval(this.timerId);
+    this.processandoClique = true;
+    if (this.timerId) {
+      clearInterval(this.timerId);
+      this.timerId = null;
+    }
     Sismografo.pico(2.8);
 
     if (this.tentativa === 1) {
-      // Primeira falha: segunda chance com 5 segundos
       this.tentativa = 2;
       this.prepararRodada(5.0);
     } else {
-      // Segunda falha: exibe o questionamento "Você tem medo da Ag 30 ?" com símbolos do Jogo 3
       const [s1, s2] = Estado.simbolosChave;
       document.getElementById('texto-ag30').textContent = `Você tem medo da ${s1}g ${s2}0 ?`;
       document.getElementById('modal-ag30').hidden = false;
@@ -638,7 +662,6 @@ const Jogo3Memoria = {
   novaRodada() {
     this.bloqueado = true;
     this.digitado = [];
-    // Garante que os 2 símbolos conectados das fases anteriores façam parte da sequência
     this.sequencia = [...Estado.simbolosChave];
     while (this.sequencia.length < 6) {
       const s = this.simbolos[Math.floor(Math.random() * this.simbolos.length)];
@@ -765,7 +788,6 @@ const Jogo4Matematica = {
       texto = `(${a} × ${b}) + ${c}`;
       res = a * b + c;
     } else if (nivel === 9) {
-      // 9º Cálculo: Fração com resultado exato
       const opcoesFracao = [
         { num: 3, den: 4, base: 80, ans: 60 },
         { num: 2, den: 5, base: 150, ans: 60 },
@@ -778,7 +800,6 @@ const Jogo4Matematica = {
       texto = `${f.num}/${f.den} de ${f.base}`;
       res = f.ans;
     } else {
-      // 10º Cálculo: Porcentagem com resultado exato
       const opcoesPct = [
         { pct: 25, base: 160, ans: 40 },
         { pct: 15, base: 200, ans: 30 },
