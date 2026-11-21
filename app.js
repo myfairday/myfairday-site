@@ -1,5 +1,5 @@
 /* =====================================================================
-   PAINEL DE ANOMALIAS GLOBAIS — app.js (Tempo Real · 23 Sensores · PT/EN)
+   PAINEL DE ANOMALIAS GLOBAIS — app.js (Tempo Real · 19 Sensores · PT/EN)
    Feito por Thiago Mistery — https://www.youtube.com/@thiagomistery
    ===================================================================== */
 'use strict';
@@ -15,7 +15,6 @@ const CONFIG = {
   chaveHistorico: 'painel_hist_v1',
   chaveClimaBase: 'painel_clima_v1',
   chaveNasaNeo: 'painel_neo_v1',
-  chaveCidade: 'painel_cidade_v1',
   chaveIdioma: 'painel_idioma_v1',
   chaveVisitante: 'myfairday_vis_ok',
   chaveVisTotal: 'myfairday_vis_num'
@@ -46,12 +45,13 @@ const I18N = {
     feitoPor: 'Feito por',
     atualizado: 'atualizado ',
     sincronizando: 'sincronizando…',
+    aguardandoBusca: 'aguardando busca…',
     agoraMesmo: 'agora mesmo',
     aCada: 'a cada ',
     aguardandoLeituras: 'aguardando mais leituras em tempo real…',
     max: 'máx ',
     min: 'mín ',
-    placeholderCidade: 'Digite uma cidade (ex: Joinville, Tóquio)…',
+    placeholderCidade: 'Digite uma cidade…',
     buscar: 'Buscar',
     niveis: { ok: 'normal', warn: 'atenção', crit: 'crítico' },
     sensores: {
@@ -68,16 +68,12 @@ const I18N = {
       ciber: 'ALERTAS CIBERSEGURANÇA',
       mare: 'NÍVEL DO MAR & RESSACAS',
       uv: 'RADIAÇÃO UV EXTREMA',
-      alertasmeteo: 'ALERTAS METEOROLÓGICOS',
       cidade: 'CLIMA POR CIDADE',
-      congresso: 'LEIS · CÂMARA & SENADO',
       cameras: 'CÂMERAS AO VIVO NO MUNDO',
       avioes: 'RADAR AÉREO · AIRNAV',
       trends: 'TENDÊNCIAS · GOOGLE TRENDS',
       internet: 'QUEDAS DE INTERNET (IODA)',
-      rios: 'NÍVEL & VAZÃO DOS RIOS',
-      energia: 'ENERGIA & CARGA DO SIN',
-      botnets: 'BOTNETS & MALWARE C2'
+      rios: 'NÍVEL & VAZÃO DOS RIOS'
     }
   },
   en: {
@@ -98,12 +94,13 @@ const I18N = {
     feitoPor: 'Created by',
     atualizado: 'updated ',
     sincronizando: 'syncing…',
+    aguardandoBusca: 'waiting for search…',
     agoraMesmo: 'just now',
     aCada: 'every ',
     aguardandoLeituras: 'waiting for more real-time readings…',
     max: 'max ',
     min: 'min ',
-    placeholderCidade: 'Enter a city (e.g. Tokyo, London)…',
+    placeholderCidade: 'Enter a city…',
     buscar: 'Search',
     niveis: { ok: 'normal', warn: 'warning', crit: 'critical' },
     sensores: {
@@ -120,16 +117,12 @@ const I18N = {
       ciber: 'CYBERSECURITY ALERTS',
       mare: 'SEA LEVEL & STORM SURGES',
       uv: 'EXTREME UV RADIATION',
-      alertasmeteo: 'SEVERE WEATHER ALERTS',
       cidade: 'WEATHER BY CITY',
-      congresso: 'BRAZIL CONGRESS BILLS',
       cameras: 'LIVE WORLD WEBCAMS',
       avioes: 'FLIGHT RADAR · AIRNAV',
       trends: 'TRENDING · GOOGLE TRENDS',
       internet: 'INTERNET OUTAGES (IODA)',
-      rios: 'RIVER LEVELS & DISCHARGE',
-      energia: 'POWER GRID LOAD (ONS)',
-      botnets: 'ACTIVE BOTNETS & C2'
+      rios: 'RIVER LEVELS & DISCHARGE'
     }
   }
 };
@@ -199,7 +192,6 @@ async function fetchSeguro(url, tipo = 'json', timeoutMs = 11000) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
-      // Sem headers customizados para evitar CORS preflight OPTIONS desnecessario
       const res = await fetch(targetUrl, { signal: ctrl.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       if (unwrapAllOrigins) {
@@ -383,7 +375,7 @@ function criarSensor(def) {
 }
 
 /* ---------------------------------------------------------------------
-   6. OS 23 SENSORES EM TEMPO REAL
+   6. OS 19 SENSORES EM TEMPO REAL
    --------------------------------------------------------------------- */
 
 /* ===== 01 · BOLSA DE VALORES (B3) — Brapi & AwesomeAPI — 1 min ======== */
@@ -786,7 +778,7 @@ const anomalias = criarSensor({
       if (cache.dia === chaveDia && Array.isArray(cache.medias) && cache.medias.length === CIDADES_CLIMA.length) {
         return cache.medias;
       }
-    } catch (_) { /* segue para busca */ }
+    } catch (_) { /* segue */ }
 
     const anoAtual = hoje.getUTCFullYear();
     const anos = [1, 2, 3, 4, 5, 6, 7, 8].map((k) => anoAtual - k);
@@ -1525,7 +1517,7 @@ const ESTACOES_UV = [
   { nome: 'Singapore, SG', lat: 1.3521, lon: 103.8198 },
   { nome: 'Bogotá, CO', lat: 4.7110, lon: -74.0721 },
   { nome: 'Honolulu, US', lat: 21.3069, lon: -157.8583 },
-  { nome: 'Joinville, BR', lat: -26.3044, lon: -48.8487 }
+  { nome: 'São Paulo, BR', lat: -23.5505, lon: -46.6333 }
 ];
 
 const uv = criarSensor({
@@ -1593,78 +1585,7 @@ const uv = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 14 · ALERTAS METEOROLÓGICOS SEVEROS — NWS / NOAA — 15 min ====== */
-const alertasmeteo = criarSensor({
-  id: 'alertasmeteo', num: '14', titulo: 'ALERTAS METEOROLÓGICOS', fonte: 'NOAA / NWS Active Alerts', freq: 900,
-  e: { lista: [], vistosIds: new Set() },
-
-  async atualizar() {
-    const url = 'https://api.weather.gov/alerts/active?status=actual&severity=Extreme,Severe&limit=30';
-    const dados = await fetchSeguro(url, 'json', 12000);
-    const feats = Array.isArray(dados?.features) ? dados.features : [];
-
-    const alertas = feats.map((f) => {
-      const p = f.properties || {};
-      const evento = (p.event || 'Weather Alert').trim();
-      const area = (p.areaDesc || '').split(';')[0].trim();
-      const sev = String(p.severity || 'Severe');
-      const sent = p.sent ? Date.parse(p.sent) : Date.now();
-      return {
-        id: String(f.id || `${evento}-${area}`),
-        titulo: area ? `${evento} · ${area}` : evento,
-        extremo: sev === 'Extreme',
-        ts: Number.isNaN(sent) ? Date.now() : sent
-      };
-    });
-
-    let novos = 0;
-    alertas.forEach((a) => {
-      if (registrarUnico(this.e.vistosIds, a.id)) {
-        novos++;
-        this.logar(a.titulo, a.extremo ? 'alerta' : '', a.ts);
-      }
-    });
-
-    this.e.lista = alertas;
-    if (novos > 0) Caos.registrar(novos);
-    else this.logar(`${alertas.length} active severe/extreme weather alerts`);
-  },
-
-  extremos() { return this.e.lista.filter((a) => a.extremo).length; },
-  metrica() { return this.e.lista.length; },
-  principal() {
-    if (!this.carregado) return { texto: '—', nivel: 'ok' };
-    const ext = this.extremos();
-    const n = this.e.lista.length;
-    return { texto: U.num(n), nivel: ext >= 3 ? 'crit' : n >= 5 ? 'warn' : 'ok' };
-  },
-  contexto() {
-    if (!this.carregado) return IDIOMA === 'en' ? 'checking NOAA/NWS severe alerts…' : 'verificando avisos severos NOAA/NWS…';
-    return IDIOMA === 'en'
-      ? `active severe weather warnings · ${this.extremos()} extreme`
-      : `avisos meteorológicos severos ativos · ${this.extremos()} de nível extremo`;
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.lista.length === 0) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'no active severe warnings' : 'nenhum alerta severo ativo no momento'));
-      return;
-    }
-    el.replaceChildren(...this.e.lista.map((a) => {
-      const li = h('li');
-      const tag = IDIOMA === 'en' ? (a.extremo ? 'EXTREME' : 'SEVERE') : (a.extremo ? 'EXTREMO' : 'SEVERO');
-      li.append(
-        h('span', 'fonte-tag', tag),
-        h('span', 'nome', a.titulo),
-        h('span', 'hora', U.hora(a.ts).slice(0, 5))
-      );
-      return li;
-    }));
-  },
-  eventosIniciais() { return this.extremos(); }
-});
-
-/* ===== 15 · CLIMA LOCAL POR CIDADE (INTERATIVO) — Open-Meteo — 10 min == */
+/* ===== 14 · CLIMA LOCAL POR CIDADE (INICIA EM BRANCO) — Open-Meteo ==== */
 const WMO_DESC = {
   0: { pt: 'Céu limpo', en: 'Clear sky' },
   1: { pt: 'Predominantemente limpo', en: 'Mainly clear' },
@@ -1689,19 +1610,9 @@ const WMO_DESC = {
   99: { pt: 'Tempestade severa', en: 'Severe thunderstorm' }
 };
 
-function obterCidadeInicial() {
-  try {
-    const salva = JSON.parse(localStorage.getItem(CONFIG.chaveCidade) || 'null');
-    if (salva && typeof salva.lat === 'number' && typeof salva.lon === 'number') {
-      return salva;
-    }
-  } catch (_) { /* ignora */ }
-  return { nome: 'Joinville', admin: 'Santa Catarina', pais: 'Brasil', lat: -26.3044, lon: -48.8487 };
-}
-
 const cidade = criarSensor({
-  id: 'cidade', num: '15', titulo: 'CLIMA POR CIDADE', fonte: 'Open-Meteo Geocoding & Weather', freq: 600,
-  e: { local: obterCidadeInicial(), dados: null, buscando: false, erroBusca: '' },
+  id: 'cidade', num: '14', titulo: 'CLIMA POR CIDADE', fonte: 'Open-Meteo Geocoding & Weather', freq: 600,
+  e: { local: null, dados: null, buscando: false, erroBusca: '' },
 
   async pesquisarCidade(termo) {
     const q = String(termo || '').trim();
@@ -1729,8 +1640,6 @@ const cidade = criarSensor({
         lon: Number(hit.longitude)
       };
 
-      try { localStorage.setItem(CONFIG.chaveCidade, JSON.stringify(this.e.local)); } catch (_) { /* ignora */ }
-
       this.historico = [];
       salvarHistorico(this.id, this.historico);
 
@@ -1744,6 +1653,12 @@ const cidade = criarSensor({
   },
 
   async atualizar() {
+    // Se nenhuma cidade foi digitada pelo visitante ainda, mantém em branco
+    if (!this.e.local) {
+      this.e.dados = null;
+      return;
+    }
+
     const { lat, lon, nome, admin, pais } = this.e.local;
     const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`;
     const arUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm2_5`;
@@ -1780,10 +1695,10 @@ const cidade = criarSensor({
     );
   },
 
-  metrica() { return this.e.dados ? Number(this.e.dados.temp.toFixed(1)) : 0; },
+  metrica() { return this.e.dados ? Number(this.e.dados.temp.toFixed(1)) : NaN; },
   principal() {
     if (this.e.buscando) return { texto: '…', nivel: 'ok' };
-    if (!this.carregado || !this.e.dados) return { texto: '—', nivel: 'ok' };
+    if (!this.e.local || !this.e.dados) return { texto: '—', nivel: 'ok' };
     const d = this.e.dados;
     const crit = d.temp >= 40 || d.temp <= -5 || d.code >= 95 || d.vento >= 70;
     const warn = d.temp >= 34 || d.temp <= 3 || d.code >= 80 || d.vento >= 45 || d.uv >= 11;
@@ -1792,9 +1707,12 @@ const cidade = criarSensor({
   contexto() {
     if (this.e.erroBusca) return this.e.erroBusca;
     if (this.e.buscando) return IDIOMA === 'en' ? 'searching coordinates & stations…' : 'buscando coordenadas e estações…';
+    if (!this.e.local) {
+      return IDIOMA === 'en' ? 'type any city above to check live weather…' : 'digite qualquer cidade acima para consultar o clima…';
+    }
     const { nome, admin, pais } = this.e.local;
     const lugar = [nome, admin, pais].filter(Boolean).join(', ');
-    if (!this.carregado || !this.e.dados) {
+    if (!this.e.dados) {
       return IDIOMA === 'en' ? `fetching weather for ${lugar}…` : `consultando clima de ${lugar}…`;
     }
     const cond = WMO_DESC[this.e.dados.code]?.[IDIOMA] || (IDIOMA === 'en' ? 'Monitored' : 'Monitorado');
@@ -1802,8 +1720,8 @@ const cidade = criarSensor({
   },
   montarViz() {},
   renderViz(el) {
-    if (!this.e.dados) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'waiting for weather reading…' : 'aguardando leitura meteorológica…'));
+    if (!this.e.local || !this.e.dados) {
+      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'enter a city name and click Search' : 'digite o nome de uma cidade e clique em Buscar'));
       return;
     }
     const d = this.e.dados;
@@ -1833,129 +1751,15 @@ const cidade = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 16 · LEIS · CÂMARA & SENADO — Dados Abertos Brasil — 5 min ======= */
-const congresso = criarSensor({
-  id: 'congresso', num: '16', titulo: 'LEIS · CÂMARA & SENADO', fonte: 'Dados Abertos Câmara & Senado', freq: 300,
-  e: { itens: [], camaraCount: 0, senadoCount: 0, vistosIds: new Set() },
-
-  async atualizar() {
-    const ano = new Date().getFullYear();
-    const urlCamara = `https://dadosabertos.camara.leg.br/api/v2/proposicoes?ano=${ano}&siglaTipo=PL,PEC,MPV,PLP&itens=20&ordem=DESC&ordenarPor=id`;
-    const urlSenado = 'https://legis.senado.leg.br/dadosabertos/materia/atualizadas.json?numdias=5';
-
-    const [camRes, senRes] = await Promise.allSettled([
-      fetchSeguro(urlCamara, 'json', 12000),
-      fetchSeguro(urlSenado, 'json', 12000)
-    ]);
-
-    const lista = [];
-    let camTotal = 0;
-    let senTotal = 0;
-
-    if (camRes.status === 'fulfilled' && Array.isArray(camRes.value?.dados)) {
-      const props = camRes.value.dados;
-      camTotal = props.length;
-      props.forEach((p) => {
-        const codigo = `${p.siglaTipo} ${p.numero}/${p.ano}`;
-        const ementa = (p.ementa || 'Proposição em tramitação').trim();
-        const id = `CAM-${p.id}`;
-        const url = `https://www.camara.leg.br/propostas-legislativas/${p.id}`;
-        lista.push({ id, casa: 'CÂMARA', codigo, ementa, url });
-      });
-    }
-
-    if (senRes.status === 'fulfilled') {
-      const raw = senRes.value?.ListaMateriasAtualizadas?.Materias?.Materia;
-      const mats = Array.isArray(raw) ? raw : (raw ? [raw] : []);
-      senTotal = mats.length;
-      mats.slice(0, 20).forEach((m, idx) => {
-        const idMat = m.Codigo || m.CodigoMateria || idx;
-        const sigla = m.Sigla || m.Subtipo || 'MAT';
-        const num = m.Numero || '';
-        const anoMat = m.Ano || ano;
-        const codigo = `${sigla} ${num}/${anoMat}`.trim();
-        const ementa = (m.Ementa || m.Assunto || 'Matéria atualizada no Senado').trim();
-        const id = `SEN-${idMat}`;
-        const url = `https://www25.senado.leg.br/web/atividade/materias/-/materia/${idMat}`;
-        lista.push({ id, casa: 'SENADO', codigo, ementa, url });
-      });
-    }
-
-    if (lista.length === 0) throw new Error('Congress APIs temporarily unavailable');
-
-    const camLista = lista.filter((x) => x.casa === 'CÂMARA');
-    const senLista = lista.filter((x) => x.casa === 'SENADO');
-    const intercalada = [];
-    const maxLen = Math.max(camLista.length, senLista.length);
-    for (let i = 0; i < maxLen; i++) {
-      if (camLista[i]) intercalada.push(camLista[i]);
-      if (senLista[i]) intercalada.push(senLista[i]);
-    }
-
-    this.e.itens = intercalada.slice(0, 30);
-    this.e.camaraCount = camTotal;
-    this.e.senadoCount = senTotal;
-
-    let novas = 0;
-    this.e.itens.forEach((it) => {
-      if (registrarUnico(this.e.vistosIds, it.id)) {
-        novas++;
-        const urgente = /PEC|MPV/i.test(it.codigo);
-        this.logar(`[${it.casa}] ${it.codigo} — ${it.ementa}`, urgente ? 'alerta' : '');
-      }
-    });
-
-    if (novas > 0 && this.carregado) Caos.registrar(novas);
-  },
-
-  metrica() { return this.e.camaraCount + this.e.senadoCount; },
-  principal() {
-    if (!this.carregado) return { texto: '—', nivel: 'ok' };
-    const total = this.e.camaraCount + this.e.senadoCount;
-    const urgentes = this.e.itens.filter((i) => /PEC|MPV/i.test(i.codigo)).length;
-    return { texto: U.num(total), nivel: urgentes >= 5 ? 'crit' : urgentes >= 2 ? 'warn' : 'ok' };
-  },
-  contexto() {
-    if (!this.carregado) {
-      return IDIOMA === 'en' ? 'fetching live bills in Brazil Congress…' : 'consultando tramitações em Brasília…';
-    }
-    return IDIOMA === 'en'
-      ? `recent bills · ${this.e.camaraCount} in Chamber / ${this.e.senadoCount} updated in Senate`
-      : `tramitações recentes · ${this.e.camaraCount} na Câmara / ${this.e.senadoCount} no Senado`;
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.itens.length === 0) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'no bills loaded right now' : 'nenhuma proposição carregada no momento'));
-      return;
-    }
-    el.replaceChildren(...this.e.itens.map((it) => {
-      const li = h('li');
-      const casaTag = IDIOMA === 'en' ? (it.casa === 'CÂMARA' ? 'CHAMBER' : 'SENATE') : it.casa;
-      const link = document.createElement('a');
-      link.href = it.url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.className = 'nome link-lei';
-      link.textContent = `${it.codigo}: ${it.ementa}`;
-      link.title = `${it.codigo} — ${it.ementa}`;
-
-      li.append(h('span', 'fonte-tag', casaTag), link);
-      return li;
-    }));
-  },
-  eventosIniciais() { return 0; }
-});
-
-/* ===== 17 · CÂMERAS AO VIVO PELO MUNDO — Streams Públicos — Contínuo ==== */
+/* ===== 15 · CÂMERAS AO VIVO PELO MUNDO — Streams Públicos — Contínuo ==== */
 const CAMERAS_MUNDO = [
   {
     id: 'iss',
     cidadePt: 'Órbita · Estação Espacial (ISS)',
     cidadeEn: 'Orbit · Space Station (ISS)',
     pais: 'NASA Live',
-    embed: 'https://www.youtube.com/embed/P9C25Un7xaM?autoplay=1&mute=1&playsinline=1&rel=0',
-    link: 'https://www.youtube.com/watch?v=P9C25Un7xaM'
+    embed: 'https://www.youtube.com/embed/xRPjKQtRXR8?autoplay=1&mute=1&playsinline=1&rel=0',
+    link: 'https://www.youtube.com/watch?v=xRPjKQtRXR8'
   },
   {
     id: 'tokyo',
@@ -1992,7 +1796,7 @@ const CAMERAS_MUNDO = [
 ];
 
 const cameras = criarSensor({
-  id: 'cameras', num: '17', titulo: 'CÂMERAS AO VIVO NO MUNDO', fonte: 'Public Live Feeds (NASA / EarthCam)', freq: 3600,
+  id: 'cameras', num: '15', titulo: 'CÂMERAS AO VIVO NO MUNDO', fonte: 'Public Live Feeds (NASA / EarthCam)', freq: 3600,
   e: { atualIdx: 0, tocando: false },
 
   async atualizar() {
@@ -2065,9 +1869,9 @@ const cameras = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 18 · RADAR AÉREO & EMERGÊNCIAS — ADS-B / AirNav Radar — 2 min === */
+/* ===== 16 · RADAR AÉREO & EMERGÊNCIAS — ADS-B / AirNav Radar — 2 min === */
 const avioes = criarSensor({
-  id: 'avioes', num: '18', titulo: 'RADAR AÉREO · AIRNAV', fonte: 'ADS-B Live & pt.airnavradar.com', freq: 120,
+  id: 'avioes', num: '16', titulo: 'RADAR AÉREO · AIRNAV', fonte: 'ADS-B Live & pt.airnavradar.com', freq: 120,
   e: { voos: [], vistosIds: new Set() },
 
   async atualizar() {
@@ -2160,9 +1964,9 @@ const avioes = criarSensor({
   eventosIniciais() { return this.e.voos.length; }
 });
 
-/* ===== 19 · TENDÊNCIAS GLOBAIS — Google Trends RSS — 15 min ============ */
+/* ===== 17 · TENDÊNCIAS GLOBAIS — Google Trends RSS / rss2json — 15 min == */
 const trends = criarSensor({
-  id: 'trends', num: '19', titulo: 'TENDÊNCIAS · GOOGLE TRENDS', fonte: 'Google Trends Daily Feed', freq: 900,
+  id: 'trends', num: '17', titulo: 'TENDÊNCIAS · GOOGLE TRENDS', fonte: 'Google Trends Daily Feed', freq: 900,
   e: { itens: [], vistos: new Set() },
 
   lerTagXml(el, localName) {
@@ -2172,7 +1976,7 @@ const trends = criarSensor({
     return fallback ? fallback.textContent.trim() : '';
   },
 
-  extrairTrends(xmlStr, regiao) {
+  extrairTrendsXml(xmlStr, regiao) {
     const doc = new DOMParser().parseFromString(xmlStr, 'text/xml');
     const items = [...doc.querySelectorAll('item')];
     return items.slice(0, 12).map((it) => {
@@ -2184,14 +1988,36 @@ const trends = criarSensor({
     }).filter((x) => x.termo);
   },
 
+  async buscarRegiao(regiao) {
+    const feedUrl = `https://trends.google.com/trending/rss?geo=${regiao}`;
+    try {
+      const xml = await fetchSeguro(feedUrl, 'text', 9000);
+      const parsed = this.extrairTrendsXml(xml, regiao);
+      if (parsed.length > 0) return parsed;
+    } catch (_) { /* fallback rss2json */ }
+
+    const json = await fetchSeguro(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`, 'json', 9000);
+    const items = Array.isArray(json?.items) ? json.items : [];
+    return items.slice(0, 12).map((it) => {
+      const termo = (it.title || '').trim();
+      return {
+        termo,
+        trafego: '',
+        noticia: '',
+        regiao,
+        link: `https://trends.google.com/trends/explore?q=${encodeURIComponent(termo)}&geo=${regiao}`
+      };
+    }).filter((x) => x.termo);
+  },
+
   async atualizar() {
     const [brRes, usRes] = await Promise.allSettled([
-      fetchSeguro('https://trends.google.com/trending/rss?geo=BR', 'text', 10000),
-      fetchSeguro('https://trends.google.com/trending/rss?geo=US', 'text', 10000)
+      this.buscarRegiao('BR'),
+      this.buscarRegiao('US')
     ]);
 
-    const br = brRes.status === 'fulfilled' && brRes.value ? this.extrairTrends(brRes.value, 'BR') : [];
-    const us = usRes.status === 'fulfilled' && usRes.value ? this.extrairTrends(usRes.value, 'US') : [];
+    const br = brRes.status === 'fulfilled' ? brRes.value : [];
+    const us = usRes.status === 'fulfilled' ? usRes.value : [];
 
     const misturados = [];
     const max = Math.max(br.length, us.length);
@@ -2258,9 +2084,9 @@ const trends = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 20 · QUEDAS DE INTERNET & BLECAPES — IODA / BGP — 10 min ======== */
+/* ===== 18 · QUEDAS DE INTERNET & BLECAPES — IODA / BGP — 10 min ======== */
 const internet = criarSensor({
-  id: 'internet', num: '20', titulo: 'QUEDAS DE INTERNET (IODA)', fonte: 'Georgia Tech IODA / BGP', freq: 600,
+  id: 'internet', num: '18', titulo: 'QUEDAS DE INTERNET (IODA)', fonte: 'Georgia Tech IODA / BGP', freq: 600,
   e: { alertas: [], vistosIds: new Set() },
 
   async atualizar() {
@@ -2328,7 +2154,7 @@ const internet = criarSensor({
   eventosIniciais() { return this.criticos(); }
 });
 
-/* ===== 21 · RESERVAS HÍDRICAS & VAZÃO DOS RIOS — Open-Meteo Flood — 1 h = */
+/* ===== 19 · RESERVAS HÍDRICAS & VAZÃO DOS RIOS — Open-Meteo Flood — 1 h = */
 const BACIAS_RIOS = [
   { nome: 'Rio Amazonas (Óbidos)', lat: -1.919, lon: -55.515, ref: 170000 },
   { nome: 'Rio Paraná (Foz do Iguaçu)', lat: -25.547, lon: -54.588, ref: 12000 },
@@ -2341,7 +2167,7 @@ const BACIAS_RIOS = [
 ];
 
 const rios = criarSensor({
-  id: 'rios', num: '21', titulo: 'NÍVEL & VAZÃO DOS RIOS', fonte: 'GloFAS / Open-Meteo Flood', freq: 3600,
+  id: 'rios', num: '19', titulo: 'NÍVEL & VAZÃO DOS RIOS', fonte: 'GloFAS / Open-Meteo Flood', freq: 3600,
   e: { lista: [] },
 
   async atualizar() {
@@ -2405,157 +2231,15 @@ const rios = criarSensor({
   eventosIniciais() { return 0; }
 });
 
-/* ===== 22 · ENERGIA ELÉTRICA & CARGA DO SIN — ONS Brasil — 15 min ====== */
-const energia = criarSensor({
-  id: 'energia', num: '22', titulo: 'ENERGIA & CARGA DO SIN', fonte: 'ONS · Operador Nacional do Sistema', freq: 900,
-  e: { totalMW: 0, subsistemas: [] },
-
-  async atualizar() {
-    // Consulta o recurso de carga de energia em tempo real / programada via Dados Abertos ONS
-    const pkg = await fetchSeguro('https://dados.ons.org.br/api/3/action/package_show?id=carga-energia', 'json', 10000);
-    const recursos = Array.isArray(pkg?.result?.resources) ? pkg.result.resources : [];
-    const csvRec = recursos.filter((r) => String(r.format || '').toUpperCase() === 'CSV').pop();
-
-    if (!csvRec?.url) throw new Error('ONS resource unavailable');
-
-    const csvTexto = await fetchSeguro(csvRec.url, 'text', 12000);
-    const linhas = csvTexto.trim().split(/\r?\n/);
-    if (linhas.length < 2) throw new Error('Empty ONS CSV');
-
-    const sep = linhas[0].includes(';') ? ';' : ',';
-    const cab = linhas[0].split(sep).map((c) => U.normalizar(c.replace(/"/g, '')));
-    const idxSub = cab.findIndex((c) => c.includes('nom_subsistema') || c.includes('id_subsistema'));
-    const idxVal = cab.findIndex((c) => c.includes('val_carga'));
-
-    const ultimosPorSub = {};
-    const ultimasLinhas = linhas.slice(-40);
-    ultimasLinhas.forEach((ln) => {
-      const cols = ln.split(sep).map((c) => c.replace(/"/g, '').trim());
-      const sub = cols[idxSub >= 0 ? idxSub : 1] || 'SIN';
-      const val = parseFloat(String(cols[idxVal >= 0 ? idxVal : cols.length - 1]).replace(',', '.'));
-      if (!Number.isNaN(val) && val > 0) {
-        ultimosPorSub[sub] = val;
-      }
-    });
-
-    const lista = Object.entries(ultimosPorSub).map(([nome, mw]) => ({ nome, mw }));
-    if (lista.length === 0) throw new Error('Invalid ONS data');
-
-    lista.sort((a, b) => b.mw - a.mw);
-    this.e.subsistemas = lista;
-    this.e.totalMW = lista.reduce((s, x) => s + x.mw, 0);
-
-    this.logar(`Carga SIN Brasil: ${U.dec(this.e.totalMW / 1000, 1)} GW (${lista.length} subsistemas)`);
-  },
-
-  metrica() { return Math.round(this.e.totalMW); },
-  principal() {
-    if (!this.carregado || this.e.totalMW === 0) return { texto: '—', nivel: 'ok' };
-    const gw = this.e.totalMW / 1000;
-    return { texto: `${U.dec(gw, 1)} GW`, nivel: gw >= 98 ? 'crit' : gw >= 88 ? 'warn' : 'ok' };
-  },
-  contexto() {
-    if (!this.carregado || this.e.totalMW === 0) {
-      return IDIOMA === 'en' ? 'querying Brazil National Grid (ONS)…' : 'consultando carga do sistema elétrico (ONS)…';
-    }
-    return IDIOMA === 'en'
-      ? `instantaneous demand across Brazil's interconnected power grid`
-      : `demanda instantânea do Sistema Interligado Nacional (Brasil)`;
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.subsistemas.length === 0) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'waiting for ONS telemetry…' : 'aguardando telemetria ONS…'));
-      return;
-    }
-    el.replaceChildren(...this.e.subsistemas.map((s) => {
-      const li = h('li');
-      li.append(
-        h('span', 'nome', s.nome),
-        h('span', 'val suave', `${U.num(s.mw)} MW`)
-      );
-      return li;
-    }));
-  },
-  eventosIniciais() { return 0; }
-});
-
-/* ===== 23 · AMEAÇAS DE MALWARE & BOTNETS — Abuse.ch Feodo — 15 min ==== */
-const botnets = criarSensor({
-  id: 'botnets', num: '23', titulo: 'BOTNETS & MALWARE C2', fonte: 'Abuse.ch Feodo Tracker', freq: 900,
-  e: { lista: [], online: 0, vistosIds: new Set() },
-
-  async atualizar() {
-    const dados = await fetchSeguro('https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.json', 'json', 11000);
-    const brutos = Array.isArray(dados) ? dados : [];
-
-    const online = brutos.filter((x) => String(x.status || '').toLowerCase() === 'online');
-    const base = online.length > 0 ? online : brutos;
-
-    const lista = base.slice(0, 25).map((x) => {
-      const ip = x.ip_address || '0.0.0.0';
-      const porta = x.port || '';
-      const malware = x.malware || 'Botnet C2';
-      const pais = x.country || 'XX';
-      const status = String(x.status || 'online').toUpperCase();
-      return { id: `${ip}:${porta}`, alvo: `${ip}:${porta}`, malware, pais, status };
-    });
-
-    this.e.lista = lista;
-    this.e.online = online.length || lista.length;
-
-    let novos = 0;
-    lista.forEach((b) => {
-      if (registrarUnico(this.e.vistosIds, b.id)) {
-        novos++;
-        this.logar(`[${b.pais}] ${b.malware} C2 ativo em ${b.alvo}`, 'alerta');
-      }
-    });
-
-    if (novos > 0 && this.carregado) Caos.registrar(novos);
-  },
-
-  metrica() { return this.e.online; },
-  principal() {
-    if (!this.carregado) return { texto: '—', nivel: 'ok' };
-    const n = this.e.online;
-    return { texto: U.num(n), nivel: n >= 50 ? 'crit' : n >= 15 ? 'warn' : 'ok' };
-  },
-  contexto() {
-    if (!this.carregado) return IDIOMA === 'en' ? 'tracking active C2 botnet servers…' : 'rastreando servidores ativos de botnets…';
-    return IDIOMA === 'en'
-      ? `active Command & Control (C2) servers tracked globally`
-      : `servidores ativos de Comando & Controle (C2) detectados no mundo`;
-  },
-  montarViz() {},
-  renderViz(el) {
-    if (this.e.lista.length === 0) {
-      el.replaceChildren(h('li', 'vazio', IDIOMA === 'en' ? 'no active C2 servers listed' : 'nenhum servidor C2 ativo listado'));
-      return;
-    }
-    el.replaceChildren(...this.e.lista.map((b) => {
-      const li = h('li');
-      li.append(
-        h('span', 'fonte-tag', b.pais),
-        h('span', 'nome', `${b.malware} · ${b.alvo}`),
-        h('span', 'val verm', b.status)
-      );
-      return li;
-    }));
-  },
-  eventosIniciais() { return 0; }
-});
-
-// Ordem dos 23 cards no painel
+// Ordem dos 19 cards no painel
 const SENSORES = [
   bolsa, microtremores, incendios,
   temperaturas, anomalias, ar,
   manchetes, palavras, desastres,
   asteroides, ciber, mare,
-  uv, alertasmeteo, cidade,
-  congresso, cameras, avioes,
-  trends, internet, rios,
-  energia, botnets
+  uv, cidade, cameras,
+  avioes, trends, internet,
+  rios
 ];
 const SENSOR_POR_ID = Object.fromEntries(SENSORES.map((s) => [s.id, s]));
 
@@ -2693,7 +2377,7 @@ const UI = {
     const form = document.getElementById('form-cidade');
     const input = document.getElementById('input-cidade');
     if (form && input) {
-      input.value = cidade.e.local.nome || '';
+      input.value = '';
       form.addEventListener('submit', (ev) => {
         ev.preventDefault();
         cidade.pesquisarCidade(input.value);
@@ -2725,6 +2409,10 @@ const UI = {
   renderTempo(s) {
     const c = this.cards[s.id];
     if (!c) return;
+    if (s.id === 'cidade' && !s.e.local) {
+      c.tempo.textContent = T('aguardandoBusca');
+      return;
+    }
     c.tempo.textContent = s.ultima ? T('atualizado') + U.relativo(s.ultima) : T('sincronizando');
   },
   renderTempos() { SENSORES.forEach((s) => this.renderTempo(s)); },
@@ -2814,8 +2502,10 @@ async function executar(s, animar = true) {
     s.erroMsg = '';
     s.carregado = true;
     s.registrarHistorico();
-    s.ultima = Date.now();
-    estado.ultima = s.ultima;
+    if (s.id !== 'cidade' || s.e.local) {
+      s.ultima = Date.now();
+      estado.ultima = s.ultima;
+    }
     UI.renderCard(s, animar);
     UI.renderRodape();
     if (estado.rota === s.id) Detalhe.render(s);
