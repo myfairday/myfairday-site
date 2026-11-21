@@ -1,39 +1,42 @@
 <!DOCTYPE html>
 <!--
   =====================================================================
-  PAINEL DE ANOMALIAS GLOBAIS — index.html
-  Estrutura da página. Estilos em style.css, lógica em app.js.
+  PAINEL DE ANOMALIAS GLOBAIS — index.html (23 Sensores)
+  Feito por Thiago Mistery (https://www.youtube.com/@thiagomistery)
   =====================================================================
 -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel de Anomalias Globais</title>
-  <meta name="description" content="Painel de monitoramento em tempo real de 8 sensores de dados abertos globais.">
+  <title>Painel de Anomalias Globais — Thiago Mistery</title>
+  <meta name="description" content="Painel de monitoramento em tempo real de 23 sensores de dados abertos globais. Feito por Thiago Mistery.">
 
-  <!-- Fonte monoespaçada -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
   <!-- ================= CABEÇALHO ================= -->
   <header class="topo">
     <div class="topo-barra">
-      <span class="ao-vivo"><i class="led"></i>ao vivo</span>
+      <span class="ao-vivo"><i class="led"></i><span id="txt-aovivo">ao vivo</span></span>
       <span class="relogio" id="relogio">—</span>
       <span class="topo-direita">
         <span class="visitantes" id="visitantes" title="Total de visitantes únicos">visitantes: —</span>
+        <span class="idioma-switch" role="group" aria-label="Idioma / Language">
+          <button type="button" class="btn-lang ativo" data-lang="pt">PT</button>
+          <span class="sep">|</span>
+          <button type="button" class="btn-lang" data-lang="en">EN</button>
+        </span>
       </span>
     </div>
 
-    <h1>PAINEL DE ANOMALIAS GLOBAIS</h1>
+    <h1 id="titulo-principal">PAINEL DE ANOMALIAS GLOBAIS</h1>
 
-    <!-- Sismógrafo: o traço se agita sempre que o Termômetro do Caos registra novos eventos -->
     <div class="sismografo" id="sismografo" aria-hidden="true">
       <svg id="sismo" viewBox="0 0 1000 100" preserveAspectRatio="none">
         <line class="base" x1="0" y1="50" x2="1000" y2="50"></line>
@@ -41,7 +44,7 @@
       </svg>
     </div>
 
-    <p class="lema">O mundo está sempre acontecendo. Você só não estava olhando.</p>
+    <p class="lema" id="lema-principal">O mundo está sempre acontecendo. Você só não estava olhando.</p>
   </header>
 
   <main>
@@ -50,27 +53,27 @@
       <p class="aviso-noscript">Este painel precisa de JavaScript para funcionar.</p>
     </noscript>
 
-    <!-- ================= VISTA HOME: GRID DE SENSORES ================= -->
+    <!-- ================= VISTA HOME: GRID DE 23 SENSORES ================= -->
     <section id="vista-home" aria-label="Sensores">
       <div class="grid" id="grid">
 
-        <!-- 01 · AVIÕES NO AR (mapa de pontos piscando) -->
-        <article class="card" data-sensor="aviacao" data-nivel="ok">
+        <!-- 01 · BOLSA DE VALORES · B3 -->
+        <article class="card" data-sensor="bolsa" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">01</span>
-            <h2>AVIÕES NO AR</h2>
-            <span class="card-freq" title="Frequência de atualização">30s</span>
+            <h2>BOLSA DE VALORES (B3)</h2>
+            <span class="card-freq" title="Frequência de atualização">1min</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">sincronizando radar aéreo…</p>
-          <div class="viz mapa mapa-aviacao" data-campo="viz" aria-hidden="true"></div>
+          <p class="contexto" data-campo="contexto">consultando pregão B3…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
-            <a class="ver" href="#/sensor/aviacao">ver detalhes</a>
+            <a class="ver" href="#/sensor/bolsa">ver detalhes</a>
           </footer>
         </article>
 
-        <!-- 02 · MICROTREMORES (barras em SVG) -->
+        <!-- 02 · MICROTREMORES -->
         <article class="card" data-sensor="microtremores" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">02</span>
@@ -88,7 +91,7 @@
           </footer>
         </article>
 
-        <!-- 03 · FOCOS DE INCÊNDIO (mapa de pontos piscando) -->
+        <!-- 03 · FOCOS DE INCÊNDIO -->
         <article class="card" data-sensor="incendios" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">03</span>
@@ -104,7 +107,7 @@
           </footer>
         </article>
 
-        <!-- 04 · TEMPERATURAS EXTREMAS (lista com scroll interno) -->
+        <!-- 04 · TEMPERATURAS EXTREMAS -->
         <article class="card" data-sensor="temperaturas" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">04</span>
@@ -120,7 +123,7 @@
           </footer>
         </article>
 
-        <!-- 05 · ANOMALIAS CLIMÁTICAS (lista com barras divergentes) -->
+        <!-- 05 · ANOMALIAS CLIMÁTICAS -->
         <article class="card" data-sensor="anomalias" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">05</span>
@@ -136,7 +139,7 @@
           </footer>
         </article>
 
-        <!-- 06 · QUALIDADE DO AR (lista com indicador de cor) -->
+        <!-- 06 · QUALIDADE DO AR -->
         <article class="card" data-sensor="ar" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">06</span>
@@ -152,7 +155,7 @@
           </footer>
         </article>
 
-        <!-- 07 · MANCHETES EM TEMPO REAL (lista com scroll interno) -->
+        <!-- 07 · MANCHETES EM TEMPO REAL -->
         <article class="card" data-sensor="manchetes" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">07</span>
@@ -168,7 +171,7 @@
           </footer>
         </article>
 
-        <!-- 08 · PALAVRAS-CHAVE NOTÓRIAS (frequência 24h e variação) -->
+        <!-- 08 · PALAVRAS-CHAVE NOTÓRIAS -->
         <article class="card" data-sensor="palavras" data-nivel="ok">
           <header class="card-topo">
             <span class="card-id">08</span>
@@ -184,12 +187,263 @@
           </footer>
         </article>
 
+        <!-- 09 · DESASTRES NATURAIS (ONU / GDACS) -->
+        <article class="card" data-sensor="desastres" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">09</span>
+            <h2>DESASTRES NATURAIS (ONU)</h2>
+            <span class="card-freq" title="Frequência de atualização">30min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">consultando alertas GDACS…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/desastres">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 10 · ASTEROIDES PRÓXIMOS (NASA) -->
+        <article class="card" data-sensor="asteroides" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">10</span>
+            <h2>ASTEROIDES PRÓXIMOS (NASA)</h2>
+            <span class="card-freq" title="Frequência de atualização">1h</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">rastreando objetos próximos…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/asteroides">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 11 · ALERTAS DE SEGURANÇA CIBERNÉTICA -->
+        <article class="card" data-sensor="ciber" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">11</span>
+            <h2>ALERTAS CIBERSEGURANÇA</h2>
+            <span class="card-freq" title="Frequência de atualização">15min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">monitorando falhas e CVEs…</p>
+          <ul class="viz viz-lista viz-manchetes" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/ciber">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 12 · NÍVEL DO MAR & RESSACAS COSTEIRAS (NOAA) -->
+        <article class="card" data-sensor="mare" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">12</span>
+            <h2>NÍVEL DO MAR & RESSACAS</h2>
+            <span class="card-freq" title="Frequência de atualização">30min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">lendo marégrafos oceânicos…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/mare">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 13 · RADIAÇÃO UV EXTREMA (OPEN-METEO) -->
+        <article class="card" data-sensor="uv" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">13</span>
+            <h2>RADIAÇÃO UV EXTREMA</h2>
+            <span class="card-freq" title="Frequência de atualização">30min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">medindo índice ultravioleta…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/uv">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 14 · ALERTAS METEOROLÓGICOS SEVEROS (NWS / NOAA) -->
+        <article class="card" data-sensor="alertasmeteo" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">14</span>
+            <h2>ALERTAS METEOROLÓGICOS</h2>
+            <span class="card-freq" title="Frequência de atualização">15min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">verificando avisos severos…</p>
+          <ul class="viz viz-lista viz-manchetes" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/alertasmeteo">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 15 · CLIMA LOCAL POR CIDADE (INTERATIVO) -->
+        <article class="card card-cidade" data-sensor="cidade" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">15</span>
+            <h2>CLIMA POR CIDADE</h2>
+            <span class="card-freq" title="Atualização automática a cada 10 min">10min</span>
+          </header>
+
+          <form class="busca-cidade" id="form-cidade" autocomplete="off">
+            <input
+              type="text"
+              id="input-cidade"
+              placeholder="Digite uma cidade (ex: Joinville, Tóquio)…"
+              aria-label="Nome da cidade para consultar clima"
+            >
+            <button type="submit" id="btn-cidade">Buscar</button>
+          </form>
+
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">digite uma cidade para consultar clima ao vivo…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/cidade">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 16 · CONGRESSO NACIONAL · CÂMARA & SENADO -->
+        <article class="card" data-sensor="congresso" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">16</span>
+            <h2>LEIS · CÂMARA & SENADO</h2>
+            <span class="card-freq" title="Frequência de atualização">5min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">consultando tramitações em Brasília…</p>
+          <ul class="viz viz-lista viz-manchetes" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/congresso">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 17 · CÂMERAS AO VIVO PELO MUNDO -->
+        <article class="card card-cameras" data-sensor="cameras" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">17</span>
+            <h2>CÂMERAS AO VIVO NO MUNDO</h2>
+            <span class="card-freq" title="Transmissão contínua">AO VIVO</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">selecione um ponto de transmissão…</p>
+          <div class="viz viz-cameras" data-campo="viz"></div>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/cameras">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 18 · RADAR AÉREO & EMERGÊNCIAS (AIRNAV RADAR) -->
+        <article class="card" data-sensor="avioes" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">18</span>
+            <h2>RADAR AÉREO · AIRNAV</h2>
+            <span class="card-freq" title="Frequência de atualização">2min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">varrendo transponders ADS-B…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/avioes">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 19 · TENDÊNCIAS GLOBAIS (GOOGLE TRENDS) -->
+        <article class="card" data-sensor="trends" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">19</span>
+            <h2>TENDÊNCIAS · GOOGLE TRENDS</h2>
+            <span class="card-freq" title="Frequência de atualização">15min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">lendo picos de busca em tempo real…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/trends">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 20 · QUEDAS DE INTERNET & BLECAPES DE REDE -->
+        <article class="card" data-sensor="internet" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">20</span>
+            <h2>QUEDAS DE INTERNET (IODA)</h2>
+            <span class="card-freq" title="Frequência de atualização">10min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">monitorando roteamento BGP global…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/internet">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 21 · RESERVAS HÍDRICAS & NÍVEL DOS RIOS -->
+        <article class="card" data-sensor="rios" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">21</span>
+            <h2>NÍVEL & VAZÃO DOS RIOS</h2>
+            <span class="card-freq" title="Frequência de atualização">1h</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">lendo bacias hidrográficas…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/rios">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 22 · ENERGIA ELÉTRICA & CARGA DO SIN (ONS) -->
+        <article class="card" data-sensor="energia" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">22</span>
+            <h2>ENERGIA & CARGA DO SIN</h2>
+            <span class="card-freq" title="Frequência de atualização">15min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">consultando sistema elétrico (ONS)…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/energia">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 23 · AMEAÇAS DE MALWARE & BOTNETS (ABUSE.CH) -->
+        <article class="card" data-sensor="botnets" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">23</span>
+            <h2>BOTNETS & MALWARE C2</h2>
+            <span class="card-freq" title="Frequência de atualização">15min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">rastreando servidores maliciosos…</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/botnets">ver detalhes</a>
+          </footer>
+        </article>
+
       </div>
     </section>
 
     <!-- ================= VISTA DETALHE (aberta por âncora #/sensor/<id>) ================= -->
     <section id="vista-detalhe" hidden aria-label="Detalhes do sensor">
-      <a class="voltar" href="#/">← VOLTAR AO PAINEL</a>
+      <a class="voltar" id="btn-voltar" href="#/">← VOLTAR AO PAINEL</a>
 
       <article class="detalhe" id="detalhe" data-nivel="ok">
         <header class="detalhe-topo">
@@ -198,35 +452,41 @@
         </header>
 
         <dl class="meta">
-          <div><dt>FONTE</dt><dd id="det-fonte">—</dd></div>
-          <div><dt>FREQUÊNCIA</dt><dd id="det-freq">—</dd></div>
-          <div><dt>ÚLTIMA LEITURA</dt><dd id="det-ultima">—</dd></div>
+          <div><dt id="lbl-fonte">FONTE</dt><dd id="det-fonte">—</dd></div>
+          <div><dt id="lbl-freq">FREQUÊNCIA</dt><dd id="det-freq">—</dd></div>
+          <div><dt id="lbl-ultima">ÚLTIMA LEITURA</dt><dd id="det-ultima">—</dd></div>
         </dl>
 
         <div class="det-valor" id="det-valor">—</div>
         <p class="contexto" id="det-contexto">—</p>
 
-        <h3>HISTÓRICO DO DADO PRINCIPAL</h3>
+        <h3 id="lbl-historico">HISTÓRICO DO DADO PRINCIPAL</h3>
         <svg class="det-grafico" id="det-grafico" viewBox="0 0 600 160" aria-hidden="true"></svg>
 
-        <h3>REGISTRO DE EVENTOS</h3>
+        <h3 id="lbl-registro">REGISTRO DE EVENTOS</h3>
         <ul class="viz-lista det-log" id="det-log"></ul>
       </article>
     </section>
 
   </main>
 
-  <!-- ================= RODAPÉ: TERMÔMETRO DO CAOS ================= -->
+  <!-- ================= RODAPÉ: TERMÔMETRO DO CAOS & AUTORIA ================= -->
   <footer class="rodape">
     <div class="caos">
-      <span class="caos-rotulo">Termômetro do Caos</span>
+      <span class="caos-rotulo" id="caos-rotulo">Termômetro do Caos</span>
       <span class="caos-valor" id="caos-valor">0</span>
       <span class="caos-delta" id="caos-delta" aria-hidden="true"></span>
-      <span class="caos-legenda">eventos anômalos detectados · só cresce</span>
+      <span class="caos-legenda" id="caos-legenda">eventos anômalos detectados · só cresce</span>
     </div>
-    <div class="ultima" id="ultima">Última atualização geral: —</div>
+    <div class="rodape-info">
+      <div class="ultima" id="ultima">Última atualização geral: —</div>
+      <div class="autoria">
+        <span id="txt-feito-por">Feito por</span>
+        <a href="https://www.youtube.com/@thiagomistery" target="_blank" rel="noopener noreferrer">Thiago Mistery ↗</a>
+      </div>
+    </div>
   </footer>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
