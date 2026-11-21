@@ -1,5 +1,5 @@
 /* =====================================================================
-   PAINEL DE ANOMALIAS GLOBAIS — app.js (Tempo Real · 19 Sensores · PT/EN)
+   PAINEL DE ANOMALIAS GLOBAIS — app.js (19 Sensores + UX + Satélite)
    Criado por Thiago Mistery — https://www.youtube.com/@thiagomistery
    ===================================================================== */
 'use strict';
@@ -17,8 +17,8 @@ const CONFIG = {
   chaveNasaNeo: 'painel_neo_v1',
   chaveIdioma: 'painel_idioma_v1',
   chaveTema: 'painel_tema_v1',
-  chaveVisitante: 'myfairday_vis_ok',
-  chaveVisTotal: 'myfairday_vis_num'
+  chaveVisitante: 'myfairday_vis_sess_v2',
+  chaveVisTotal: 'myfairday_vis_num_v2'
 };
 
 let IDIOMA = 'pt';
@@ -31,13 +31,103 @@ try {
   if (['verde', 'ambar', 'vermelho', 'ciano'].includes(salvoTema)) TEMA = salvoTema;
 } catch (_) { /* ignora */ }
 
+const AJUDA_SENSORES = {
+  globo: {
+    pt: 'Planeta Terra interativo em 3D com ocorrências da NASA/USGS e mapa de satélite (Google Maps) com zoom até nível de rua.',
+    en: 'Interactive 3D Earth showing live NASA/USGS events plus Google Maps satellite view down to street level.'
+  },
+  bolsa: {
+    pt: 'Acompanha as principais ações da B3 (Petrobras, Vale, Itaú, Magalu) e a cotação do Dólar, Euro e Bitcoin em Reais.',
+    en: 'Tracks major Brazilian B3 stocks alongside USD, EUR, and Bitcoin exchange rates in BRL.'
+  },
+  microtremores: {
+    pt: 'Conta tremores leves (magnitude 2,0 a 3,0) detectados pelos sismógrafos do USGS nas últimas 24 horas.',
+    en: 'Counts minor tremors (magnitude 2.0–3.0) detected by USGS seismographs over the last 24 hours.'
+  },
+  incendios: {
+    pt: 'Monitora queimadas e incêndios florestais ativos identificados por satélites da NASA no mundo todo.',
+    en: 'Monitors active wildfires detected globally by NASA Earth-observing satellites.'
+  },
+  temperaturas: {
+    pt: 'Lista estações meteorológicas que registraram calor extremo (acima de 45 °C) ou frio severo (abaixo de −20 °C).',
+    en: 'Lists weather stations recording extreme heat (above 45 °C) or severe cold (below −20 °C).'
+  },
+  anomalias: {
+    pt: 'Compara a temperatura atual de 10 capitais globais com a média climática histórica de 30 anos (1991–2020).',
+    en: 'Compares current temperatures in 10 global capitals against their 30-year historical baseline (1991–2020).'
+  },
+  manchetes: {
+    pt: 'Busca notícias em tempo real direto no Google Notícias sobre qualquer palavra, pessoa ou assunto digitado.',
+    en: 'Searches live news headlines directly on Google News for any keyword, person, or topic.'
+  },
+  ar: {
+    pt: 'Mede a concentração de partículas finas (PM2.5). Acima de 35 µg/m³ já indica ar poluído; acima de 150 é crítico.',
+    en: 'Measures fine particulate matter (PM2.5). Above 35 µg/m³ indicates polluted air; above 150 is hazardous.'
+  },
+  desastres: {
+    pt: 'Alertas oficiais da ONU (GDACS) para terremotos, ciclones, inundações, erupções vulcânicas e secas graves.',
+    en: 'Official UN (GDACS) alerts for major earthquakes, cyclones, floods, volcanic eruptions, and droughts.'
+  },
+  asteroides: {
+    pt: 'Asteroides passando perto da Terra hoje. 1 LD (Distância Lunar) equivale a cerca de 384.400 km.',
+    en: 'Asteroids passing near Earth today. 1 LD (Lunar Distance) equals roughly 384,400 km.'
+  },
+  mare: {
+    pt: 'Diferença em centímetros entre o nível real do mar medido por bóias da NOAA e a maré prevista (indica ressacas).',
+    en: 'Difference in centimeters between actual sea level measured by NOAA gauges and predicted tide (storm surge).'
+  },
+  uv: {
+    pt: 'Índice de radiação ultravioleta solar. Valores iguais ou acima de 11 representam risco extremo à pele e olhos.',
+    en: 'Solar ultraviolet radiation index. Values of 11 or higher represent extreme risk.'
+  },
+  cidade: {
+    pt: 'Digite qualquer cidade do mundo para ver temperatura, sensação térmica, umidade, vento e índice UV agora.',
+    en: 'Type any city worldwide to check live temperature, feels-like, humidity, wind speed, and UV index.'
+  },
+  raios: {
+    pt: 'Estima descargas elétricas por minuto no planeta com base na energia convectiva atmosférica (CAPE).',
+    en: 'Estimates global lightning strikes per minute based on atmospheric convective energy (CAPE).'
+  },
+  populacao: {
+    pt: 'Relógio demográfico estimado com base nas projeções da ONU (~4,3 nascimentos e ~2,05 óbitos por segundo).',
+    en: 'Estimated world population clock based on UN projections (~4.3 births and ~2.05 deaths per second).'
+  },
+  ondas: {
+    pt: 'Altura das ondas e período do swell em picos oceânicos famosos como Nazaré, Pipeline, Florianópolis e Santos.',
+    en: 'Wave height and swell period at major ocean spots including Nazaré, Pipeline, Florianópolis, and Santos.'
+  },
+  radiomusica: {
+    pt: 'Ouça estações gratuitas ao vivo ou cole o link direto (MP3/AAC) de qualquer rádio online para sintonizar.',
+    en: 'Listen to free live stations or paste the direct stream link (MP3/AAC) of any online radio.'
+  },
+  internet: {
+    pt: 'Detecta quedas regionais de internet e falhas de roteamento BGP monitoradas pelo projeto IODA (Georgia Tech).',
+    en: 'Detects regional internet outages and BGP routing anomalies tracked by Georgia Tech IODA.'
+  },
+  rios: {
+    pt: 'Vazão atual dos maiores rios do mundo (em m³/s) comparada à média normal para identificar risco de cheias.',
+    en: 'Current river discharge (in m³/s) compared to normal averages to spot flood risks.'
+  }
+};
+
 const I18N = {
   pt: {
     aoVivo: 'ao vivo',
     badgeCriador: 'CRIADO POR THIAGO MISTERY',
     visitantes: 'visitantes',
+    telaCheia: '⛶ Tela Cheia',
+    sairTelaCheia: '✕ Sair Tela Cheia',
     tituloPrincipal: 'PAINEL DE ANOMALIAS GLOBAIS',
     lema: 'O mundo está sempre acontecendo. Você só não estava olhando.',
+    destaqueTag: 'DESTAQUE AGORA',
+    filtroTodos: 'Todos (19)',
+    filtroAlertas: '⚠️ Alertas Ativos',
+    filtroTerra: '🌍 Clima & Terra',
+    filtroInterativos: '🎛️ Interativos',
+    buscaGlobal: 'Filtrar sensor, país ou dado…',
+    vazioFiltro: 'Nenhum sensor encontrado para este filtro.',
+    tabGlobo: '🌍 Globo 3D',
+    tabMaps: '🗺️ Satélite Maps',
     verDetalhes: 'ver detalhes',
     voltar: '← VOLTAR AO PAINEL',
     fonte: 'FONTE',
@@ -64,7 +154,7 @@ const I18N = {
     ouvir: 'Ouvir',
     niveis: { ok: 'normal', warn: 'atenção', crit: 'crítico' },
     sensores: {
-      globo: 'GOOGLE EARTH · TERRA 3D',
+      globo: 'GOOGLE EARTH · TERRA & SATÉLITE',
       bolsa: 'BOLSA DE VALORES (B3)',
       microtremores: 'MICROTREMORES',
       incendios: 'FOCOS DE INCÊNDIO',
@@ -89,8 +179,19 @@ const I18N = {
     aoVivo: 'live',
     badgeCriador: 'CREATED BY THIAGO MISTERY',
     visitantes: 'visitors',
+    telaCheia: '⛶ Fullscreen',
+    sairTelaCheia: '✕ Exit Fullscreen',
     tituloPrincipal: 'GLOBAL ANOMALY DASHBOARD',
     lema: 'The world is always happening. You just weren’t watching.',
+    destaqueTag: 'LIVE HIGHLIGHT',
+    filtroTodos: 'All (19)',
+    filtroAlertas: '⚠️ Active Alerts',
+    filtroTerra: '🌍 Climate & Earth',
+    filtroInterativos: '🎛️ Interactive',
+    buscaGlobal: 'Filter sensor, country, or metric…',
+    vazioFiltro: 'No sensors match the current filter.',
+    tabGlobo: '🌍 3D Globe',
+    tabMaps: '🗺️ Satellite Maps',
     verDetalhes: 'view details',
     voltar: '← BACK TO DASHBOARD',
     fonte: 'SOURCE',
@@ -117,7 +218,7 @@ const I18N = {
     ouvir: 'Tune',
     niveis: { ok: 'normal', warn: 'warning', crit: 'critical' },
     sensores: {
-      globo: 'GOOGLE EARTH · 3D PLANET',
+      globo: 'GOOGLE EARTH · 3D & SATELLITE',
       bolsa: 'BRAZIL STOCK EXCHANGE (B3)',
       microtremores: 'MICROTREMORS',
       incendios: 'ACTIVE WILDFIRES',
@@ -290,7 +391,6 @@ const Visitantes = {
       this.atualizarTexto();
     }
 
-    // Usa Abacus (suporte nativo a CORS direto do navegador, sem proxy)
     const endpoint = jaContouSessao
       ? `https://abacus.jasoncameron.dev/get/${namespace}/${key}`
       : `https://abacus.jasoncameron.dev/hit/${namespace}/${key}`;
@@ -306,7 +406,6 @@ const Visitantes = {
         } catch (_) { /* ignora */ }
       }
     } catch (_) {
-      // Fallback caso o servidor esteja momentaneamente indisponível
       if (!jaContouSessao) {
         this.total = cache + 1;
         try {
@@ -319,6 +418,7 @@ const Visitantes = {
     this.atualizarTexto();
   }
 };
+
 /* ---------------------------------------------------------------------
    4. TERMÔMETRO DO CAOS
    --------------------------------------------------------------------- */
@@ -411,14 +511,35 @@ function criarSensor(def) {
    6. OS 19 SENSORES EM TEMPO REAL
    --------------------------------------------------------------------- */
 
-/* ===== 01 · GOOGLE EARTH 3D · PLANETA TERRA REALISTA ================= */
+/* ===== 01 · GOOGLE EARTH 3D + GOOGLE MAPS SATÉLITE =================== */
 const globo = criarSensor({
-  id: 'globo', num: '01', titulo: 'GOOGLE EARTH · TERRA 3D', fonte: 'NASA Blue Marble + USGS + EONET 3D', freq: 300,
+  id: 'globo', num: '01', titulo: 'GOOGLE EARTH · TERRA & SATÉLITE', fonte: 'NASA Blue Marble 3D + Google Maps Satellite', freq: 300,
   e: {
+    modo: 'globo',
     pontos: [],
     selecionado: null,
+    mapLat: -14.2350,
+    mapLng: -51.9253,
+    mapZoom: 4,
     instanciaCard: null,
-    instanciaDetalhe: null
+    instanciaDetalhe: null,
+    wrapCard: null
+  },
+
+  alternarModo(novoModo) {
+    if (novoModo !== 'globo' && novoModo !== 'maps') return;
+    this.e.modo = novoModo;
+    document.querySelectorAll('.btn-earth-tab').forEach((b) => {
+      b.classList.toggle('ativo', b.dataset.earthMode === novoModo);
+    });
+    if (this.e.wrapCard) {
+      this.renderizarContainerCard(this.e.wrapCard);
+    }
+    UI.renderCard(this, false);
+  },
+
+  urlGoogleMaps(lat, lng, zoom) {
+    return `https://maps.google.com/maps?q=${lat},${lng}&t=k&z=${zoom}&output=embed`;
   },
 
   async atualizar() {
@@ -466,8 +587,13 @@ const globo = criarSensor({
 
     if (pts.length > 0) {
       this.e.pontos = pts;
-      if (!this.e.selecionado) this.e.selecionado = pts[0];
-      this.logar(`${pts.length} eventos georreferenciados no Google Earth 3D`);
+      if (!this.e.selecionado) {
+        this.e.selecionado = pts[0];
+        this.e.mapLat = pts[0].lat;
+        this.e.mapLng = pts[0].lng;
+        this.e.mapZoom = 7;
+      }
+      this.logar(`${pts.length} eventos ativos no Globo 3D & Satélite`);
       this.atualizarPontosGlobos();
     }
   },
@@ -503,7 +629,10 @@ const globo = criarSensor({
       .onPointClick((pt) => {
         if (!pt) return;
         this.e.selecionado = pt;
-        this.logar(`Google Earth: ${pt.titulo} (${U.dec(pt.lat, 1)}°, ${U.dec(pt.lng, 1)}°)`);
+        this.e.mapLat = pt.lat;
+        this.e.mapLng = pt.lng;
+        this.e.mapZoom = 9;
+        this.logar(`Selecionado: ${pt.titulo} (${U.dec(pt.lat, 2)}°, ${U.dec(pt.lng, 2)}°)`);
         mundo.pointOfView({ lat: pt.lat, lng: pt.lng, altitude: 1.35 }, 900);
         UI.renderCard(this, false);
       });
@@ -518,13 +647,12 @@ const globo = criarSensor({
       controls.dampingFactor = 0.08;
     }
 
-    // Botões de zoom e pausa de rotação
     const barra = h('div', 'globo-ctrl');
 
     const btnMais = document.createElement('button');
     btnMais.type = 'button';
     btnMais.textContent = '+';
-    btnMais.title = 'Aproximar (Zoom +)';
+    btnMais.title = 'Zoom +';
     btnMais.addEventListener('click', (ev) => {
       ev.stopPropagation();
       const pov = mundo.pointOfView();
@@ -534,53 +662,79 @@ const globo = criarSensor({
     const btnMenos = document.createElement('button');
     btnMenos.type = 'button';
     btnMenos.textContent = '−';
-    btnMenos.title = 'Afastar (Zoom −)';
+    btnMenos.title = 'Zoom −';
     btnMenos.addEventListener('click', (ev) => {
       ev.stopPropagation();
       const pov = mundo.pointOfView();
       mundo.pointOfView({ altitude: Math.min(3.8, pov.altitude * 1.35) }, 400);
     });
 
-    const btnGirar = document.createElement('button');
-    btnGirar.type = 'button';
-    btnGirar.textContent = '⟳';
-    btnGirar.title = 'Alternar rotação automática';
-    btnGirar.addEventListener('click', (ev) => {
+    const btnSat = document.createElement('button');
+    btnSat.type = 'button';
+    btnSat.textContent = '🛰';
+    btnSat.title = 'Abrir este ponto no Satélite Google Maps';
+    btnSat.addEventListener('click', (ev) => {
       ev.stopPropagation();
-      if (controls) controls.autoRotate = !controls.autoRotate;
+      this.alternarModo('maps');
     });
 
-    barra.append(btnMais, btnMenos, btnGirar);
+    barra.append(btnMais, btnMenos, btnSat);
     container.appendChild(barra);
     return mundo;
   },
 
+  renderizarContainerCard(wrap) {
+    wrap.replaceChildren();
+    if (this.e.modo === 'maps') {
+      const iframe = document.createElement('iframe');
+      iframe.className = 'gmaps-iframe';
+      iframe.src = this.urlGoogleMaps(this.e.mapLat, this.e.mapLng, this.e.mapZoom);
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'no-referrer-when-downgrade';
+      iframe.title = 'Google Maps Satélite Interativo';
+      wrap.appendChild(iframe);
+    } else {
+      requestAnimationFrame(() => {
+        const w = wrap.clientWidth || 310;
+        const hBox = wrap.clientHeight || 170;
+        this.e.instanciaCard = this.criarInstanciaTerra(wrap, w, hBox, 2.15);
+      });
+    }
+  },
+
   metrica() { return this.e.pontos.length; },
   principal() {
+    if (this.e.modo === 'maps') {
+      return { texto: 'SATÉLITE', nivel: 'ok' };
+    }
     return { texto: `${this.e.pontos.length} PTS`, nivel: 'ok' };
   },
   contexto() {
+    if (this.e.modo === 'maps') {
+      const alvo = this.e.selecionado ? this.e.selecionado.titulo : 'Terra · Visão Satélite';
+      return IDIOMA === 'en'
+        ? `Google Maps Satellite (${alvo}) · zoom & pan`
+        : `Google Maps Satélite (${alvo}) · arraste e dê zoom`;
+    }
     if (this.e.selecionado) {
       const s = this.e.selecionado;
       return `${s.titulo} (${U.dec(s.lat, 1)}°, ${U.dec(s.lng, 1)}°)`;
     }
     return IDIOMA === 'en'
-      ? 'drag & zoom to explore planet Earth in 3D'
-      : 'arraste e dê zoom para percorrer o planeta Terra em 3D';
+      ? '3D Earth events or switch to Google Maps Satellite'
+      : 'ocorrências no Globo 3D ou alterne para Satélite Maps';
   },
   montarViz(el) {
     el.replaceChildren();
     const wrap = h('div', 'globo-wrap');
     el.appendChild(wrap);
-
-    requestAnimationFrame(() => {
-      const w = wrap.clientWidth || 310;
-      const hBox = wrap.clientHeight || 165;
-      this.e.instanciaCard = this.criarInstanciaTerra(wrap, w, hBox, 2.15);
-    });
+    this.e.wrapCard = wrap;
+    this.renderizarContainerCard(wrap);
   },
   renderViz() {
-    this.atualizarPontosGlobos();
+    if (this.e.modo === 'globo') {
+      this.atualizarPontosGlobos();
+    }
   },
   eventosIniciais() { return 0; }
 });
@@ -2125,7 +2279,7 @@ const radiomusica = criarSensor({
   async atualizar() {},
   metrica() { return ESTACOES_MUSICA.length; },
   principal() {
-    return { texto: this.e.tocando ? 'ON AIR' : 'STANDBY', nivel: this.e.tocando ? 'ok' : 'ok' };
+    return { texto: this.e.tocando ? 'ON AIR' : 'STANDBY', nivel: 'ok' };
   },
   contexto() {
     if (this.e.erroAudio) {
@@ -2371,21 +2525,48 @@ const Sismografo = {
 };
 
 /* ---------------------------------------------------------------------
-   8. INTERFACE, ROTEAMENTO E INTERNACIONALIZAÇÃO
+   8. INTERFACE, FILTROS UX, AJUDA (?) E ROTEAMENTO
    --------------------------------------------------------------------- */
 const UI = {
   cards: {},
   ativo: null,
   ultimaGeral: 0,
+  filtroAtivo: 'todos',
+  termoBuscaGlobal: '',
 
   iniciar() {
     SENSORES.forEach((s) => {
       const el = document.querySelector(`.card[data-sensor="${s.id}"]`);
       if (!el) return;
+
+      // Injeta botão de Ajuda (?) no topo do card + caixa explicativa (Item 3)
+      const topoEl = el.querySelector('.card-topo');
+      const btnAjuda = document.createElement('button');
+      btnAjuda.type = 'button';
+      btnAjuda.className = 'btn-ajuda';
+      btnAjuda.textContent = '?';
+      btnAjuda.title = 'O que este sensor monitora?';
+
+      const boxAjuda = h('div', 'card-ajuda-box');
+      boxAjuda.hidden = true;
+      boxAjuda.textContent = AJUDA_SENSORES[s.id]?.[IDIOMA] || '';
+
+      btnAjuda.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        boxAjuda.hidden = !boxAjuda.hidden;
+        btnAjuda.classList.toggle('ativo', !boxAjuda.hidden);
+      });
+
+      if (topoEl) {
+        topoEl.appendChild(btnAjuda);
+        topoEl.insertAdjacentElement('afterend', boxAjuda);
+      }
+
       const vizEl = el.querySelector('[data-campo="viz"]');
       this.cards[s.id] = {
         el,
         h2: el.querySelector('h2'),
+        ajudaBox: boxAjuda,
         valor: el.querySelector('[data-campo="valor"]'),
         contexto: el.querySelector('[data-campo="contexto"]'),
         viz: vizEl,
@@ -2394,6 +2575,46 @@ const UI = {
       };
       s.montarViz(vizEl);
     });
+
+    // Alternador Globo 3D vs Satélite Google Maps (Sensor 01)
+    document.querySelectorAll('.btn-earth-tab').forEach((btn) => {
+      btn.addEventListener('click', () => globo.alternarModo(btn.dataset.earthMode));
+    });
+
+    // Filtros Rápidos no Topo (Item 1)
+    document.querySelectorAll('.btn-filtro').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        this.filtroAtivo = btn.dataset.filtro || 'todos';
+        document.querySelectorAll('.btn-filtro').forEach((b) => {
+          b.classList.toggle('ativo', b === btn);
+        });
+        this.aplicarFiltros();
+      });
+    });
+
+    // Busca Global nos Cards (Item 2)
+    const inpGlobal = document.getElementById('input-busca-global');
+    if (inpGlobal) {
+      inpGlobal.addEventListener('input', () => {
+        this.termoBuscaGlobal = inpGlobal.value.trim().toLowerCase();
+        this.aplicarFiltros();
+      });
+    }
+
+    // Modo TV / Tela Cheia (Item 9)
+    const btnTv = document.getElementById('btn-tela-cheia');
+    if (btnTv) {
+      btnTv.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.().catch(() => {});
+        } else {
+          document.exitFullscreen?.().catch(() => {});
+        }
+      });
+      document.addEventListener('fullscreenchange', () => {
+        btnTv.textContent = document.fullscreenElement ? T('sairTelaCheia') : T('telaCheia');
+      });
+    }
 
     // Formulário de busca no Google Notícias (Sensor 07)
     const formGoogleNews = document.getElementById('form-google-news');
@@ -2438,6 +2659,62 @@ const UI = {
     this.aplicarIdioma();
   },
 
+  aplicarFiltros() {
+    let visiveis = 0;
+    SENSORES.forEach((s) => {
+      const c = this.cards[s.id];
+      if (!c) return;
+      const el = c.el;
+      const nivel = el.dataset.nivel || 'ok';
+      const cats = (el.dataset.cat || '').split(' ');
+
+      let passaCat = true;
+      if (this.filtroAtivo === 'alertas') {
+        passaCat = (nivel === 'crit' || nivel === 'warn');
+      } else if (this.filtroAtivo === 'terra') {
+        passaCat = cats.includes('terra');
+      } else if (this.filtroAtivo === 'interativos') {
+        passaCat = cats.includes('interativos');
+      }
+
+      let passaBusca = true;
+      if (this.termoBuscaGlobal) {
+        const textoCard = el.textContent.toLowerCase();
+        passaBusca = textoCard.includes(this.termoBuscaGlobal);
+      }
+
+      const mostrar = passaCat && passaBusca;
+      el.hidden = !mostrar;
+      if (mostrar) visiveis++;
+    });
+
+    const msgVazio = document.getElementById('msg-vazio-filtro');
+    if (msgVazio) msgVazio.hidden = visiveis > 0;
+  },
+
+  atualizarDestaqueMomento() {
+    const banner = document.getElementById('banner-destaque');
+    const txtEl = document.getElementById('destaque-texto');
+    if (!banner || !txtEl) return;
+
+    // Prioriza sensores em estado crítico ou atenção
+    let escolhido = SENSORES.find((s) => s.carregado && s.principal().nivel === 'crit');
+    if (!escolhido) {
+      escolhido = SENSORES.find((s) => s.carregado && s.principal().nivel === 'warn');
+    }
+    if (!escolhido) {
+      escolhido = SENSORES.find((s) => s.carregado && s.id === 'desastres') || SENSORES[0];
+    }
+
+    if (escolhido && escolhido.carregado) {
+      const p = escolhido.principal();
+      banner.hidden = false;
+      banner.href = `#/sensor/${escolhido.id}`;
+      banner.dataset.nivel = p.nivel;
+      txtEl.textContent = `${escolhido.nomeExibicao()}: ${p.texto} — ${escolhido.contexto()}`;
+    }
+  },
+
   mudarIdioma(lang) {
     if (lang !== 'pt' && lang !== 'en') return;
     IDIOMA = lang;
@@ -2462,6 +2739,14 @@ const UI = {
     setTxt('txt-badge-criador', T('badgeCriador'));
     setTxt('titulo-principal', T('tituloPrincipal'));
     setTxt('lema-principal', T('lema'));
+    setTxt('destaque-tag', T('destaqueTag'));
+    setTxt('filtro-todos', T('filtroTodos'));
+    setTxt('filtro-alertas', T('filtroAlertas'));
+    setTxt('filtro-terra', T('filtroTerra'));
+    setTxt('filtro-interativos', T('filtroInterativos'));
+    setTxt('msg-vazio-filtro', T('vazioFiltro'));
+    setTxt('tab-earth-globo', T('tabGlobo'));
+    setTxt('tab-earth-maps', T('tabMaps'));
     setTxt('btn-voltar', T('voltar'));
     setTxt('lbl-fonte', T('fonte'));
     setTxt('lbl-freq', T('frequencia'));
@@ -2471,6 +2756,12 @@ const UI = {
     setTxt('caos-rotulo', T('termometroCaos'));
     setTxt('caos-legenda', T('legendaCaos'));
     setTxt('txt-feito-por', T('feitoPor'));
+
+    const btnTv = document.getElementById('btn-tela-cheia');
+    if (btnTv) btnTv.textContent = document.fullscreenElement ? T('sairTelaCheia') : T('telaCheia');
+
+    const inpGlobal = document.getElementById('input-busca-global');
+    if (inpGlobal) inpGlobal.placeholder = T('buscaGlobal');
 
     const inpCidade = document.getElementById('input-cidade');
     if (inpCidade) inpCidade.placeholder = T('placeholderCidade');
@@ -2489,9 +2780,11 @@ const UI = {
       if (!c) return;
       if (c.h2) c.h2.textContent = s.nomeExibicao();
       if (c.ver) c.ver.textContent = T('verDetalhes');
+      if (c.ajudaBox) c.ajudaBox.textContent = AJUDA_SENSORES[s.id]?.[IDIOMA] || '';
     });
 
     Visitantes.atualizarTexto();
+    this.atualizarDestaqueMomento();
     this.atualizarTempos();
   },
 
@@ -2517,6 +2810,8 @@ const UI = {
       void c.el.offsetWidth;
       c.el.classList.add('pulso');
     }
+    this.atualizarDestaqueMomento();
+    this.aplicarFiltros();
     if (this.ativo === s.id) this.renderDetalhe(s.id);
   },
 
@@ -2576,10 +2871,22 @@ const UI = {
     if (detGloboBox) {
       if (id === 'globo') {
         detGloboBox.hidden = false;
-        detGloboBox.className = 'det-globo-grande';
+        detGloboBox.className = 'det-earth-duplo';
+        detGloboBox.replaceChildren();
+
+        const colGlobo = h('div', 'det-globo-grande');
+        const colMaps = h('div', 'det-globo-grande');
+        const iframe = document.createElement('iframe');
+        iframe.className = 'gmaps-iframe';
+        iframe.src = globo.urlGoogleMaps(globo.e.mapLat, globo.e.mapLng, globo.e.mapZoom);
+        iframe.loading = 'lazy';
+        iframe.title = 'Google Maps Satélite Expandido';
+        colMaps.appendChild(iframe);
+
+        detGloboBox.append(colGlobo, colMaps);
         requestAnimationFrame(() => {
-          const w = detGloboBox.clientWidth || 720;
-          globo.e.instanciaDetalhe = globo.criarInstanciaTerra(detGloboBox, w, 440, 1.85);
+          const w = colGlobo.clientWidth || 480;
+          globo.e.instanciaDetalhe = globo.criarInstanciaTerra(colGlobo, w, 400, 1.85);
         });
       } else {
         detGloboBox.hidden = true;
