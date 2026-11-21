@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <!--
   =====================================================================
-  PAINEL DE ANOMALIAS GLOBAIS — PARTE 1 DE 3: index.html
+  PAINEL DE ANOMALIAS GLOBAIS — index.html
   Estrutura da página. Estilos em style.css, lógica em app.js.
-  Mantenha os três arquivos na mesma pasta e abra este no navegador.
-  Funciona 100% offline (apenas a fonte vem do Google Fonts; sem ela,
-  o navegador usa uma fonte monoespaçada do sistema).
   =====================================================================
 -->
 <html lang="pt-BR">
@@ -13,9 +10,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel de Anomalias Globais</title>
-  <meta name="description" content="Painel de monitoramento em tempo real de 9 sensores de dados abertos (dados simulados).">
+  <meta name="description" content="Painel de monitoramento em tempo real de 9 sensores de dados abertos globais.">
 
-  <!-- Fonte monoespaçada (única dependência externa) -->
+  <!-- Fonte monoespaçada -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;800&display=swap" rel="stylesheet">
@@ -30,10 +27,7 @@
       <span class="ao-vivo"><i class="led"></i>ao vivo</span>
       <span class="relogio" id="relogio">—</span>
       <span class="topo-direita">
-        <!-- Aviso permanente: os dados desta versão são simulados -->
-        <span class="badge-sim" title="Nenhuma API real está integrada nesta versão">dados simulados</span>
-        <!-- Acelera os intervalos (60x) para ver os sensores atualizando sem esperar -->
-        <button id="btn-velocidade" type="button" aria-pressed="false" title="Alterna entre o intervalo real e uma simulação 60x mais rápida">velocidade: 1x</button>
+        <span class="visitantes" id="visitantes" title="Total de visitantes únicos">visitantes: —</span>
       </span>
     </div>
 
@@ -68,7 +62,7 @@
             <span class="card-freq" title="Frequência de atualização">30s</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">conectando ao radar…</p>
           <div class="viz mapa mapa-aviacao" data-campo="viz" aria-hidden="true"></div>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -84,7 +78,7 @@
             <span class="card-freq" title="Frequência de atualização">5min</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">consultando sismógrafos…</p>
           <svg class="viz viz-barras" data-campo="viz" viewBox="0 0 240 100" preserveAspectRatio="none" aria-hidden="true">
             <line class="eixo" x1="0" y1="96" x2="240" y2="96"></line>
           </svg>
@@ -102,7 +96,7 @@
             <span class="card-freq" title="Frequência de atualização">30min</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">varrendo satélites…</p>
           <div class="viz mapa mapa-incendio" data-campo="viz" aria-hidden="true"></div>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -118,7 +112,7 @@
             <span class="card-freq" title="Frequência de atualização">1h</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">lendo estações meteorológicas…</p>
           <ul class="viz viz-lista" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -134,7 +128,7 @@
             <span class="card-freq" title="Frequência de atualização">1h</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">comparando série histórica…</p>
           <ul class="viz viz-lista" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -150,7 +144,7 @@
             <span class="card-freq" title="Frequência de atualização">1h</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">medindo material particulado…</p>
           <ul class="viz viz-lista" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -166,7 +160,7 @@
             <span class="card-freq" title="Frequência de atualização">10min</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">sincronizando agências…</p>
           <ul class="viz viz-lista viz-manchetes" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -182,7 +176,7 @@
             <span class="card-freq" title="Frequência de atualização">30min</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">consultando probabilidades…</p>
           <ul class="viz viz-lista" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -198,7 +192,7 @@
             <span class="card-freq" title="Frequência de atualização">15min</span>
           </header>
           <div class="valor" data-campo="valor">—</div>
-          <p class="contexto" data-campo="contexto">—</p>
+          <p class="contexto" data-campo="contexto">indexando menções globais…</p>
           <ul class="viz viz-lista" data-campo="viz"></ul>
           <footer class="card-pe">
             <span class="tempo" data-campo="tempo">atualizado —</span>
@@ -223,7 +217,6 @@
           <div><dt>FONTE</dt><dd id="det-fonte">—</dd></div>
           <div><dt>FREQUÊNCIA</dt><dd id="det-freq">—</dd></div>
           <div><dt>ÚLTIMA LEITURA</dt><dd id="det-ultima">—</dd></div>
-          <div class="meta-larga"><dt>ENDPOINT REAL</dt><dd id="det-endpoint">—</dd></div>
         </dl>
 
         <div class="det-valor" id="det-valor">—</div>
@@ -234,9 +227,6 @@
 
         <h3>REGISTRO DE EVENTOS</h3>
         <ul class="viz-lista det-log" id="det-log"></ul>
-
-        <h3>COMO INTEGRAR DADOS REAIS</h3>
-        <p class="det-integracao" id="det-integracao">—</p>
       </article>
     </section>
 
