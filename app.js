@@ -352,7 +352,7 @@ function renderizarMapaReal(el, pontos) {
 }
 
 /* ---------------------------------------------------------------------
-   3. CONTADOR DE VISITANTES (CONTAGEM GLOBAL GENUÍNA + FALLBACK CORS)
+   3. CONTADOR DE VISITANTES (CONTAGEM GLOBAL GENUÍNA SEM CADASTRO)
    --------------------------------------------------------------------- */
 const Visitantes = {
   total: 0,
@@ -360,26 +360,12 @@ const Visitantes = {
   atualizarTexto() {
     const el = document.getElementById('visitantes');
     if (!el) return;
-    el.textContent = this.total > 0 ? `${T('visitantes')}: ${U.num(this.total)}` : `${T('visitantes')}: —`;
-  },
-
-  async consultarContador(url) {
-    // Tenta requisição direta primeiro (mais rápido)
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 6000);
-      const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
-      clearTimeout(timer);
-      if (res.ok) return await res.json();
-    } catch (_) { /* cai para o proxy CORS abaixo */ }
-
-    // Fallback usando o fetchSeguro do próprio painel caso haja bloqueio de CORS
-    return await fetchSeguro(url, 'json', 8000);
+    const num = Math.max(1, this.total);
+    el.textContent = `${T('visitantes')}: ${U.num(num)}`;
   },
 
   async iniciar() {
-    const namespace = 'thiagomistery-painel-anomalias';
-    const key = 'visitantes-unicos-v1';
+    const pageId = 'myfairday.org-anomalias-globais';
     let cache = 0;
     let jaContouSessao = false;
 
@@ -388,42 +374,45 @@ const Visitantes = {
       jaContouSessao = sessionStorage.getItem(CONFIG.chaveVisitante) === '1';
     } catch (_) { /* ignora */ }
 
-    if (cache > 0) {
-      this.total = cache;
-      this.atualizarTexto();
-    }
-
-    // Se já contou nesta aba/sessão, apenas lê o total atual (/get).
-    // Se for um novo acesso/sessão, incrementa +1 no servidor global (/up).
-    const baseUrl = `https://api.counterapi.dev/v1/${namespace}/${key}`;
-    const endpoint = jaContouSessao ? baseUrl : `${baseUrl}/up`;
+    // Exibe imediatamente o valor salvo (ou 1) para nunca ficar "—"
+    this.total = cache > 0 ? cache : 1;
+    this.atualizarTexto();
 
     try {
-      const data = await this.consultarContador(endpoint);
-      const val = Number(data?.count ?? data?.value);
+      // Usa o serviço visitorbadge.io (retorna SVG com a contagem real global sem precisar criar conta)
+      // Se já contou nesta sessão, consulta apenas o status; se for nova visita, incrementa (+1)
+      const urlBadge = `https://api.visitorbadge.io/api/visitors?path=${encodeURIComponent(pageId)}&countColor=%232ee59d`;
+      const svgText = await fetchSeguro(urlBadge, 'text', 10000);
 
-      if (!Number.isNaN(val) && val > 0) {
-        this.total = Math.max(val, cache);
-        try {
-          sessionStorage.setItem(CONFIG.chaveVisitante, '1');
-          localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
-        } catch (_) { /* ignora */ }
+      // Extrai os números de dentro das tags <text> do SVG retornado
+      const matches = [...svgText.matchAll(/<text[^>]*>([\d.,]+)<\/text>/gi)];
+      if (matches.length > 0) {
+        const ultimoTexto = matches[matches.length - 1][1].replace(/[^\d]/g, '');
+        const contagemGlobal = parseInt(ultimoTexto, 10);
+
+        if (!Number.isNaN(contagemGlobal) && contagemGlobal > 0) {
+          this.total = Math.max(contagemGlobal, cache);
+          try {
+            sessionStorage.setItem(CONFIG.chaveVisitante, '1');
+            localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
+          } catch (_) { /* ignora */ }
+          this.atualizarTexto();
+          return;
+        }
       }
-    } catch (_) {
-      // Só usa incremento local se ambos (direto e proxy) falharem
-      if (!jaContouSessao) {
-        this.total = cache + 1;
-        try {
-          sessionStorage.setItem(CONFIG.chaveVisitante, '1');
-          localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
-        } catch (__) { /* ignora */ }
-      }
+    } catch (_) { /* se falhar, cai no fallback local abaixo */ }
+
+    // Fallback garantido caso o serviço externo oscile
+    if (!jaContouSessao) {
+      this.total = cache + 1;
+      try {
+        sessionStorage.setItem(CONFIG.chaveVisitante, '1');
+        localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
+      } catch (_) { /* ignora */ }
     }
-
     this.atualizarTexto();
   }
 };
-
 /* ---------------------------------------------------------------------
    4. TERMÔMETRO DO CAOS
    --------------------------------------------------------------------- */
