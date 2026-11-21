@@ -352,7 +352,7 @@ function renderizarMapaReal(el, pontos) {
 }
 
 /* ---------------------------------------------------------------------
-   3. CONTADOR DE VISITANTES (SEM CONTAR F5 / VISITANTE ÚNICO REAL)
+   3. CONTADOR DE VISITANTES (TRAVA DUPLA: COOKIE + LOCALSTORAGE)
    --------------------------------------------------------------------- */
 const Visitantes = {
   total: 0,
@@ -364,24 +364,63 @@ const Visitantes = {
     el.textContent = `${T('visitantes')}: ${U.num(num)}`;
   },
 
-  async iniciar() {
-    const pageId = 'myfairday.org-anomalias-globais';
-    let cache = 0;
-    let jaContouNavegador = false;
-
+  jaVisitouAntes() {
+    let porStorage = false;
+    let porCookie = false;
     try {
-      cache = parseInt(localStorage.getItem(CONFIG.chaveVisTotal), 10) || 0;
-      // Verifica no localStorage se este navegador já foi contabilizado
-      jaContouNavegador = localStorage.getItem(CONFIG.chaveVisitante) === '1';
+      porStorage = localStorage.getItem('myfairday_counted_permanent') === 'true';
     } catch (_) { /* ignora */ }
+    try {
+      porCookie = document.cookie.includes('myfairday_counted=1');
+    } catch (_) { /* ignora */ }
+    return porStorage || porCookie;
+  },
+
+  marcarComoVisitado(valorSalvo) {
+    try {
+      localStorage.setItem('myfairday_counted_permanent', 'true');
+      if (valorSalvo > 0) {
+        localStorage.setItem(CONFIG.chaveVisTotal, String(valorSalvo));
+      }
+    } catch (_) { /* ignora */ }
+    try {
+      // Salva um cookie válido por 1 ano (31536000 segundos)
+      document.cookie = `myfairday_counted=1; max-age=31536000; path=/; SameSite=Lax`;
+      if (valorSalvo > 0) {
+        document.cookie = `myfairday_total=${valorSalvo}; max-age=31536000; path=/; SameSite=Lax`;
+      }
+    } catch (_) { /* ignora */ }
+  },
+
+  lerTotalSalvo() {
+    let val = 0;
+    try {
+      val = parseInt(localStorage.getItem(CONFIG.chaveVisTotal), 10) || 0;
+    } catch (_) { /* ignora */ }
+    if (val === 0) {
+      try {
+        const m = document.cookie.match(/myfairday_total=(\d+)/);
+        if (m) val = parseInt(m[1], 10) || 0;
+      } catch (_) { /* ignora */ }
+    }
+    return val;
+  },
+
+  async iniciar() {
+    const pageId = 'myfairday.org-anomalias-globais-v2';
+    const cache = this.lerTotalSalvo();
+    const jaContou = this.jaVisitouAntes();
 
     this.total = cache > 0 ? cache : 1;
     this.atualizarTexto();
 
-    // Se este navegador já foi contado antes, NÃO chama a API de incremento no F5
-    if (jaContouNavegador && cache > 0) {
+    // SE JÁ VISITOU ANTES, PARA AQUI. NÃO FAZ NENHUMA REQUISIÇÃO NO REFRESH.
+    if (jaContou) {
       return;
     }
+
+    // Marca imediatamente antes mesmo da requisição terminar para evitar duplo disparo
+    this.marcarComoVisitado(this.total);
 
     try {
       const urlBadge = `https://api.visitorbadge.io/api/visitors?path=${encodeURIComponent(pageId)}&countColor=%232ee59d`;
@@ -394,23 +433,15 @@ const Visitantes = {
 
         if (!Number.isNaN(contagemGlobal) && contagemGlobal > 0) {
           this.total = Math.max(contagemGlobal, cache);
-          try {
-            localStorage.setItem(CONFIG.chaveVisitante, '1');
-            localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
-          } catch (_) { /* ignora */ }
+          this.marcarComoVisitado(this.total);
           this.atualizarTexto();
           return;
         }
       }
     } catch (_) { /* fallback abaixo */ }
 
-    if (!jaContouNavegador) {
-      this.total = cache + 1;
-      try {
-        localStorage.setItem(CONFIG.chaveVisitante, '1');
-        localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
-      } catch (_) { /* ignora */ }
-    }
+    this.total = cache + 1;
+    this.marcarComoVisitado(this.total);
     this.atualizarTexto();
   }
 };
