@@ -1,880 +1,744 @@
 /* =====================================================================
    PAINEL DE ANOMALIAS GLOBAIS — style.css
+   Feito por Thiago Mistery — https://www.youtube.com/@thiagomistery
    ===================================================================== */
-
-/* ---------- 1. Variáveis ---------- */
 :root {
-  --bg: #0a0a0a;
-  --painel: #111111;
-  --fundo: #0c0c0c;
-  --borda: #242424;
-  --borda-suave: #1a1a1a;
-  --borda-forte: #3a3a3a;
-  --texto: #e9e8e2;
-  --forte: #ffffff;
-  --suave: #8d8c86;
-  --fraco: #55554f;
-
-  /* Cores de alerta (só aparecem quando há motivo) */
-  --vermelho: #ff3b3b;
-  --ambar: #ffb800;
-  --verde: #00c853;
-
-  --fonte: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --pad: 24px;
+  --bg: #07080a;
+  --card: #0d1015;
+  --borda: #1b212c;
+  --texto: #e6ebf2;
+  --suave: #8892a4;
+  --ok: #2ee59d;
+  --warn: #f5b942;
+  --crit: #ff4d5e;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* ---------- 2. Base ---------- */
-*,
-*::before,
-*::after {
+* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-[hidden] {
-  display: none !important;
-}
-
-html {
-  background: var(--bg);
-}
-
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+html, body {
   background: var(--bg);
   color: var(--texto);
-  font-family: var(--fonte);
-  font-size: 14px;
+  font-family: var(--mono);
+  font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: inherit;
-}
-
-:focus-visible {
-  outline: 2px solid var(--texto);
-  outline-offset: 3px;
-}
-
-/* ---------- 3. Cabeçalho com o sismógrafo ---------- */
+/* ================= CABEÇALHO ================= */
 .topo {
-  padding: 16px var(--pad) 18px;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 20px 24px 12px;
   border-bottom: 1px solid var(--borda);
 }
 
 .topo-barra {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px 20px;
-  font-size: 12px;
+  gap: 12px;
+  font-size: 0.78rem;
   color: var(--suave);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .ao-vivo {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--texto);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ok);
 }
 
 .led {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--verde);
-  animation: led 2.2s ease-out infinite;
+  background: var(--ok);
+  box-shadow: 0 0 10px var(--ok);
+  animation: piscar 1.8s infinite ease-in-out;
 }
 
-@keyframes led {
-  0% {
-    box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.7);
-  }
-
-  70%,
-  100% {
-    box-shadow: 0 0 0 8px rgba(0, 200, 83, 0);
-  }
-}
-
-.relogio {
-  font-variant-numeric: tabular-nums;
+@keyframes piscar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
 }
 
 .topo-direita {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-left: auto;
+  gap: 14px;
 }
 
-.visitantes {
-  padding: 3px 9px;
-  border: 1px solid var(--borda-forte);
+.idioma-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-lang {
+  background: none;
+  border: none;
   color: var(--suave);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-}
-
-button {
-  font-family: var(--fonte);
-  font-size: 11px;
-  text-transform: lowercase;
-  color: var(--texto);
-  background: transparent;
-  border: 1px solid var(--borda-forte);
-  padding: 3px 10px;
+  font-family: var(--mono);
+  font-size: 0.76rem;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  padding: 2px 4px;
 }
 
-button:hover {
-  background: var(--texto);
-  color: var(--bg);
-  border-color: var(--texto);
-}
-
-button[aria-pressed="true"] {
-  border-color: var(--texto);
-}
-
-h1 {
-  margin: 18px 0 18px;
-  font-size: clamp(30px, 7vw, 76px);
+.btn-lang.ativo {
+  color: var(--texto);
   font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  color: var(--forte);
+  text-decoration: underline;
 }
 
-/* Sismógrafo: ocupa a largura toda da tela */
+.topo h1 {
+  font-size: clamp(1.25rem, 2.5vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
 .sismografo {
-  position: relative;
-  height: 96px;
-  margin: 0 calc(var(--pad) * -1);
-  overflow: hidden;
-  border-block: 1px solid var(--borda);
-  background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 48px),
-    var(--fundo);
+  width: 100%;
+  height: 36px;
+  margin: 8px 0;
 }
 
 .sismografo svg {
-  display: block;
   width: 100%;
   height: 100%;
 }
 
 .sismografo .base {
-  stroke: #2d2d2d;
+  stroke: var(--borda);
   stroke-width: 1;
-  stroke-dasharray: 4 6;
-  vector-effect: non-scaling-stroke;
 }
 
 .sismografo polyline {
   fill: none;
-  stroke: var(--texto);
+  stroke: var(--ok);
   stroke-width: 1.5;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-  transition: stroke 0.3s;
+  transition: stroke 0.3s ease;
 }
 
-/* Quando eventos acabam de chegar, o traço fica vermelho */
 .sismografo.agitado polyline {
-  stroke: var(--vermelho);
-  filter: drop-shadow(0 0 5px rgba(255, 59, 59, 0.7));
+  stroke: var(--crit);
 }
 
 .lema {
-  margin-top: 12px;
-  max-width: 62ch;
   color: var(--suave);
-  font-size: 14px;
+  font-size: 0.82rem;
 }
 
-/* ---------- 4. Conteúdo principal ---------- */
+/* ================= GRID DE SENSORES ================= */
 main {
-  flex: 1;
-  width: 100%;
-  max-width: 1440px;
+  max-width: 1480px;
   margin: 0 auto;
-  padding: 24px var(--pad);
+  padding: 22px 24px 36px;
 }
 
 .aviso-noscript {
-  color: var(--vermelho);
+  padding: 14px;
+  border: 1px solid var(--crit);
+  color: var(--crit);
+  margin-bottom: 18px;
 }
 
-/* ---------- 5. Grid responsivo: 3 / 2 / 1 colunas ---------- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 16px;
 }
 
-@media (max-width: 1023px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 639px) {
-  :root {
-    --pad: 16px;
-  }
-
-  .grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .sismografo {
-    height: 72px;
-  }
-}
-
-/* ---------- 6. Card de sensor ---------- */
-.card,
-.detalhe {
-  --estado: var(--fraco);
-  --regua: #cfcec6;
-}
-
-.card[data-nivel="warn"],
-.detalhe[data-nivel="warn"] {
-  --estado: var(--ambar);
-  --regua: var(--ambar);
-}
-
-.card[data-nivel="crit"],
-.detalhe[data-nivel="crit"] {
-  --estado: var(--vermelho);
-  --regua: var(--vermelho);
-}
-
 .card {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  padding: 15px 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px 18px 14px 18px;
-  background: var(--painel);
-  border: 1px solid var(--borda);
-  border-left: 4px solid var(--estado);
-  transition: border-color 0.2s, background 0.3s, transform 0.2s;
+  gap: 8px;
+  transition: border-color 0.25s ease, transform 0.2s ease;
 }
 
 .card:hover {
-  border-color: var(--borda-forte);
-  border-left-color: var(--estado);
-  transform: translateY(-2px);
+  border-color: #2e384b;
 }
 
-/* Card crítico: fundo avermelhado e brilho que pulsa devagar */
+.card[data-nivel="warn"] {
+  border-color: rgba(245, 185, 66, 0.45);
+}
+
 .card[data-nivel="crit"] {
-  background: linear-gradient(90deg, rgba(255, 59, 59, 0.09), transparent 60%), var(--painel);
-  animation: pulso-critico 2.6s ease-in-out infinite;
-}
-
-@keyframes pulso-critico {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 59, 59, 0);
-  }
-
-  50% {
-    box-shadow: 0 0 26px -2px rgba(255, 59, 59, 0.3);
-  }
+  border-color: rgba(255, 77, 94, 0.65);
+  box-shadow: 0 0 24px rgba(255, 77, 94, 0.08);
 }
 
 .card-topo {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.card-topo h2 {
-  flex: 1;
-  min-width: 0;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--texto);
+  align-items: center;
+  gap: 8px;
 }
 
 .card-id {
-  display: none;
+  font-size: 0.72rem;
+  color: var(--suave);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.card-topo h2 {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  flex: 1;
 }
 
 .card-freq {
+  font-size: 0.7rem;
   color: var(--suave);
-  font-size: 11px;
-  white-space: nowrap;
 }
 
 .valor {
-  margin-top: 6px;
-  font-size: clamp(44px, 5vw, 64px);
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  color: var(--forte);
-  font-variant-numeric: tabular-nums;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--texto);
 }
 
-.card[data-nivel="warn"] .valor,
-.detalhe[data-nivel="warn"] .det-valor {
-  color: var(--ambar);
+.card[data-nivel="warn"] .valor {
+  color: var(--warn);
 }
 
-.card[data-nivel="crit"] .valor,
-.detalhe[data-nivel="crit"] .det-valor {
-  color: var(--vermelho);
-  text-shadow: 0 0 30px rgba(255, 59, 59, 0.45);
+.card[data-nivel="crit"] .valor {
+  color: var(--crit);
+}
+
+.valor.pulsou {
+  animation: pulsoVal 0.5s ease;
+}
+
+@keyframes pulsoVal {
+  0% { opacity: 0.35; }
+  100% { opacity: 1; }
 }
 
 .contexto {
-  min-height: 3em;
+  font-size: 0.76rem;
   color: var(--suave);
-  font-size: 12px;
+  min-height: 2.2em;
 }
 
-/* Régua de ciclo: os traços acendem até a próxima atualização */
-.ciclo {
+/* ================= VISUALIZAÇÕES DOS CARDS ================= */
+.viz {
+  height: 155px;
+  border-top: 1px solid var(--borda);
+  border-bottom: 1px solid var(--borda);
+  padding: 6px 0;
+  overflow-y: auto;
+}
+
+.viz::-webkit-scrollbar {
+  width: 4px;
+}
+
+.viz::-webkit-scrollbar-thumb {
+  background: #232b38;
+  border-radius: 2px;
+}
+
+.viz-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.viz-lista li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.74rem;
+  padding: 2px 0;
+}
+
+.viz-lista li.vazio {
+  color: var(--suave);
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.viz-lista .nome {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viz-manchetes .nome {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
+.link-lei {
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.link-lei:hover {
+  text-decoration: underline;
+  color: var(--ok);
+}
+
+.fonte-tag {
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--suave);
+  flex-shrink: 0;
+}
+
+.hora {
+  font-size: 0.68rem;
+  color: var(--suave);
+  flex-shrink: 0;
+}
+
+.val {
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.val.suave { color: var(--suave); }
+.val.amb { color: var(--warn); }
+.val.verm { color: var(--crit); }
+
+.ponto-cor {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ponto-cor.verde { background: var(--ok); }
+.ponto-cor.ambar { background: var(--warn); }
+.ponto-cor.vermelho { background: var(--crit); }
+
+/* Barras divergentes (Anomalias / Maré) */
+.barra-div {
+  width: 64px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
   position: relative;
-  height: 8px;
-  background: repeating-linear-gradient(90deg, #2a2a2a 0 1px, transparent 1px 6px);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.barra-div i {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--ok);
+}
+
+.barra-div i.pos { left: 50%; }
+.barra-div i.neg { right: 50%; }
+.barra-div i.alerta { background: var(--warn); }
+.barra-div i.critico { background: var(--crit); }
+
+/* Gráfico de barras (Microtremores) */
+.viz-barras {
+  width: 100%;
+  overflow: hidden;
+}
+
+.viz-barras .eixo {
+  stroke: var(--borda);
+  stroke-width: 1;
+}
+
+.viz-barras .barra {
+  fill: var(--ok);
+  opacity: 0.7;
+}
+
+.viz-barras .barra.alta {
+  fill: var(--warn);
+  opacity: 1;
+}
+
+/* Mapa de incêndios */
+.mapa-incendio {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(46, 229, 157, 0.04), transparent 70%),
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px) 0 0 / 25% 100%,
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px) 0 0 / 100% 33.3%;
+}
+
+.mapa-incendio .ponto {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--warn);
+  transform: translate(-50%, -50%);
+}
+
+.mapa-incendio .ponto.hot {
+  background: var(--crit);
+  box-shadow: 0 0 8px var(--crit);
+  animation: piscar 1.5s infinite;
+}
+
+/* Busca de cidade */
+.busca-cidade {
+  display: flex;
+  gap: 6px;
+}
+
+.busca-cidade input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--borda);
+  color: var(--texto);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+.busca-cidade input:focus {
+  outline: none;
+  border-color: var(--ok);
+}
+
+.busca-cidade button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--borda);
+  color: var(--texto);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.busca-cidade button:hover {
+  border-color: var(--ok);
+}
+
+/* Câmeras ao vivo */
+.viz-cameras {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.cam-seletor {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.cam-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--borda);
+  color: var(--suave);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.cam-btn.ativo {
+  color: var(--texto);
+  border-color: var(--ok);
+}
+
+.cam-palco {
+  flex: 1;
+  background: #050608;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.cam-palco iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.cam-play {
+  background: rgba(46, 229, 157, 0.12);
+  border: 1px solid var(--ok);
+  color: var(--ok);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cam-ext {
+  font-size: 0.68rem;
+  color: var(--suave);
+  text-decoration: none;
+}
+
+/* Barra de ciclo e rodapé do card */
+.ciclo {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
 }
 
 .ciclo i {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  background: repeating-linear-gradient(90deg, var(--regua) 0 1px, transparent 1px 6px);
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--ok);
+  opacity: 0.45;
   transition: width 1s linear;
 }
 
 .card-pe {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin-top: auto;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.7rem;
   color: var(--suave);
-  font-size: 11px;
 }
 
-/* Estado do sensor: ponto colorido + palavra */
 .nivel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--texto);
+  text-transform: uppercase;
+  font-size: 0.66rem;
+  color: var(--ok);
 }
 
-.nivel::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--verde);
-}
-
-.card[data-nivel="warn"] .nivel {
-  color: var(--ambar);
-}
-
-.card[data-nivel="warn"] .nivel::before {
-  background: var(--ambar);
-}
-
-.card[data-nivel="crit"] .nivel {
-  color: var(--vermelho);
-}
-
-.card[data-nivel="crit"] .nivel::before {
-  background: var(--vermelho);
-  box-shadow: 0 0 8px var(--vermelho);
-}
+.card[data-nivel="warn"] .nivel { color: var(--warn); }
+.card[data-nivel="crit"] .nivel { color: var(--crit); }
 
 .ver {
-  margin-left: auto;
   color: var(--texto);
-  text-decoration: underline;
-  text-decoration-color: var(--borda-forte);
-  text-underline-offset: 4px;
-  white-space: nowrap;
-  transition: text-decoration-color 0.15s;
+  text-decoration: none;
+  opacity: 0.75;
 }
 
 .ver:hover {
-  text-decoration-color: var(--texto);
-}
-
-/* ---------- 7. Área de visualização do card ---------- */
-.viz {
-  height: 120px;
-  background: var(--fundo);
-  border: 1px solid var(--borda-suave);
-}
-
-/* 7a. Mapa de pontos piscando (aviões e incêndios) */
-.mapa {
-  position: relative;
-  overflow: hidden;
-  background-color: var(--fundo);
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.ponto {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #9b9a93;
-  animation: piscar 3s ease-in-out infinite;
-}
-
-@keyframes piscar {
-
-  0%,
-  100% {
-    opacity: 0.15;
-  }
-
-  50% {
-    opacity: 0.9;
-  }
-}
-
-/* Pontos em alerta (desvios de rota / focos mais intensos) */
-.ponto.hot {
-  width: 7px;
-  height: 7px;
-  animation-duration: 1s;
-}
-
-.mapa-aviacao .ponto.hot {
-  background: var(--vermelho);
-  box-shadow: 0 0 8px var(--vermelho);
-}
-
-.mapa-incendio .ponto.hot {
-  background: var(--ambar);
-  box-shadow: 0 0 8px var(--ambar);
-}
-
-/* 7b. Barras em SVG (microtremores) */
-.viz-barras {
-  display: block;
-  width: 100%;
-}
-
-.viz-barras .eixo {
-  stroke: var(--borda);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.viz-barras .barra {
-  fill: #b9b8b0;
-  opacity: 0.8;
-}
-
-.viz-barras .barra.alta {
-  fill: var(--ambar);
   opacity: 1;
-  filter: drop-shadow(0 0 4px rgba(255, 184, 0, 0.6));
+  text-decoration: underline;
 }
 
-/* 7c. Listas com scroll interno */
-.viz-lista {
-  list-style: none;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--borda-forte) transparent;
-}
-
-.viz-lista::-webkit-scrollbar {
-  width: 6px;
-}
-
-.viz-lista::-webkit-scrollbar-thumb {
-  background: var(--borda-forte);
-}
-
-.viz-lista li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 12px;
-  font-size: 12px;
-  border-bottom: 1px solid var(--borda-suave);
-}
-
-.viz-lista li:last-child {
-  border-bottom: 0;
-}
-
-.viz-lista li:hover {
-  background: #151515;
-}
-
-.nome {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.val {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.val.suave,
-.suave {
-  color: var(--suave);
-}
-
-.val.amb {
-  color: var(--ambar);
-}
-
-.val.verm {
-  color: var(--vermelho);
-}
-
-.fonte-tag,
-.hora {
-  color: var(--fraco);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.vazio {
-  color: var(--suave);
-  justify-content: center;
-}
-
-/* Manchetes: o título pode quebrar em duas linhas */
-.viz-manchetes li {
-  align-items: flex-start;
-}
-
-.viz-manchetes .nome {
-  white-space: normal;
-}
-
-/* Indicador de cor (qualidade do ar) */
-.ponto-cor {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.ponto-cor.verde {
-  background: var(--verde);
-}
-
-.ponto-cor.ambar {
-  background: var(--ambar);
-}
-
-.ponto-cor.vermelho {
-  background: var(--vermelho);
-  box-shadow: 0 0 8px var(--vermelho);
-}
-
-/* Barra divergente (anomalias climáticas): zero no centro */
-.barra-div {
-  position: relative;
-  flex: none;
-  width: 72px;
-  height: 6px;
-  background: var(--borda-suave);
-}
-
-.barra-div::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: -3px;
-  bottom: -3px;
-  width: 1px;
-  background: var(--fraco);
-}
-
-.barra-div i {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: #b9b8b0;
-}
-
-.barra-div i.pos {
-  left: 50%;
-}
-
-.barra-div i.neg {
-  right: 50%;
-}
-
-.barra-div i.alerta {
-  background: var(--ambar);
-}
-
-.barra-div i.critico {
-  background: var(--vermelho);
-}
-
-/* ---------- 8. Vista de detalhe ---------- */
+/* ================= VISTA DETALHE ================= */
 .voltar {
   display: inline-block;
-  margin-bottom: 16px;
-  font-size: 13px;
-  color: var(--suave);
+  color: var(--ok);
   text-decoration: none;
-}
-
-.voltar:hover {
-  color: var(--forte);
+  margin-bottom: 16px;
+  font-size: 0.82rem;
 }
 
 .detalhe {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 22px 24px;
-  background: var(--painel);
+  background: var(--card);
   border: 1px solid var(--borda);
-  border-left: 4px solid var(--estado);
+  border-radius: 6px;
+  padding: 22px;
 }
 
-.detalhe-topo h2 {
-  font-size: clamp(18px, 3vw, 30px);
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--forte);
+.detalhe-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .meta {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px 24px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 4px;
+  margin-bottom: 16px;
 }
 
-.meta dt,
-.detalhe h3 {
+.meta dt {
+  font-size: 0.68rem;
   color: var(--suave);
-  font-size: 12px;
-  font-weight: 400;
-  text-transform: lowercase;
-}
-
-.meta dt::first-letter,
-.detalhe h3::first-letter {
-  text-transform: uppercase;
 }
 
 .meta dd {
-  font-size: 13px;
-  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+  margin-top: 2px;
 }
 
 .det-valor {
-  font-size: clamp(56px, 11vw, 112px);
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.05em;
-  color: var(--forte);
-  font-variant-numeric: tabular-nums;
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 6px;
 }
 
 .detalhe h3 {
-  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--suave);
+  margin: 22px 0 10px;
+  letter-spacing: 0.06em;
 }
 
 .det-grafico {
-  display: block;
   width: 100%;
-  height: auto;
-  background: var(--fundo);
-  border: 1px solid var(--borda-suave);
-}
-
-.det-grafico .linha {
-  fill: none;
-  stroke: var(--regua);
-  stroke-width: 2;
-  stroke-linejoin: round;
+  max-height: 180px;
+  background: var(--bg);
+  border: 1px solid var(--borda);
+  border-radius: 4px;
 }
 
 .det-grafico .grade {
   stroke: var(--borda);
-  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.det-grafico .linha {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 2;
 }
 
 .det-grafico .ponto-final {
-  fill: var(--forte);
+  fill: var(--ok);
 }
 
 .det-grafico text {
   fill: var(--suave);
-  font-family: var(--fonte);
+  font-family: var(--mono);
   font-size: 11px;
 }
 
 .det-log {
-  max-height: 300px;
-  background: var(--fundo);
-  border: 1px solid var(--borda-suave);
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 4px;
 }
 
 .det-log li.alerta .texto {
-  color: var(--ambar);
+  color: var(--warn);
 }
 
-@media (max-width: 639px) {
-  .meta {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .detalhe {
-    padding: 16px;
-  }
-}
-
-/* ---------- 9. Rodapé: Termômetro do Caos ---------- */
+/* ================= RODAPÉ & AUTORIA ================= */
 .rodape {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 18px 24px 28px;
+  border-top: 1px solid var(--borda);
   display: flex;
-  align-items: flex-end;
   justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 8px 32px;
-  padding: 12px var(--pad);
-  background: var(--bg);
-  border-top: 1px solid var(--borda-forte);
-  box-shadow: 0 -26px 40px -12px rgba(0, 0, 0, 0.95);
 }
 
 .caos {
   display: flex;
   align-items: baseline;
+  gap: 10px;
   flex-wrap: wrap;
-  gap: 0 16px;
 }
 
 .caos-rotulo {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--texto);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .caos-valor {
-  font-size: clamp(34px, 6vw, 60px);
+  font-size: 1.45rem;
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-  color: var(--forte);
-  font-variant-numeric: tabular-nums;
+  color: var(--crit);
 }
 
 .caos-valor.flash {
-  animation: flash-caos 0.9s ease-out;
+  animation: pulsoVal 0.45s ease;
 }
 
-@keyframes flash-caos {
-  from {
-    color: var(--vermelho);
-    text-shadow: 0 0 24px rgba(255, 59, 59, 0.6);
-  }
-
-  to {
-    color: var(--forte);
-    text-shadow: none;
-  }
-}
-
-/* "+N" que sobe e some quando novos eventos chegam */
 .caos-delta {
-  min-width: 5ch;
-  color: var(--vermelho);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--warn);
   opacity: 0;
 }
 
 .caos-delta.sobe {
-  animation: sobe 1.8s ease-out;
+  animation: sobeDelta 1.4s ease forwards;
 }
 
-@keyframes sobe {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  15% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(-16px);
-  }
+@keyframes sobeDelta {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
 }
 
-.caos-legenda,
-.ultima {
+.caos-legenda {
+  font-size: 0.74rem;
   color: var(--suave);
-  font-size: 11px;
 }
 
-@media (max-width: 639px) {
-  .caos-legenda {
-    display: none;
-  }
+.rodape-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
-/* ---------- 10. Acessibilidade: respeita quem prefere menos movimento ---------- */
-@media (prefers-reduced-motion: reduce) {
+.ultima {
+  font-size: 0.74rem;
+  color: var(--suave);
+}
 
-  .ponto,
-  .led,
-  .card[data-nivel="crit"],
-  .caos-valor.flash,
-  .caos-delta.sobe {
-    animation: none;
-  }
+.autoria {
+  font-size: 0.74rem;
+  color: var(--suave);
+}
 
-  .ponto {
-    opacity: 0.8;
-  }
+.autoria a {
+  color: var(--texto);
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
 
-  .card:hover {
-    transform: none;
-  }
+.autoria a:hover {
+  color: var(--ok);
+  border-color: var(--ok);
+}
 
-  .ciclo i {
-    transition: none;
+@media (max-width: 680px) {
+  .rodape-info {
+    align-items: flex-start;
   }
 }
