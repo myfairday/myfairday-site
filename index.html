@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body class="estado-escuro">
 
@@ -24,7 +24,7 @@
   <!-- ================= BARRA SUPERIOR MINIMALISTA ================= -->
   <header class="topo" id="topo-sistema" hidden>
     <div class="topo-barra">
-      <span class="ao-vivo"><i class="led"></i><span id="fase-indicador">01 / 04</span></span>
+      <span class="ao-vivo"><i class="led"></i><span id="fase-indicador">CONSULTA</span></span>
 
       <span class="relogio" id="relogio">--:--:--</span>
 
@@ -52,56 +52,10 @@
 
   <main id="area-principal" hidden>
 
-    <!-- ================= JOGO 01: LABIRINTO + PERGUNTA + CHAVE ================= -->
-    <section class="painel-etapa" id="jogo-1">
+    <!-- ================= ETAPA INICIAL: ENQUETE DE ABERTURA ================= -->
+    <section class="painel-etapa" id="enquete-inicial">
       <div class="etapa-header">
-        <span class="etapa-tag">01 // LABIRINTO DE CONTENÇÃO</span>
-        <div class="hud-direita">
-          <span class="badge-chave" id="status-chave">🔑 CHAVE: AUSENTE</span>
-          <span class="lab-timer" id="lab-timer">00.0s</span>
-        </div>
-      </div>
-
-      <div class="lab-hud">
-        <span id="lab-instrucao">Encontre o ponto amarelo no escuro para obter a chave da saída.</span>
-        <button type="button" class="btn-sonar" id="btn-sonar">📡 SONAR (3)</button>
-      </div>
-
-      <div class="lab-canvas-wrap">
-        <canvas id="canvas-labirinto" width="760" height="440"></canvas>
-        <div class="lab-controles-mobile">
-          <button type="button" data-dir="up">▲</button>
-          <div class="lab-controles-linha">
-            <button type="button" data-dir="left">◀</button>
-            <button type="button" data-dir="down">▼</button>
-            <button type="button" data-dir="right">▶</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MODAL DA PERGUNTA DE 1 CHANCE DENTRO DO LABIRINTO -->
-    <div class="modal-overlay" id="modal-pergunta" hidden>
-      <div class="modal-box">
-        <div class="modal-alerta">⚠️ ACESSO RESTRITO · VOCÊ TEM APENAS 1 CHANCE</div>
-        <h2 class="modal-questao">
-          Você tem apenas 1 chance, qual é o nome do primeiro criminoso da dark web do vídeo do canal?
-        </h2>
-        <div class="modal-alternativas" id="lista-alternativas">
-          <button type="button" class="btn-alt" data-resp="a">a) Monster 02</button>
-          <button type="button" class="btn-alt" data-resp="b">b) Lunatic</button>
-          <button type="button" class="btn-alt" data-resp="c">c) Lubasa</button>
-          <button type="button" class="btn-alt" data-resp="d">d) Eu não assisti todo o vídeo</button>
-          <button type="button" class="btn-alt" data-resp="e">e) Sou muito burro</button>
-        </div>
-        <p class="modal-feedback" id="modal-feedback"></p>
-      </div>
-    </div>
-
-    <!-- ================= ENQUETE INTERMEDIÁRIA (APÓS O JOGO 01) ================= -->
-    <section class="painel-etapa" id="enquete-intermediaria" hidden>
-      <div class="etapa-header">
-        <span class="etapa-tag">CONSULTA OBRIGATÓRIA // REGISTRO DE POSICIONAMENTO</span>
+        <span class="etapa-tag">00 // REGISTRO DE POSICIONAMENTO</span>
         <span class="lab-timer" id="enquete1-total">VOTOS: —</span>
       </div>
 
@@ -148,47 +102,87 @@
       </div>
 
       <div class="enquete1-acoes" id="enquete1-acoes" hidden>
-        <p class="enquete-rodape-info" id="enquete1-feedback">✓ Resposta registrada.</p>
-        <button type="button" class="btn-travar-nucleo" id="btn-avancar-jogo2">
-          AVANÇAR PARA O PRÓXIMO DESAFIO →
+        <p class="enquete-rodape-info" id="enquete1-feedback">✓ Posicionamento arquivado no sistema.</p>
+        <button type="button" class="btn-travar-nucleo" id="btn-entrar-jogo1">
+          ENTRAR NA CÂMARA 01 →
         </button>
       </div>
     </section>
 
-    <!-- ================= JOGO 02: SINTONIA DE FREQUÊNCIA INSTÁVEL ================= -->
-    <section class="painel-etapa" id="jogo-2" hidden>
+    <!-- ================= JOGO 01: LABIRINTO + FRAGMENTO DE CHAVE ================= -->
+    <section class="painel-etapa" id="jogo-1" hidden>
       <div class="etapa-header">
-        <span class="etapa-tag">02 // INTERCEPTAÇÃO DE SINAL</span>
-        <span class="lab-timer" id="sintonia-progresso">ESTABILIDADE: 0%</span>
+        <span class="etapa-tag">01 // LABIRINTO DE CONTENÇÃO</span>
+        <div class="hud-direita">
+          <span class="badge-chave" id="status-chave">🔑 FRAGMENTO: PENDENTE</span>
+          <span class="lab-timer" id="lab-timer">00.0s</span>
+        </div>
       </div>
 
-      <p class="etapa-desc">
-        Alinhe a onda verde à onda fantasma vermelha e mantenha o sinal estável por 3 segundos antes que o ruído derrube a frequência.
-      </p>
+      <div class="lab-hud">
+        <span id="lab-instrucao">Localize o núcleo amarelo no escuro para extrair o código do detonador.</span>
+        <button type="button" class="btn-sonar" id="btn-sonar">📡 SONAR (3)</button>
+      </div>
 
-      <canvas id="canvas-onda" width="760" height="220"></canvas>
-
-      <div class="controles-onda">
-        <label class="controle-slider">
-          <span>FREQUÊNCIA (Hz)</span>
-          <input type="range" id="slider-freq" min="1" max="100" value="20">
-        </label>
-        <label class="controle-slider">
-          <span>DESLOCAMENTO DE FASE</span>
-          <input type="range" id="slider-fase" min="1" max="100" value="80">
-        </label>
+      <div class="lab-canvas-wrap">
+        <canvas id="canvas-labirinto" width="760" height="440"></canvas>
+        <div class="lab-controles-mobile">
+          <button type="button" data-dir="up">▲</button>
+          <div class="lab-controles-linha">
+            <button type="button" data-dir="left">◀</button>
+            <button type="button" data-dir="down">▼</button>
+            <button type="button" data-dir="right">▶</button>
+          </div>
+        </div>
       </div>
     </section>
+
+    <!-- ================= JOGO 02: DESARME DE 8 FIOS + CONEXÃO AG 30 ================= -->
+    <section class="painel-etapa" id="jogo-2" hidden>
+      <div class="etapa-header">
+        <span class="etapa-tag">02 // DETONADOR DE 8 FIOS</span>
+        <div class="hud-direita">
+          <span class="badge-erros" id="fios-tentativa">CHANCE: 1 / 2</span>
+          <span class="lab-timer timer-critico" id="fios-timer">10.0s</span>
+        </div>
+      </div>
+
+      <div class="pista-conexao" id="pista-conexao-fios">
+        FRAGMENTO EXTRAÍDO DO LABIRINTO: <strong id="simbolos-herdados">☢ 👁</strong> — USE A DIRETRIZ ABAIXO:
+      </div>
+
+      <div class="fios-instrucao-box" id="fios-instrucao">
+        Carregando diretriz de corte...
+      </div>
+
+      <div class="lista-fios" id="lista-fios"></div>
+    </section>
+
+    <!-- OVERLAY DO QUESTIONAMENTO "VOCÊ TEM MEDO DA AG 30 ?" -->
+    <div class="modal-overlay" id="modal-ag30" hidden>
+      <div class="modal-box modal-ag30-box">
+        <div class="modal-alerta">⚠️ FALHA CRÍTICA DE CONTENÇÃO · INTERFERÊNCIA DETECTADA</div>
+        <h2 class="modal-questao ag30-pergunta" id="texto-ag30">
+          Você tem medo da ☢g 👁0 ?
+        </h2>
+        <p class="ag30-sub">
+          Memorize os símbolos que substituem o código acima. Eles pertencem à matriz da próxima câmara.
+        </p>
+        <button type="button" class="btn-travar-nucleo" id="btn-reiniciar-fios">
+          REARMAR DETONADOR E TENTAR NOVAMENTE
+        </button>
+      </div>
+    </div>
 
     <!-- ================= JOGO 03: MEMÓRIA CRIPTOGRAFADA REVERSA ================= -->
     <section class="painel-etapa" id="jogo-3" hidden>
       <div class="etapa-header">
-        <span class="etapa-tag">03 // DECODIFICAÇÃO REVERSA</span>
+        <span class="etapa-tag">03 // MATRIZ REVERSA (PROTOCOLO AG 30)</span>
         <span class="lab-timer" id="mem-status">MEMORIZE A SEQUÊNCIA</span>
       </div>
 
-      <p class="etapa-desc">
-        Observe os 6 códigos piscarem e digite-os <strong>DE TRÁS PARA FRENTE</strong> (ordem inversa). Um erro reinicia a matriz.
+      <p class="etapa-desc" id="mem-conexao-texto">
+        Os 6 símbolos abaixo incluem os selos extraídos nas câmaras anteriores. Digite-os <strong>DE TRÁS PARA FRENTE</strong> (ordem inversa).
       </p>
 
       <div class="visor-sequencia" id="visor-sequencia">---</div>
@@ -207,10 +201,10 @@
       <div class="mem-input-display" id="mem-digitado">AGUARDANDO TRANSMISSÃO...</div>
     </section>
 
-    <!-- ================= JOGO 04: 10 CÁLCULOS MATEMÁTICOS ================= -->
+    <!-- ================= JOGO 04: 10 CÁLCULOS (FRAÇÕES E PORCENTAGEM NO FINAL) ================= -->
     <section class="painel-etapa" id="jogo-4" hidden>
       <div class="etapa-header">
-        <span class="etapa-tag">04 // CRIPTOGRAFIA NUMÉRICA</span>
+        <span class="etapa-tag">04 // CRIPTOGRAFIA NUMÉRICA FINAL</span>
         <div class="hud-direita">
           <span class="badge-erros" id="math-erros">ERROS: 0 / 2</span>
           <span class="lab-timer" id="math-progresso">CÁLCULO: 1 / 10</span>
@@ -218,7 +212,7 @@
       </div>
 
       <p class="etapa-desc">
-        Resolva os <strong>10 cálculos matemáticos</strong> em sequência. Se você errar <strong>2 vezes</strong>, o sistema reseta tudo para o início.
+        Resolva os <strong>10 cálculos</strong> (os dois últimos envolvem <strong>frações e porcentagem</strong>). Você tem 2 chances; se errar 2 vezes, volta para o cálculo 1.
       </p>
 
       <div class="math-visor" id="math-equacao">—</div>
@@ -261,7 +255,7 @@
       </div>
     </section>
 
-    <!-- ================= ETAPA FINAL: TRIAGEM + ENQUETE ================= -->
+    <!-- ================= ETAPA FINAL: TRIAGEM + ENQUETE THIAGO MISTERY ================= -->
     <section class="painel-etapa" id="etapa-final" hidden>
       <div class="etapa-header">
         <span class="etapa-tag">ARQUIVO FINAL // VERIFICAÇÃO &amp; VOTO</span>
@@ -353,6 +347,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
