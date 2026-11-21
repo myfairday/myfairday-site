@@ -1,14 +1,5 @@
 /* =====================================================================
-   PAINEL DE ANOMALIAS GLOBAIS — PARTE 2 DE 3: style.css (versão 2)
-
-   Ideia visual: um instrumento de medição, não um site.
-   - A peça de destaque é o sismógrafo do cabeçalho: o traço fica
-     agitado toda vez que o Termômetro do Caos registra eventos.
-   - O resto fica quieto: painéis planos, bordas finas e números grandes
-     e leves. A cor só aparece quando um sensor sai do normal, na barra
-     lateral do card, no número e no brilho dos cards críticos.
-   - A régua de traços no pé de cada card acende até o próximo ciclo
-     de atualização do sensor.
+   PAINEL DE ANOMALIAS GLOBAIS — style.css
    ===================================================================== */
 
 /* ---------- 1. Variáveis ---------- */
@@ -123,12 +114,12 @@ a {
   margin-left: auto;
 }
 
-.badge-sim {
+.visitantes {
   padding: 3px 9px;
-  border: 1px solid var(--ambar);
-  color: var(--ambar);
+  border: 1px solid var(--borda-forte);
+  color: var(--suave);
   font-size: 11px;
-  text-transform: lowercase;
+  font-variant-numeric: tabular-nums;
 }
 
 button {
@@ -250,7 +241,6 @@ main {
 }
 
 /* ---------- 6. Card de sensor ---------- */
-/* --estado: cor da barra lateral | --regua: cor dos traços da régua */
 .card,
 .detalhe {
   --estado: var(--fraco);
@@ -320,7 +310,6 @@ main {
   color: var(--texto);
 }
 
-/* A numeração dos sensores não indica sequência, então não aparece */
 .card-id {
   display: none;
 }
@@ -708,10 +697,6 @@ main {
   overflow-wrap: anywhere;
 }
 
-.meta-larga {
-  grid-column: 1 / -1;
-}
-
 .det-valor {
   font-size: clamp(56px, 11vw, 112px);
   font-weight: 300;
@@ -763,12 +748,6 @@ main {
 
 .det-log li.alerta .texto {
   color: var(--ambar);
-}
-
-.det-integracao {
-  color: var(--suave);
-  font-size: 13px;
-  max-width: 76ch;
 }
 
 @media (max-width: 639px) {
