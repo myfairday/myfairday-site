@@ -251,7 +251,7 @@ function renderizarMapaReal(el, pontos) {
 }
 
 /* ---------------------------------------------------------------------
-   3. CONTADOR DE VISITANTES ÚNICOS
+   3. CONTADOR DE VISITANTES (CORS NATIVO + CONTAGEM POR SESSÃO)
    --------------------------------------------------------------------- */
 const Visitantes = {
   total: 0,
@@ -262,12 +262,27 @@ const Visitantes = {
     el.textContent = this.total > 0 ? `${T('visitantes')}: ${U.num(this.total)}` : `${T('visitantes')}: —`;
   },
 
-  async iniciar() {
-    let jaContado = false;
-    let cache = 0;
+  async consultarDireto(url) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 7000);
     try {
-      jaContado = localStorage.getItem(CONFIG.chaveVisitante) === '1';
+      const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  },
+
+  async iniciar() {
+    const namespace = 'thiagomistery-anomalias-globais';
+    const key = 'acessos-v2';
+    let cache = 0;
+    let jaContouSessao = false;
+
+    try {
       cache = parseInt(localStorage.getItem(CONFIG.chaveVisTotal), 10) || 0;
+      jaContouSessao = sessionStorage.getItem(CONFIG.chaveVisitante) === '1';
     } catch (_) { /* ignora */ }
 
     if (cache > 0) {
@@ -275,38 +290,35 @@ const Visitantes = {
       this.atualizarTexto();
     }
 
-    if (jaContado) {
-      if (cache === 0) {
-        try {
-          const data = await fetchSeguro('https://api.counterapi.dev/v1/myfairday-org/visitas', 'json', 6000);
-          this.total = Number(data?.count) || 1;
-          localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
-        } catch (_) {
-          this.total = 1;
-        }
-        this.atualizarTexto();
-      }
-      return;
-    }
+    // Usa Abacus (suporte nativo a CORS direto do navegador, sem proxy)
+    const endpoint = jaContouSessao
+      ? `https://abacus.jasoncameron.dev/get/${namespace}/${key}`
+      : `https://abacus.jasoncameron.dev/hit/${namespace}/${key}`;
 
     try {
-      const data = await fetchSeguro('https://api.counterapi.dev/v1/myfairday-org/visitas/up', 'json', 7000);
-      this.total = Number(data?.count) || (cache + 1);
-      try {
-        localStorage.setItem(CONFIG.chaveVisitante, '1');
-        localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
-      } catch (_) { /* ignora */ }
+      const data = await this.consultarDireto(endpoint);
+      const val = Number(data?.value);
+      if (val > 0) {
+        this.total = Math.max(val, cache);
+        try {
+          sessionStorage.setItem(CONFIG.chaveVisitante, '1');
+          localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
+        } catch (_) { /* ignora */ }
+      }
     } catch (_) {
-      this.total = cache + 1;
-      try {
-        localStorage.setItem(CONFIG.chaveVisitante, '1');
-        localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
-      } catch (__) { /* ignora */ }
+      // Fallback caso o servidor esteja momentaneamente indisponível
+      if (!jaContouSessao) {
+        this.total = cache + 1;
+        try {
+          sessionStorage.setItem(CONFIG.chaveVisitante, '1');
+          localStorage.setItem(CONFIG.chaveVisTotal, String(this.total));
+        } catch (__) { /* ignora */ }
+      }
     }
+
     this.atualizarTexto();
   }
 };
-
 /* ---------------------------------------------------------------------
    4. TERMÔMETRO DO CAOS
    --------------------------------------------------------------------- */
