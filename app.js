@@ -1,10 +1,10 @@
 /* =====================================================================
-   APP.JS — ENQUETE 1 -> LABIRINTO -> INTRUSO + COFRE (SUBLIMINAR + SOM GLITCH 1s) -> MEMÓRIA -> ENQUETE 2 -> 10 CÁLCULOS -> 2030 -> FINAL
+   APP.JS — ENQUETE 1 -> LABIRINTO -> INTRUSO + COFRE (SUBLIMINAR + CHUVISCO TV 1s) -> MEMÓRIA -> ENQUETE 2 -> 10 MULTIPLICAÇÕES INTEIRAS -> 2030 -> FINAL
    ===================================================================== */
 'use strict';
 
 const CONFIG = {
-  chaveTema: 'proto2030_tema_v9',
+  chaveTema: 'proto2030_tema_v11',
   chaveVisTotal: 'myfairday_vis_num_v2',
   chaveTriagem: 'proto2030_triagem_stats_v2',
   chaveEnquete1: 'proto2030_enquete1_v1',
@@ -13,7 +13,7 @@ const CONFIG = {
 };
 
 /* ---------------------------------------------------------------------
-   1. MOTOR DE ÁUDIO DE SUSPENSE + SOM DE FALHA / GLITCH (1 SEGUNDO)
+   1. MOTOR DE ÁUDIO DE SUSPENSE + CANAL DE CHUVISCO ANALÓGICO (1 SEGUNDO)
    --------------------------------------------------------------------- */
 const AudioSuspense = {
   ctx: null,
@@ -95,60 +95,89 @@ const AudioSuspense = {
         this.ctx.resume();
       }
 
-      const agora = this.ctx.currentTime;
+      const ctx = this.ctx;
+      const agora = ctx.currentTime;
+      const sr = ctx.sampleRate;
+      const totalAmostras = Math.floor(sr * duracaoSeg);
 
-      // 1. Camada de estática / chiado elétrico cortado (ruído branco filtrado)
-      const tamanhoBuffer = Math.floor(this.ctx.sampleRate * duracaoSeg);
-      const buffer = this.ctx.createBuffer(1, tamanhoBuffer, this.ctx.sampleRate);
-      const dados = buffer.getChannelData(0);
+      // 1. Buffer de chuvisco analógico (ruído rosa filtrado + estalos de sintonia no início e no fim)
+      const buffer = ctx.createBuffer(1, totalAmostras, sr);
+      const canal = buffer.getChannelData(0);
 
-      for (let i = 0; i < tamanhoBuffer; i++) {
-        // Rajadas intermitentes para soar como mau contato elétrico
-        const rajada = Math.sin(i * 0.008) > -0.25 ? 1 : 0.15;
-        dados[i] = (Math.random() * 2 - 1) * rajada;
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+      for (let i = 0; i < totalAmostras; i++) {
+        const white = Math.random() * 2 - 1;
+
+        // Filtro de Paul Kellet para ruído rosa natural (textura real de TV fora do ar)
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        const pink = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+        b6 = white * 0.115926;
+
+        // Mistura ruído rosa (corpo) + ruído branco (chiado fino de RF)
+        let amostra = pink * 0.72 + white * 0.28;
+
+        // Estalo seco de chaveamento de canal nos primeiros 18ms e últimos 18ms
+        const t = i / sr;
+        if (t < 0.018 || t > duracaoSeg - 0.018) {
+          amostra += (Math.random() > 0.5 ? 0.65 : -0.65);
+        }
+
+        // Micro-falhas de contato elétrico durante o canal morto
+        if (Math.random() < 0.0025) {
+          amostra *= 0.1;
+        }
+
+        canal[i] = Math.max(-1, Math.min(1, amostra));
       }
 
-      const noise = this.ctx.createBufferSource();
-      noise.buffer = buffer;
+      const fonteRuido = ctx.createBufferSource();
+      fonteRuido.buffer = buffer;
 
-      const filtroGlitch = this.ctx.createBiquadFilter();
-      filtroGlitch.type = 'bandpass';
-      filtroGlitch.frequency.setValueAtTime(1100, agora);
-      filtroGlitch.frequency.linearRampToValueAtTime(2400, agora + 0.25);
-      filtroGlitch.frequency.linearRampToValueAtTime(650, agora + 0.65);
-      filtroGlitch.frequency.linearRampToValueAtTime(1900, agora + duracaoSeg);
-      filtroGlitch.Q.value = 3.2;
+      // Corte passa-alta e passa-baixa para soar exatamente como alto-falante de TV/rádio fora de sintonia
+      const highpass = ctx.createBiquadFilter();
+      highpass.type = 'highpass';
+      highpass.frequency.value = 260;
 
-      const gainNoise = this.ctx.createGain();
-      gainNoise.gain.setValueAtTime(0.01, agora);
-      gainNoise.gain.linearRampToValueAtTime(0.32, agora + 0.03);
-      gainNoise.gain.setValueAtTime(0.28, agora + duracaoSeg - 0.12);
-      gainNoise.gain.exponentialRampToValueAtTime(0.001, agora + duracaoSeg);
+      const lowpass = ctx.createBiquadFilter();
+      lowpass.type = 'lowpass';
+      lowpass.frequency.value = 5200;
 
-      noise.connect(filtroGlitch);
-      filtroGlitch.connect(gainNoise);
-      gainNoise.connect(this.ctx.destination);
+      const gainRuido = ctx.createGain();
+      gainRuido.gain.setValueAtTime(0.001, agora);
+      gainRuido.gain.linearRampToValueAtTime(0.38, agora + 0.015);
+      gainRuido.gain.setValueAtTime(0.36, agora + duracaoSeg - 0.025);
+      gainRuido.gain.linearRampToValueAtTime(0.0001, agora + duracaoSeg);
 
-      // 2. Camada de impacto grave distorcido (pulso de susto)
-      const oscImpacto = this.ctx.createOscillator();
-      oscImpacto.type = 'sawtooth';
-      oscImpacto.frequency.setValueAtTime(165, agora);
-      oscImpacto.frequency.exponentialRampToValueAtTime(38, agora + 0.35);
-      oscImpacto.frequency.setValueAtTime(110, agora + 0.52);
-      oscImpacto.frequency.exponentialRampToValueAtTime(32, agora + duracaoSeg);
+      fonteRuido.connect(highpass);
+      highpass.connect(lowpass);
+      lowpass.connect(gainRuido);
+      gainRuido.connect(ctx.destination);
 
-      const gainImpacto = this.ctx.createGain();
-      gainImpacto.gain.setValueAtTime(0.26, agora);
-      gainImpacto.gain.exponentialRampToValueAtTime(0.001, agora + duracaoSeg);
+      // 2. Zumbido sutil de rede elétrica (60 Hz) característico de canal sem sinal
+      const hum60 = ctx.createOscillator();
+      hum60.type = 'sine';
+      hum60.frequency.value = 60;
 
-      oscImpacto.connect(gainImpacto);
-      gainImpacto.connect(this.ctx.destination);
+      const gainHum = ctx.createGain();
+      gainHum.gain.setValueAtTime(0.001, agora);
+      gainHum.gain.linearRampToValueAtTime(0.07, agora + 0.02);
+      gainHum.gain.setValueAtTime(0.07, agora + duracaoSeg - 0.02);
+      gainHum.gain.linearRampToValueAtTime(0.0001, agora + duracaoSeg);
 
-      noise.start(agora);
-      noise.stop(agora + duracaoSeg);
-      oscImpacto.start(agora);
-      oscImpacto.stop(agora + duracaoSeg);
-    } catch (_) { /* ignora caso bloqueado */ }
+      hum60.connect(gainHum);
+      gainHum.connect(ctx.destination);
+
+      fonteRuido.start(agora);
+      fonteRuido.stop(agora + duracaoSeg);
+      hum60.start(agora);
+      hum60.stop(agora + duracaoSeg);
+    } catch (_) { /* ignora */ }
   }
 };
 
@@ -567,7 +596,7 @@ const Jogo1Labirinto = {
 };
 
 /* ---------------------------------------------------------------------
-   5. JOGO 02: QUEBRA-SELO (INTRUSO) + COFRE 4 DÍGITOS + SUBLIMINAR & SOM GLITCH (1s)
+   5. JOGO 02: QUEBRA-SELO (INTRUSO) + COFRE 4 DÍGITOS + SUBLIMINAR & CHUVISCO (1s)
    --------------------------------------------------------------------- */
 const Jogo2SeloCofre = {
   simbolosPool: ['Ω', 'Δ', 'Ψ', 'Φ', 'Σ', 'Ж', '☢', '👁'],
@@ -662,7 +691,6 @@ const Jogo2SeloCofre = {
     document.getElementById('texto-subliminar').textContent = `Você tem medo da ${s1}g ${s2}0 ?`;
     flash.hidden = false;
 
-    // Dispara o som de falha elétrica / glitch de 1 segundo junto com o flash visual
     AudioSuspense.tocarFalhaGlitch(1.0);
     Sismografo.pico(2.8);
 
@@ -888,7 +916,7 @@ const EnqueteIntermediaria2 = {
 };
 
 /* ---------------------------------------------------------------------
-   7. JOGO 04: 10 CÁLCULOS (9º FRAÇÃO E 10º PORCENTAGEM; 2 ERROS = RESET)
+   7. JOGO 04: 10 CÁLCULOS DE MULTIPLICAÇÃO DE NÚMEROS INTEIROS POSITIVOS
    --------------------------------------------------------------------- */
 const Jogo4Matematica = {
   indice: 1,
@@ -920,60 +948,27 @@ const Jogo4Matematica = {
   gerarCalculo() {
     const nivel = this.indice;
     const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    let texto = '';
-    let res = 0;
+    let a = 2;
+    let b = 2;
 
     if (nivel <= 3) {
-      const a = rand(24, 98);
-      const b = rand(15, 79);
-      if (Math.random() > 0.5) {
-        texto = `${a} + ${b}`;
-        res = a + b;
-      } else {
-        const maior = Math.max(a, b);
-        const menor = Math.min(a, b);
-        texto = `${maior} − ${menor}`;
-        res = maior - menor;
-      }
+      a = rand(4, 9);
+      b = rand(4, 9);
     } else if (nivel <= 6) {
-      const a = rand(7, 16);
-      const b = rand(6, 14);
-      texto = `${a} × ${b}`;
-      res = a * b;
+      a = rand(6, 12);
+      b = rand(6, 12);
     } else if (nivel <= 8) {
-      const a = rand(6, 13);
-      const b = rand(4, 11);
-      const c = rand(10, 45);
-      texto = `(${a} × ${b}) + ${c}`;
-      res = a * b + c;
-    } else if (nivel === 9) {
-      const opcoesFracao = [
-        { num: 3, den: 4, base: 80, ans: 60 },
-        { num: 2, den: 5, base: 150, ans: 60 },
-        { num: 3, den: 5, base: 120, ans: 72 },
-        { num: 5, den: 8, base: 64, ans: 40 },
-        { num: 2, den: 3, base: 90, ans: 60 },
-        { num: 4, den: 5, base: 75, ans: 60 }
-      ];
-      const f = opcoesFracao[Math.floor(Math.random() * opcoesFracao.length)];
-      texto = `${f.num}/${f.den} de ${f.base}`;
-      res = f.ans;
+      a = rand(8, 15);
+      b = rand(7, 13);
     } else {
-      const opcoesPct = [
-        { pct: 25, base: 160, ans: 40 },
-        { pct: 15, base: 200, ans: 30 },
-        { pct: 35, base: 200, ans: 70 },
-        { pct: 40, base: 150, ans: 60 },
-        { pct: 75, base: 120, ans: 90 },
-        { pct: 20, base: 350, ans: 70 }
-      ];
-      const p = opcoesPct[Math.floor(Math.random() * opcoesPct.length)];
-      texto = `${p.pct}% de ${p.base}`;
-      res = p.ans;
+      a = rand(11, 18);
+      b = rand(8, 14);
     }
 
+    const res = a * b;
     this.respostaAtual = res;
-    document.getElementById('math-equacao').textContent = `${texto} = ?`;
+    document.getElementById('math-equacao').textContent = `${a} × ${b} = ?`;
+
     const inp = document.getElementById('input-math');
     inp.value = '';
     inp.focus();
