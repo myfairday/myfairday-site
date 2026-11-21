@@ -1,5 +1,5 @@
 /* =====================================================================
-   STYLE.CSS — TELA PRETA + 4 JOGOS + 2 ENQUETES + CONTADOR 2030
+   STYLE.CSS — ENQUETE INICIAL + LABIRINTO + 8 FIOS (AG 30) + MEMÓRIA + 10 CÁLCULOS
    ===================================================================== */
 
 :root,
@@ -294,9 +294,11 @@ main[hidden] { display: none; }
   box-shadow: 0 0 10px color-mix(in srgb, var(--warn) 30%, transparent);
 }
 
-.badge-erros.perigo {
+.badge-erros.perigo,
+.timer-critico {
   border-color: var(--crit);
   color: var(--crit);
+  font-weight: 800;
 }
 
 .etapa-desc {
@@ -304,6 +306,17 @@ main[hidden] { display: none; }
   color: var(--txt-dim);
   font-size: 13px;
 }
+
+/* ================= ENQUETE INICIAL ================= */
+.enquete1-acoes {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.enquete1-acoes[hidden] { display: none; }
 
 /* ================= JOGO 1: LABIRINTO ================= */
 .lab-hud {
@@ -372,12 +385,72 @@ main[hidden] { display: none; }
   font-size: 16px;
 }
 
-/* ================= MODAL PERGUNTA (1 CHANCE) ================= */
+/* ================= JOGO 2: DESARME DE 8 FIOS ================= */
+.pista-conexao {
+  font-size: 11px;
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--borda));
+  padding: 8px 12px;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.fios-instrucao-box {
+  padding: 14px 16px;
+  background: var(--bg);
+  border-left: 3px solid var(--ok);
+  border-top: 1px solid var(--borda-hi);
+  border-right: 1px solid var(--borda-hi);
+  border-bottom: 1px solid var(--borda-hi);
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  margin-bottom: 16px;
+}
+
+.lista-fios {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 600px) { .lista-fios { grid-template-columns: 1fr; } }
+
+.btn-fio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--bg);
+  border: 1px solid var(--borda-hi);
+  border-radius: 4px;
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.15s;
+}
+.btn-fio:hover {
+  transform: translateY(-2px);
+  border-color: var(--txt);
+}
+
+.fio-cabo {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* ================= MODAL QUESTIONAMENTO AG 30 ================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 5000;
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0, 0, 0, 0.94);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -385,14 +458,15 @@ main[hidden] { display: none; }
 }
 .modal-overlay[hidden] { display: none; }
 
-.modal-box {
+.modal-ag30-box {
   width: 100%;
-  max-width: 540px;
+  max-width: 520px;
   background: var(--card);
   border: 1px solid var(--crit);
   border-radius: 4px;
-  padding: 24px;
-  box-shadow: 0 0 40px rgba(255, 77, 94, 0.25);
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(255, 77, 94, 0.35);
 }
 
 .modal-alerta {
@@ -400,89 +474,21 @@ main[hidden] { display: none; }
   font-weight: 800;
   color: var(--crit);
   letter-spacing: 0.1em;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-.modal-questao {
-  margin: 0 0 18px;
-  font-size: 16px;
+.ag30-pergunta {
+  margin: 0 0 14px;
+  font-size: clamp(22px, 4vw, 30px);
   font-weight: 800;
-  color: var(--txt);
-  line-height: 1.4;
+  color: var(--warn);
+  letter-spacing: 0.08em;
 }
 
-.modal-alternativas {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-
-.btn-alt {
-  width: 100%;
-  text-align: left;
-  padding: 11px 14px;
-  background: var(--bg);
-  border: 1px solid var(--borda-hi);
-  border-radius: 3px;
-  color: var(--txt);
-  font-family: var(--mono);
-  font-size: 13px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-}
-.btn-alt:hover {
-  border-color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 10%, var(--bg));
-}
-
-.modal-feedback {
-  margin: 14px 0 0;
+.ag30-sub {
+  margin: 0 0 22px;
   font-size: 12px;
-  font-weight: 700;
-  min-height: 18px;
-  color: var(--crit);
-}
-
-/* ================= ENQUETE INTERMEDIÁRIA ================= */
-.enquete1-acoes {
-  margin-top: 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.enquete1-acoes[hidden] { display: none; }
-
-/* ================= JOGO 2: ONDAS ================= */
-#canvas-onda {
-  width: 100%;
-  height: auto;
-  background: #020305;
-  border: 1px solid var(--borda-hi);
-  border-radius: 4px;
-  display: block;
-}
-
-.controles-onda {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 16px;
-}
-@media (max-width: 600px) { .controles-onda { grid-template-columns: 1fr; } }
-
-.controle-slider {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 11px;
   color: var(--txt-dim);
-}
-.controle-slider input[type="range"] {
-  width: 100%;
-  accent-color: var(--ok);
-  cursor: pointer;
 }
 
 /* ================= JOGO 3: MEMÓRIA REVERSA ================= */
@@ -535,9 +541,9 @@ main[hidden] { display: none; }
 /* ================= JOGO 4: 10 CÁLCULOS MATEMÁTICOS ================= */
 .math-visor {
   text-align: center;
-  font-size: clamp(28px, 5vw, 44px);
+  font-size: clamp(24px, 4.5vw, 38px);
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   padding: 26px 16px;
   background: var(--bg);
   border: 1px solid var(--borda-hi);
