@@ -1,448 +1,258 @@
 <!DOCTYPE html>
+<!--
+  =====================================================================
+  PAINEL DE ANOMALIAS GLOBAIS — PARTE 1 DE 3: index.html
+  Estrutura da página. Estilos em style.css, lógica em app.js.
+  Mantenha os três arquivos na mesma pasta e abra este no navegador.
+  Funciona 100% offline (apenas a fonte vem do Google Fonts; sem ela,
+  o navegador usa uma fonte monoespaçada do sistema).
+  =====================================================================
+-->
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Missão Natal: contagem para emagrecer — MyFairDay</title>
-<meta name="description" content="Cumpra missões diárias, ganhe pontos, suba de nível e acenda a árvore de Natal até o dia 25. Inclui o jogo Pegue os Presentes.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-  :root{--navy:#0B2545;--navy-deep:#071A30;--blue:#2F6FED;--gold:#C9962C;--gold-soft:#FDF6E8;--green:#1B7F4B;--paper:#F5F8FC;--ink:#10233F;--muted:#5B6C82;--line:#E1E8F2;--shadow:0 1px 2px rgba(11,37,69,.06),0 10px 28px rgba(11,37,69,.08);}
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Roboto',Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
-  p{margin:0 0 1em;color:var(--muted);}
-  :focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
-  .topbar{background:var(--navy);padding:16px 0;}
-  .topbar .wrap{display:flex;align-items:center;gap:10px;}
-  .logo-mark{width:34px;height:34px;border-radius:8px;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.78rem;}
-  .logo-text{color:#fff;font-weight:700;font-size:1.05rem;}
-  .logo-text span{color:#9FB6DE;font-weight:400;}
-  .hero{background:linear-gradient(180deg,var(--navy),var(--navy-deep));color:#fff;text-align:center;padding:52px 0 56px;}
-  .eyebrow{display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#BFD2F0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 16px;margin-bottom:18px;}
-  .hero h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:900;margin:0 0 6px;line-height:1.15;}
-  .hero h1 em{font-style:normal;color:#F1C866;}
-  .hero .sub{color:#C7D6EC;font-size:1.05rem;margin:0 0 30px;}
-  .clock{display:flex;justify-content:center;gap:clamp(8px,3vw,28px);flex-wrap:wrap;}
-  .unit strong{display:block;font-size:clamp(3.2rem,15vw,9.5rem);font-weight:900;line-height:1;font-variant-numeric:tabular-nums;}
-  .unit.days strong{color:#F1C866;}
-  .unit span{display:block;margin-top:6px;font-size:clamp(.7rem,1.8vw,.95rem);color:#9FB6DE;text-transform:uppercase;letter-spacing:.12em;}
-  .sep{font-size:clamp(3rem,13vw,8rem);font-weight:900;line-height:1;color:rgba(255,255,255,.25);}
-  @media(max-width:520px){.sep{display:none;}}
-  .xmas{display:none;font-size:clamp(2rem,8vw,4.5rem);font-weight:900;color:#F1C866;}
-  .autor{margin-top:24px;font-size:.92rem;color:#C7D6EC;}
-  .autor a{color:#F1C866;font-weight:700;text-decoration:none;border:1px solid rgba(241,200,102,.45);border-radius:999px;padding:6px 14px;margin-left:6px;}
-  .section{padding:36px 0 8px;}
-  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:26px;box-shadow:var(--shadow);max-width:760px;margin:0 auto 22px;}
-  .card h2{color:var(--navy);font-size:1.25rem;margin:0 0 6px;line-height:1.25;}
-  .top{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:760px;margin:0 auto 22px;}
-  .top .card{margin:0;}
-  @media(max-width:640px){.top{grid-template-columns:1fr;}}
-  .lvl{display:flex;align-items:center;gap:12px;margin:10px 0 14px;}
-  .lvl .ic{font-size:2.2rem;}
-  .lvl b{display:block;font-size:1.15rem;color:var(--navy);}
-  .lvl span{font-size:.85rem;color:var(--muted);}
-  .track{height:14px;background:var(--line);border-radius:999px;overflow:hidden;}
-  .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#F1C866,var(--gold));transition:width .6s ease;}
-  .mini{display:flex;gap:10px;margin-top:16px;}
-  .mini div{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;}
-  .mini strong{display:block;font-size:1.4rem;color:var(--navy);font-weight:900;}
-  .mini span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
-  .tree{width:100%;max-width:230px;margin:0 auto;display:block;}
-  .orn{fill:#D5DEEB;transition:fill .4s;transform-box:fill-box;transform-origin:center;}
-  .orn.on{animation:glow 2.4s ease-in-out infinite;}
-  .orn.new{animation:pop .5s ease, glow 2.4s ease-in-out .5s infinite;}
-  @keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.5)}100%{transform:scale(1)}}
-  @keyframes glow{0%,100%{opacity:1}50%{opacity:.65}}
-  .star{fill:#D5DEEB;transition:fill .4s;}
-  .star.on{fill:#F1C866;}
-  .cap{text-align:center;font-size:.85rem;color:var(--muted);margin:6px 0 0;}
-  .missions{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px;}
-  .mis{display:flex;align-items:center;gap:12px;text-align:left;font:inherit;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;color:var(--ink);transition:transform .12s,border-color .2s,background .2s;}
-  .mis:hover{border-color:#BFD0EA;}
-  .mis:active{transform:scale(.96);}
-  .mis .e{font-size:1.7rem;}
-  .mis .t{flex:1;font-weight:700;font-size:.92rem;line-height:1.3;}
-  .mis .k{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;}
-  .mis.done{background:var(--gold-soft);border-color:var(--gold);}
-  .mis.done .k{background:var(--green);border-color:var(--green);}
-  .mis.flash{border-style:dashed;}
-  .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
-  .bd{font-size:.82rem;font-weight:700;border-radius:999px;padding:6px 12px;background:var(--paper);border:1px solid var(--line);color:#9AA8BC;}
-  .bd.on{background:var(--gold-soft);border-color:#EBD7A4;color:#8F6A16;}
-  label{display:block;font-size:.8rem;font-weight:700;color:var(--navy);margin:0 0 5px;}
-  input{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
-  .row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-top:12px;}
-  @media(max-width:600px){.row{grid-template-columns:1fr;}}
-  .btn{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;font:inherit;font-weight:700;font-size:.94rem;padding:11px 18px;border:none;border-radius:8px;cursor:pointer;text-decoration:none;}
-  .btn:hover{background:var(--navy);}
-  .btn.gold{background:linear-gradient(180deg,#F1C866,var(--gold));color:var(--navy-deep);}
-  .msg{min-height:1.2em;font-size:.85rem;margin:8px 0 0;color:#B3261E;}
-  .pace{margin:12px 0 0;font-size:.92rem;color:var(--ink);}
-  .alert{display:none;margin-top:10px;background:var(--gold-soft);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 14px;font-size:.86rem;color:#6B500F;}
-  .small{font-size:.8rem;color:var(--muted);margin:12px 0 0;}
-  /* jogo Pegue os Presentes */
-  .hud{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-weight:700;color:var(--navy);margin:12px 0 8px;font-size:1rem;}
-  .stage{position:relative;max-width:400px;margin:0 auto;}
-  #gcv{display:block;width:100%;border-radius:12px;background:#0B2545;touch-action:none;}
-  .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(7,26,48,.78);border-radius:12px;color:#fff;text-align:center;padding:20px;}
-  .ov b{font-size:1.4rem;}
-  .ov span{color:#C7D6EC;font-size:.92rem;}
-  #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);background:var(--navy);color:#fff;font-weight:700;border-radius:12px;padding:12px 20px;box-shadow:0 12px 32px rgba(7,26,48,.35);z-index:50;transition:transform .3s cubic-bezier(.2,.9,.3,1.2);}
-  #toast.show{transform:translate(-50%,0);}
-  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40;}
-  footer{background:var(--navy-deep);color:#9FB6DE;text-align:center;padding:28px 0;font-size:.85rem;margin-top:40px;}
-  footer a{color:#F1C866;text-decoration:none;font-weight:700;}
-  [hidden]{display:none!important;}
-  @media(prefers-reduced-motion:reduce){.orn.on,.orn.new{animation:none;}#toast,.track i{transition:none;}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Anomalias Globais</title>
+  <meta name="description" content="Painel de monitoramento em tempo real de 9 sensores de dados abertos (dados simulados).">
+
+  <!-- Fonte monoespaçada (única dependência externa) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="topbar"><div class="wrap"><span class="logo-mark">MFD</span><span class="logo-text">MyFairDay<span> · myfairday.org</span></span></div></header>
 
-<section class="hero">
-  <div class="wrap">
-    <span class="eyebrow">Missão Natal</span>
-    <h1>Acenda a sua <em>árvore</em> até o dia 25</h1>
-    <p class="sub">Cumpra as missões de cada dia, ganhe pontos e suba de nível.</p>
-    <div class="clock" id="clock" role="timer" aria-label="Tempo restante até o Natal">
-      <div class="unit days"><strong id="d">--</strong><span>dias</span></div><div class="sep">:</div>
-      <div class="unit"><strong id="h">--</strong><span>horas</span></div><div class="sep">:</div>
-      <div class="unit"><strong id="m">--</strong><span>minutos</span></div><div class="sep">:</div>
-      <div class="unit"><strong id="s">--</strong><span>segundos</span></div>
+  <!-- ================= CABEÇALHO ================= -->
+  <header class="topo">
+    <div class="topo-barra">
+      <span class="ao-vivo"><i class="led"></i>ao vivo</span>
+      <span class="relogio" id="relogio">—</span>
+      <span class="topo-direita">
+        <!-- Aviso permanente: os dados desta versão são simulados -->
+        <span class="badge-sim" title="Nenhuma API real está integrada nesta versão">dados simulados</span>
+        <!-- Acelera os intervalos (60x) para ver os sensores atualizando sem esperar -->
+        <button id="btn-velocidade" type="button" aria-pressed="false" title="Alterna entre o intervalo real e uma simulação 60x mais rápida">velocidade: 1x</button>
+      </span>
     </div>
-    <div class="xmas" id="xmas">🎄 Feliz Natal! 🎄</div>
-    <div class="autor">Desafio do canal<a href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">▶ @thiagofaith no YouTube</a></div>
-  </div>
-</section>
 
-<section class="section"><div class="wrap">
+    <h1>PAINEL DE ANOMALIAS GLOBAIS</h1>
 
-  <div class="top">
-    <div class="card">
-      <h2>Seu nível</h2>
-      <div class="lvl"><span class="ic" id="l-ic">🌱</span><div><b id="l-nome">Iniciante</b><span id="l-xp">0 pontos</span></div></div>
-      <div class="track"><i id="l-bar"></i></div>
-      <p class="small" id="l-prox"></p>
-      <div class="mini">
-        <div><strong id="st-seq">0</strong><span>🔥 Dias seguidos</span></div>
-        <div><strong id="st-perf">0</strong><span>⭐ Dias perfeitos</span></div>
+    <!-- Sismógrafo: o traço se agita sempre que o Termômetro do Caos registra novos eventos -->
+    <div class="sismografo" id="sismografo" aria-hidden="true">
+      <svg id="sismo" viewBox="0 0 1000 100" preserveAspectRatio="none">
+        <line class="base" x1="0" y1="50" x2="1000" y2="50"></line>
+        <polyline points=""></polyline>
+      </svg>
+    </div>
+
+    <p class="lema">O mundo está sempre acontecendo. Você só não estava olhando.</p>
+  </header>
+
+  <main>
+
+    <noscript>
+      <p class="aviso-noscript">Este painel precisa de JavaScript para funcionar.</p>
+    </noscript>
+
+    <!-- ================= VISTA HOME: GRID DE 9 SENSORES ================= -->
+    <section id="vista-home" aria-label="Sensores">
+      <div class="grid" id="grid">
+
+        <!-- 01 · AVIÕES NO AR (mapa de pontos piscando) -->
+        <article class="card" data-sensor="aviacao" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">01</span>
+            <h2>AVIÕES NO AR</h2>
+            <span class="card-freq" title="Frequência de atualização">30s</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <div class="viz mapa mapa-aviacao" data-campo="viz" aria-hidden="true"></div>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/aviacao">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 02 · MICROTREMORES (barras em SVG) -->
+        <article class="card" data-sensor="microtremores" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">02</span>
+            <h2>MICROTREMORES</h2>
+            <span class="card-freq" title="Frequência de atualização">5min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <svg class="viz viz-barras" data-campo="viz" viewBox="0 0 240 100" preserveAspectRatio="none" aria-hidden="true">
+            <line class="eixo" x1="0" y1="96" x2="240" y2="96"></line>
+          </svg>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/microtremores">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 03 · FOCOS DE INCÊNDIO (mapa de pontos piscando) -->
+        <article class="card" data-sensor="incendios" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">03</span>
+            <h2>FOCOS DE INCÊNDIO</h2>
+            <span class="card-freq" title="Frequência de atualização">30min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <div class="viz mapa mapa-incendio" data-campo="viz" aria-hidden="true"></div>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/incendios">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 04 · TEMPERATURAS EXTREMAS (lista com scroll interno) -->
+        <article class="card" data-sensor="temperaturas" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">04</span>
+            <h2>TEMPERATURAS EXTREMAS</h2>
+            <span class="card-freq" title="Frequência de atualização">1h</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/temperaturas">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 05 · ANOMALIAS CLIMÁTICAS (lista com barras divergentes) -->
+        <article class="card" data-sensor="anomalias" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">05</span>
+            <h2>ANOMALIAS CLIMÁTICAS</h2>
+            <span class="card-freq" title="Frequência de atualização">1h</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/anomalias">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 06 · QUALIDADE DO AR (lista com indicador de cor) -->
+        <article class="card" data-sensor="ar" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">06</span>
+            <h2>QUALIDADE DO AR</h2>
+            <span class="card-freq" title="Frequência de atualização">1h</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/ar">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 07 · MANCHETES EM TEMPO REAL (lista com scroll interno) -->
+        <article class="card" data-sensor="manchetes" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">07</span>
+            <h2>MANCHETES EM TEMPO REAL</h2>
+            <span class="card-freq" title="Frequência de atualização">10min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <ul class="viz viz-lista viz-manchetes" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/manchetes">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 08 · MERCADOS DE PREVISÃO (ranking das maiores variações) -->
+        <article class="card" data-sensor="mercados" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">08</span>
+            <h2>MERCADOS DE PREVISÃO</h2>
+            <span class="card-freq" title="Frequência de atualização">30min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/mercados">ver detalhes</a>
+          </footer>
+        </article>
+
+        <!-- 09 · PALAVRAS-CHAVE NOTÓRIAS (frequência 24h e variação) -->
+        <article class="card" data-sensor="palavras" data-nivel="ok">
+          <header class="card-topo">
+            <span class="card-id">09</span>
+            <h2>PALAVRAS-CHAVE NOTÓRIAS</h2>
+            <span class="card-freq" title="Frequência de atualização">15min</span>
+          </header>
+          <div class="valor" data-campo="valor">—</div>
+          <p class="contexto" data-campo="contexto">—</p>
+          <ul class="viz viz-lista" data-campo="viz"></ul>
+          <footer class="card-pe">
+            <span class="tempo" data-campo="tempo">atualizado —</span>
+            <a class="ver" href="#/sensor/palavras">ver detalhes</a>
+          </footer>
+        </article>
+
       </div>
+    </section>
+
+    <!-- ================= VISTA DETALHE (aberta por âncora #/sensor/<id>) ================= -->
+    <section id="vista-detalhe" hidden aria-label="Detalhes do sensor">
+      <a class="voltar" href="#/">← VOLTAR AO PAINEL</a>
+
+      <article class="detalhe" id="detalhe" data-nivel="ok">
+        <header class="detalhe-topo">
+          <span class="card-id" id="det-num">00</span>
+          <h2 id="det-titulo">SENSOR</h2>
+        </header>
+
+        <dl class="meta">
+          <div><dt>FONTE</dt><dd id="det-fonte">—</dd></div>
+          <div><dt>FREQUÊNCIA</dt><dd id="det-freq">—</dd></div>
+          <div><dt>ÚLTIMA LEITURA</dt><dd id="det-ultima">—</dd></div>
+          <div class="meta-larga"><dt>ENDPOINT REAL</dt><dd id="det-endpoint">—</dd></div>
+        </dl>
+
+        <div class="det-valor" id="det-valor">—</div>
+        <p class="contexto" id="det-contexto">—</p>
+
+        <h3>HISTÓRICO DO DADO PRINCIPAL</h3>
+        <svg class="det-grafico" id="det-grafico" viewBox="0 0 600 160" aria-hidden="true"></svg>
+
+        <h3>REGISTRO DE EVENTOS</h3>
+        <ul class="viz-lista det-log" id="det-log"></ul>
+
+        <h3>COMO INTEGRAR DADOS REAIS</h3>
+        <p class="det-integracao" id="det-integracao">—</p>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- ================= RODAPÉ: TERMÔMETRO DO CAOS ================= -->
+  <footer class="rodape">
+    <div class="caos">
+      <span class="caos-rotulo">Termômetro do Caos</span>
+      <span class="caos-valor" id="caos-valor">0</span>
+      <span class="caos-delta" id="caos-delta" aria-hidden="true"></span>
+      <span class="caos-legenda">eventos anômalos detectados · só cresce</span>
     </div>
-    <div class="card">
-      <h2>Sua árvore</h2>
-      <svg class="tree" viewBox="0 0 200 225" aria-label="Árvore de Natal que acende conforme você cumpre missões" id="tree"></svg>
-      <p class="cap" id="tree-cap"></p>
-    </div>
-  </div>
+    <div class="ultima" id="ultima">Última atualização geral: —</div>
+  </footer>
 
-  <div class="card">
-    <h2>Missões de hoje</h2>
-    <p style="margin:0">Toque para marcar. Cada missão vale 10 pontos, e completar todas rende bônus. Com 3 ou mais missões no dia, você acende um enfeite na árvore 🎄.</p>
-    <div class="missions" id="missions"></div>
-    <div class="badges" id="badges"></div>
-  </div>
-
-  <div class="card">
-    <h2>🎮 Pegue os Presentes</h2>
-    <p style="margin:0">Arraste o dedo (ou use as setas) para o Papai Noel pegar 🎁. Estrela ⭐ vale 3. Cuidado com o carvão ⚫: 3 e acabou!</p>
-    <div class="hud"><span id="h-vidas">❤️❤️❤️</span><span>Presentes: <b id="h-pts">0</b></span><span>Recorde: <b id="h-rec">0</b></span></div>
-    <div class="stage">
-      <canvas id="gcv" width="360" height="520" aria-label="Jogo Pegue os Presentes"></canvas>
-      <div class="ov" id="g-ov"><b>🎅 Pegue os Presentes</b><span id="g-ov-t">Quanto mais pega, mais rápido fica.</span><button class="btn gold" id="g-jogar">Jogar</button></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>🎥 Desafio: conte a sua jornada</h2>
-    <p>Esse painel é só seu, mas a motivação cresce quando a gente divide. Passe nos vídeos do <strong>@thiagofaith</strong> e conte nos comentários qual é a sua meta e como você está indo até o Natal.</p>
-    <a class="btn" href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">▶ Ir aos vídeos do @thiagofaith</a>
-  </div>
-
-  <div class="card">
-    <h2>Meu peso (opcional)</h2>
-    <div class="row">
-      <div><label for="ini">Peso inicial (kg)</label><input id="ini" inputmode="decimal" placeholder="120" autocomplete="off"></div>
-      <div><label for="meta">Meta (kg)</label><input id="meta" inputmode="decimal" placeholder="110" autocomplete="off"></div>
-      <div><label for="kg">Peso de hoje (kg)</label><input id="kg" inputmode="decimal" placeholder="118,5" autocomplete="off"></div>
-      <button class="btn" id="salvar">Salvar</button>
-    </div>
-    <p class="msg" id="msg" role="status" aria-live="polite"></p>
-    <div id="peso-box" hidden>
-      <div class="track"><i id="p-bar"></i></div>
-      <p class="pace" id="pace"></p>
-      <div class="alert" id="alert"></div>
-    </div>
-    <p class="small">Tudo fica salvo só neste navegador. Ninguém mais vê o seu progresso.</p>
-  </div>
-
-</div></section>
-
-<footer><div class="wrap">© 2026 MyFairDay — Criado por <a href="https://www.youtube.com/@thiagofaith" target="_blank" rel="noopener">Thiago Faith</a><div style="margin-top:8px">👁 <strong id="visit-count">—</strong> visitantes únicos</div></div></footer>
-<div id="toast" role="status" aria-live="polite"></div>
-<canvas id="fx"></canvas>
-
-<script>
-const $ = (id) => document.getElementById(id);
-const pad = (n) => String(n).padStart(2, "0");
-const NATAL = new Date(2026, 11, 25, 0, 0, 0);
-
-/* ---------- cronômetro ---------- */
-function tick() {
-  const diff = NATAL - new Date();
-  if (diff <= 0) { $("clock").style.display = "none"; $("xmas").style.display = "block"; return; }
-  const s = Math.floor(diff / 1000);
-  $("d").textContent = Math.floor(s / 86400);
-  $("h").textContent = pad(Math.floor(s % 86400 / 3600));
-  $("m").textContent = pad(Math.floor(s % 3600 / 60));
-  $("s").textContent = pad(s % 60);
-}
-tick(); setInterval(tick, 1000);
-
-/* ---------- dados (só neste navegador) ---------- */
-const KEY = "mfd_missao_natal";
-let D = { dias: {}, peso: { ini: null, meta: null, kg: null } };
-try { const x = JSON.parse(localStorage.getItem(KEY) || "null"); if (x && x.dias) D = x; } catch (e) {}
-const salvar = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} };
-const chave = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
-const diaAtual = () => chave(new Date());
-let diaRender = diaAtual();
-
-const MISSOES = [
-  { id: "agua", e: "💧", t: "Bebeu 2 litros de água hoje?" },
-  { id: "andar", e: "🚶", t: "Caminhar ou se mexer por 20 minutos" },
-  { id: "leve", e: "🥗", t: "Comi mais de 3 tipos de verduras" },
-  { id: "doce", e: "🙅", t: "Passar o dia sem refrigerante e doce" },
-  { id: "sono", e: "😴", t: "Dormiu antes das 23h00?" }
-];
-const RELAMPAGO = [
-  "Suba escadas em vez do elevador", "Faça 10 minutos de alongamento", "Troque um doce por uma fruta",
-  "Dê uma volta ao ar livre", "Prepare a refeição de amanhã", "Mande uma mensagem de incentivo a alguém",
-  "Beba um copo de água antes de cada refeição"
-];
-const relampago = () => { const d = new Date(); const n = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); return { id: "flash", e: "⚡", t: "Relâmpago: " + RELAMPAGO[n % RELAMPAGO.length], flash: true }; };
-const NIVEIS = [
-  { n: "Iniciante", i: "🌱", min: 0 }, { n: "Persistente", i: "💪", min: 100 },
-  { n: "Determinado", i: "🔥", min: 250 }, { n: "Imparável", i: "🚀", min: 450 },
-  { n: "Campeão do Natal", i: "🏆", min: 700 }
-];
-
-function pontosDia(ids) {
-  const base = MISSOES.filter(m => ids.includes(m.id)).length;
-  const perfeito = base === MISSOES.length;
-  return base * 10 + (perfeito ? 20 : 0) + (ids.includes("flash") ? 15 : 0);
-}
-function stats() {
-  let xp = 0, perf = 0, total = 0, ativos = 0;
-  for (const k in D.dias) {
-    const ids = D.dias[k];
-    xp += pontosDia(ids);
-    total += ids.length;
-    if (ids.length >= 3) ativos++;
-    if (MISSOES.every(m => ids.includes(m.id))) perf++;
-  }
-  /* sequência: dias seguidos com pelo menos 1 missão */
-  let seq = 0; const d = new Date();
-  if (!(D.dias[chave(d)] || []).length) d.setDate(d.getDate() - 1);
-  while ((D.dias[chave(d)] || []).length) { seq++; d.setDate(d.getDate() - 1); }
-  return { xp, perf, total, ativos, seq };
-}
-const nivelDe = (xp) => { let i = 0; NIVEIS.forEach((n, k) => { if (xp >= n.min) i = k; }); return i; };
-
-/* ---------- efeitos ---------- */
-let toastT;
-function toast(t) { const e = $("toast"); e.textContent = t; e.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove("show"), 2200); }
-function confete() {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const c = $("fx"), x = c.getContext("2d");
-  c.width = innerWidth; c.height = innerHeight;
-  const cores = ["#F1C866", "#2F6FED", "#1B7F4B", "#E4572E", "#fff"];
-  const ps = Array.from({ length: 110 }, () => ({ x: c.width / 2, y: c.height * .45, vx: (Math.random() - .5) * 14, vy: Math.random() * -13 - 3, r: Math.random() * 6 + 3, c: cores[Math.floor(Math.random() * cores.length)] }));
-  let f = 0;
-  (function go() {
-    x.clearRect(0, 0, c.width, c.height);
-    ps.forEach(p => { p.vy += .35; p.x += p.vx; p.y += p.vy; x.fillStyle = p.c; x.fillRect(p.x, p.y, p.r, p.r * 1.6); });
-    if (++f < 110) requestAnimationFrame(go); else x.clearRect(0, 0, c.width, c.height);
-  })();
-}
-
-/* ---------- árvore ---------- */
-const LINHAS = [{ y: 72, n: 3, w: 30 }, { y: 102, n: 5, w: 55 }, { y: 132, n: 7, w: 80 }, { y: 162, n: 9, w: 105 }, { y: 192, n: 11, w: 130 }];
-const SLOTS = [];
-LINHAS.forEach(l => { for (let i = 0; i < l.n; i++) SLOTS.push({ x: 100 - l.w + 2 * l.w * i / (l.n - 1), y: l.y }); });
-const COR = ["#E4572E", "#2F6FED", "#F1C866", "#E84393", "#1FB57A"];
-let prevAtivos = null;
-function arvore(total, perf) {
-  let h = '<polygon points="100,22 160,95 40,95" fill="#1B7F4B"/><polygon points="100,52 178,135 22,135" fill="#176B40"/><polygon points="100,85 194,185 6,185" fill="#125733"/><rect x="90" y="198" width="20" height="22" fill="#7A4B26" rx="2"/>';
-  h += '<polygon class="star' + (perf > 0 ? ' on' : '') + '" points="100,6 104,17 116,17 106,24 110,35 100,28 90,35 94,24 84,17 96,17"/>';
-  SLOTS.forEach((s, i) => { const on = i < total; h += '<circle class="orn' + (on ? ' on' : '') + (on && i === total - 1 && prevAtivos !== null && total > prevAtivos ? ' new' : '') + '" cx="' + s.x + '" cy="' + s.y + '" r="7"' + (on ? ' style="fill:' + COR[i % COR.length] + '"' : '') + '/>'; });
-  prevAtivos = total;
-  $("tree").innerHTML = h;
-  $("tree-cap").textContent = Math.min(total, SLOTS.length) + " de " + SLOTS.length + " dias com enfeite aceso" + (perf > 0 ? " · estrela acesa ⭐" : "");
-}
-
-/* ---------- tela ---------- */
-function render() {
-  diaRender = diaAtual();
-  const hoje = D.dias[diaAtual()] || [];
-  $("missions").innerHTML = [...MISSOES, relampago()].map(m =>
-    '<button class="mis' + (m.flash ? ' flash' : '') + (hoje.includes(m.id) ? ' done' : '') + '" data-id="' + m.id + '" aria-pressed="' + hoje.includes(m.id) + '">' +
-    '<span class="e">' + m.e + '</span><span class="t">' + m.t + '</span><span class="k">' + (hoje.includes(m.id) ? '✓' : '') + '</span></button>').join("");
-
-  const st = stats(), ni = nivelDe(st.xp), nv = NIVEIS[ni], prox = NIVEIS[ni + 1];
-  $("l-ic").textContent = nv.i; $("l-nome").textContent = nv.n; $("l-xp").textContent = st.xp + " pontos";
-  $("l-bar").style.width = (prox ? (st.xp - nv.min) / (prox.min - nv.min) * 100 : 100) + "%";
-  $("l-prox").textContent = prox ? "Faltam " + (prox.min - st.xp) + " pontos para " + prox.n + " " + prox.i : "Você chegou ao nível máximo! 🎉";
-  $("st-seq").textContent = st.seq; $("st-perf").textContent = st.perf;
-  arvore(st.ativos, st.perf);
-
-  const B = [[3, "🔥 3 dias seguidos"], [7, "🔥 7 dias seguidos"], [14, "🔥 14 dias seguidos"], [30, "🔥 30 dias seguidos"]];
-  $("badges").innerHTML = B.map(b => '<span class="bd' + (st.seq >= b[0] ? ' on' : '') + '">' + b[1] + '</span>').join("") +
-    '<span class="bd' + (st.perf >= 1 ? ' on' : '') + '">⭐ Primeiro dia perfeito</span>';
-  renderPeso();
-}
-
-$("missions").addEventListener("click", (e) => {
-  const b = e.target.closest(".mis"); if (!b) return;
-  const id = b.dataset.id, antes = stats(), ids = D.dias[diaAtual()] || [];
-  const marcou = !ids.includes(id);
-  D.dias[diaAtual()] = marcou ? [...ids, id] : ids.filter(x => x !== id);
-  if (!D.dias[diaAtual()].length) delete D.dias[diaAtual()];
-  salvar();
-  const depois = stats();
-  render();
-  if (!marcou) return;
-  const perfeito = MISSOES.every(m => (D.dias[diaAtual()] || []).includes(m.id));
-  if (nivelDe(depois.xp) > nivelDe(antes.xp)) { toast("🎉 Novo nível: " + NIVEIS[nivelDe(depois.xp)].n + "!"); confete(); }
-  else if (perfeito && depois.perf > antes.perf) { toast("⭐ Dia perfeito! +20 de bônus"); confete(); }
-  else if (depois.ativos > antes.ativos) toast("🎄 Enfeite do dia aceso!");
-  else toast("+" + (depois.xp - antes.xp) + " pontos 👏");
-});
-
-/* ---------- peso (opcional) ---------- */
-const num = (v) => parseFloat(String(v).replace(",", "."));
-const fmt = (n) => n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const ok = (v) => v >= 30 && v <= 400;
-function renderPeso() {
-  const p = D.peso;
-  const box = $("peso-box");
-  if (!(p.ini && p.meta && p.kg && p.ini > p.meta)) { box.hidden = true; return; }
-  box.hidden = false;
-  const pct = Math.min(100, Math.max(0, (p.ini - p.kg) / (p.ini - p.meta) * 100));
-  $("p-bar").style.width = pct + "%";
-  const dias = Math.ceil((NATAL - new Date()) / 86400000), falta = p.kg - p.meta, al = $("alert");
-  al.style.display = "none";
-  if (falta <= 0) { $("pace").textContent = "🎉 Meta atingida! Parabéns!"; return; }
-  if (dias <= 0) { $("pace").textContent = "O prazo acabou. Faltaram " + fmt(falta) + " kg. Defina uma nova meta e continue!"; return; }
-  const ritmo = falta / (dias / 7);
-  $("pace").innerHTML = Math.round(pct) + "% da meta · faltam <strong>" + fmt(falta) + " kg</strong> em <strong>" + dias + " dias</strong> (cerca de <strong>" + fmt(ritmo) + " kg por semana</strong>).";
-  if (ritmo > 1) { al.textContent = "Esse ritmo é mais rápido do que o comum (cerca de 0,5 a 1 kg por semana)." + (ritmo > 2 ? " Perder mais de 2 kg por semana pode fazer mal à saúde." : ""); al.style.display = "block"; }
-}
-$("salvar").addEventListener("click", () => {
-  const i = $("ini").value.trim() ? num($("ini").value) : D.peso.ini;
-  const m = $("meta").value.trim() ? num($("meta").value) : D.peso.meta;
-  const k = $("kg").value.trim() ? num($("kg").value) : D.peso.kg;
-  if ([i, m, k].some(v => v != null && !ok(v)) || (i && m && i <= m)) { $("msg").textContent = "Confira os valores: entre 30 e 400 kg, e o peso inicial deve ser maior que a meta."; return; }
-  $("msg").textContent = "";
-  D.peso = { ini: i, meta: m, kg: k }; salvar(); renderPeso(); toast("Peso salvo ✅");
-});
-
-$("ini").value = D.peso.ini ? String(D.peso.ini).replace(".", ",") : "";
-$("meta").value = D.peso.meta ? String(D.peso.meta).replace(".", ",") : "";
-$("kg").value = D.peso.kg ? String(D.peso.kg).replace(".", ",") : "";
-render();
-/* se a página ficar aberta na virada do dia, atualiza as missões */
-setInterval(() => { if (diaAtual() !== diaRender) render(); }, 30000);
-
-/* ================= JOGO: PEGUE OS PRESENTES ================= */
-(function jogo() {
-  const W = 360, H = 520, cv = $("gcv"), g = cv.getContext("2d");
-  let px = W / 2, itens = [], pts = 0, vidas = 3, rodando = false, ult = 0, spawn = 0, dir = 0, flocos = [];
-  let rec = 0; try { rec = Number(localStorage.getItem("mfd_game_rec") || 0); } catch (e) {}
-  $("h-rec").textContent = rec;
-  for (let i = 0; i < 40; i++) flocos.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 30, r: 1 + Math.random() * 2 });
-
-  function hud() { $("h-pts").textContent = pts; $("h-vidas").textContent = "❤️".repeat(Math.max(0, vidas)) || "💔"; }
-  function iniciar() {
-    itens = []; pts = 0; vidas = 3; spawn = 0; rodando = true; ult = performance.now();
-    $("g-ov").hidden = true; hud(); requestAnimationFrame(laco);
-  }
-  function parar() { rodando = false; }
-  function fim() {
-    rodando = false;
-    if (pts > rec) { rec = pts; try { localStorage.setItem("mfd_game_rec", rec); } catch (e) {} $("h-rec").textContent = rec; }
-    $("g-ov").innerHTML = "<b>Fim de jogo!</b><span>Você pegou " + pts + " presentes" + (pts && pts >= rec ? " (novo recorde! 🏆)" : "") + ".</span><button class='btn gold' id='g-jogar'>Jogar de novo</button>";
-    $("g-ov").hidden = false; $("g-jogar").onclick = iniciar;
-  }
-  function laco(t) {
-    if (!rodando) return;
-    const dt = Math.min(.05, (t - ult) / 1000); ult = t;
-    const nivel = 1 + Math.floor(pts / 10);
-    px = Math.max(24, Math.min(W - 24, px + dir * 320 * dt));
-    spawn -= dt;
-    if (spawn <= 0) {
-      spawn = Math.max(.32, .9 - nivel * .06);
-      const r = Math.random();
-      itens.push({ x: 20 + Math.random() * (W - 40), y: -20, v: 120 + nivel * 18 + Math.random() * 60, k: r < .22 ? "c" : r < .3 ? "s" : "g" });
-    }
-    itens.forEach(i => i.y += i.v * dt);
-    itens = itens.filter(i => {
-      if (i.y > H - 56 && i.y < H - 8 && Math.abs(i.x - px) < 34) {
-        if (i.k === "c") vidas--; else pts += i.k === "s" ? 3 : 1;
-        hud(); return false;
-      }
-      return i.y < H + 30;
-    });
-    flocos.forEach(f => { f.y += f.v * dt; if (f.y > H) { f.y = -4; f.x = Math.random() * W; } });
-    desenhar();
-    if (vidas <= 0) fim(); else requestAnimationFrame(laco);
-  }
-  function desenhar() {
-    const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#0B2545"); bg.addColorStop(1, "#1E3E68");
-    g.fillStyle = bg; g.fillRect(0, 0, W, H);
-    g.fillStyle = "rgba(255,255,255,.7)"; flocos.forEach(f => { g.beginPath(); g.arc(f.x, f.y, f.r, 0, 7); g.fill(); });
-    g.fillStyle = "#EAF2FF"; g.fillRect(0, H - 14, W, 14);
-    g.textAlign = "center"; g.textBaseline = "middle";
-    g.font = "28px serif";
-    itens.forEach(i => g.fillText(i.k === "c" ? "⚫" : i.k === "s" ? "⭐" : "🎁", i.x, i.y));
-    g.font = "40px serif"; g.fillText("🎅", px, H - 36);
-  }
-  function mover(e) { const r = cv.getBoundingClientRect(); px = Math.max(24, Math.min(W - 24, (e.clientX - r.left) * W / r.width)); }
-  cv.addEventListener("pointerdown", mover); cv.addEventListener("pointermove", mover);
-  addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") { dir = -1; e.preventDefault(); } if (e.key === "ArrowRight") { dir = 1; e.preventDefault(); } });
-  addEventListener("keyup", (e) => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") dir = 0; });
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && rodando) {
-      parar();
-      $("g-ov").innerHTML = "<b>Pausado</b><button class='btn gold' id='g-jogar'>Continuar</button>";
-      $("g-ov").hidden = false;
-      $("g-jogar").onclick = () => { $("g-ov").hidden = true; rodando = true; ult = performance.now(); requestAnimationFrame(laco); };
-    }
-  });
-  $("g-jogar").onclick = iniciar;
-  desenhar();
-})();
-
-  /* =====================================================================
-     CONTADOR DE VISITANTES ÚNICOS
-     Conta 1 vez por navegador: o F5 e as visitas seguintes só LEEM o total.
-     Troque a CHAVE se quiser separar a contagem desta página das outras.
-     Para ver o total sem abrir o site, acesse no navegador:
-     https://countapi.mileshilliard.com/api/v1/get/myfairday-org-emagrecer-natal
-     ===================================================================== */
-  (function visitas() {
-    const CHAVE = "myfairday-org-emagrecer-natal", FLAG = "mfd_visitou_" + CHAVE;
-    const el = document.getElementById("visit-count");
-    let jaContou = false;
-    try { jaContou = localStorage.getItem(FLAG) === "1"; } catch (e) {}
-    if (!jaContou) { try { localStorage.setItem(FLAG, "1"); } catch (e) {} }   /* marca já, para o F5 rápido não contar de novo */
-    fetch("https://countapi.mileshilliard.com/api/v1/" + (jaContou ? "get" : "hit") + "/" + CHAVE)
-      .then((r) => r.ok ? r.json() : Promise.reject())
-      .then((d) => { el.textContent = Number(d.value).toLocaleString("pt-BR"); })
-      .catch(() => { if (!jaContou) { try { localStorage.removeItem(FLAG); } catch (e) {} } });   /* falhou: tenta contar na próxima */
-  })();
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
